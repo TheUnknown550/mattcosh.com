@@ -1,33 +1,31 @@
 import type { Project } from "@/types/project";
 
 /**
- * Placeholder project data.
- * Replace with real projects as they are ready — see docs/project-data.md.
+ * Real project data, sourced from content/linkedin-exports/Profile.csv.
+ * Add more entries as case studies get written — see docs/project-data.md.
  */
 export const projects: Project[] = [
   {
-    slug: "example-project",
-    title: "Example Project",
+    slug: "cs-m-cardiac-monitor",
+    title: "CS-M — Cardiac Self-Monitoring Tool",
     shortDescription:
-      "A placeholder project used to test the portfolio structure.",
-    category: "Other",
-    status: "In Progress",
-    year: "2026",
-    techStack: ["Next.js", "TypeScript"],
-    featured: true,
-    coverImage: "/projects/example-project/cover.png",
-    modelPath: "/models/example-model.glb",
-    caseStudyPath: "content/projects/example-project.mdx",
-  },
-  {
-    slug: "second-example-project",
-    title: "Second Example Project",
-    shortDescription:
-      "A second placeholder project, used to verify list and grid rendering with multiple entries.",
+      "An AI-powered cardiac self-monitoring system that analyzes recorded heart sounds with a recurrent neural network to flag patterns linked to heart disease — combining custom recording hardware, signal processing, and a mobile app.",
     category: "AI/ML",
     status: "Completed",
-    year: "2025",
-    techStack: ["Python", "PyTorch"],
-    featured: false,
+    year: "2022–2024",
+    techStack: [
+      "Signal Processing",
+      "RNN",
+      "Raspberry Pi",
+      "Mobile App",
+      "Embedded Hardware",
+    ],
+    featured: true,
+    recognitions: [
+      "Microsoft Imagine Cup — World Runner-Up",
+      "Intel AI Global Impact Festival",
+      "Regeneron ISEF",
+    ],
+    githubUrl: "https://github.com/TheUnknown550",
   },
 ];

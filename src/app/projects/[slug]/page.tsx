@@ -24,11 +24,11 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-2xl font-semibold">{project.title}</h1>
-      <p className="text-gray-600">{project.shortDescription}</p>
-      <p className="text-sm text-gray-500">
+      <p className="text-ink-muted">{project.shortDescription}</p>
+      <p className="text-sm text-ink-muted">
         {project.category} &middot; {project.status} &middot; {project.year}
       </p>
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-ink-muted">
         Tech stack: {project.techStack.join(", ")}
       </p>
 

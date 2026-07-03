@@ -7,7 +7,7 @@ interface PlaceholderProps {
  */
 export function Placeholder({ label }: PlaceholderProps) {
   return (
-    <div className="border border-dashed border-gray-400 p-6 text-sm text-gray-500">
+    <div className="border border-dashed border-line p-6 text-sm text-ink-muted">
       {label}
     </div>
   );

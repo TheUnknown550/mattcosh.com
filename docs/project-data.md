@@ -15,6 +15,7 @@ export interface Project {
   year: string;             // e.g. "2026"
   techStack: string[];      // e.g. ["Next.js", "TypeScript"]
   featured: boolean;        // Show on homepage/featured sections
+  recognitions?: string[];  // Awards/press, e.g. ["Microsoft Imagine Cup — World Runner-Up"]
   coverImage?: string;      // Path under /public, e.g. "/projects/<slug>/cover.png"
   modelPath?: string;       // Path under /public, e.g. "/models/<name>.glb"
   githubUrl?: string;

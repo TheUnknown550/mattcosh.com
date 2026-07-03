@@ -1,18 +1,26 @@
-import Link from "next/link";
-import { Placeholder } from "@/components/common/Placeholder";
+import { Hero } from "@/components/home/Hero";
+import { About } from "@/components/home/About";
+import { Testimonial } from "@/components/home/Testimonial";
+import { FeaturedWork } from "@/components/home/FeaturedWork";
+import { PulseDivider } from "@/components/common/PulseDivider";
+import { Reveal } from "@/components/common/Reveal";
 
 export default function Home() {
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-3xl font-semibold">Portfolio (placeholder)</h1>
-      <p className="max-w-prose text-gray-600">
-        This is a placeholder homepage. Final design, copy, and the 3D hero
-        scene will be added in a later pass.
-      </p>
-      <Link href="/projects" className="underline">
-        View projects
-      </Link>
-      <Placeholder label="Future 3D hero scene will render here (see src/components/three)." />
-    </div>
+    <>
+      <Hero />
+      <PulseDivider />
+      <Reveal>
+        <About />
+      </Reveal>
+      <PulseDivider />
+      <Reveal>
+        <Testimonial />
+      </Reveal>
+      <PulseDivider />
+      <Reveal>
+        <FeaturedWork />
+      </Reveal>
+    </>
   );
 }

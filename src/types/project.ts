@@ -18,6 +18,7 @@ export interface Project {
   year: string;
   techStack: string[];
   featured: boolean;
+  recognitions?: string[];
   coverImage?: string;
   modelPath?: string;
   githubUrl?: string;
