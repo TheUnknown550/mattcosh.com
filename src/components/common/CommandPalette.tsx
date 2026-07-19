@@ -15,6 +15,13 @@ const ITEMS: CommandItem[] = [
   { id: "home", label: "Home", hint: "/", action: (nav) => nav("/") },
   { id: "projects", label: "Projects", hint: "/projects", action: (nav) => nav("/projects") },
   { id: "experience", label: "Experience", hint: "/experience", action: (nav) => nav("/experience") },
+  { id: "skills", label: "Skills", hint: "/skills", action: (nav) => nav("/skills") },
+  {
+    id: "certifications",
+    label: "Certifications",
+    hint: "/certifications",
+    action: (nav) => nav("/certifications"),
+  },
   { id: "roadmap", label: "Roadmap", hint: "/roadmap", action: (nav) => nav("/roadmap") },
   {
     id: "github",

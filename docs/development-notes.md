@@ -1,8 +1,8 @@
 # Development Notes
 
-## Current stage: four real pages, data-driven from LinkedIn exports
+## Current stage: six real pages, data-driven from LinkedIn exports
 
-The site now has a real visual design and real content across all four
+The site now has a real visual design and real content across all six
 pages, sourced from `content/linkedin-exports/`:
 
 - **Landing (`src/app/page.tsx`)** — Hero (with a portrait treatment —
@@ -18,9 +18,15 @@ pages, sourced from `content/linkedin-exports/`:
   with a full MDX case study (`content/projects/*.mdx`) now actually
   rendered via a dynamic `@content/*` import (see `src/lib/mdx.ts` and
   `src/mdx-components.tsx` for the styled component overrides).
-- **Experience (`src/app/experience/page.tsx`)** — work history, education,
-  a grouped skills cloud, and certifications, all sourced from
-  `src/data/experience.ts`, `education.ts`, `skills.ts`, `certifications.ts`.
+- **Experience (`src/app/experience/page.tsx`)** — work history and
+  education in full, plus condensed Skills/Certifications teasers that link
+  out to their own pages (kept condensed deliberately — see
+  `docs/content-management.md` on not duplicating full content across pages).
+- **Skills (`src/app/skills/page.tsx`)** — all ~65 skills grouped by
+  category, with a client-side search (`SkillsExplorer.tsx`) since the full
+  list is too long to browse comfortably unfiltered.
+- **Certifications (`src/app/certifications/page.tsx`)** — all 9
+  certifications with issuer/date, reusing `CertificationList.tsx`.
 - **Roadmap (`src/app/roadmap/page.tsx`)** — every milestone (education,
   work, projects, awards, certifications) merged chronologically in
   `src/data/timeline.ts` and rendered by `PulseTimeline`
@@ -40,6 +46,11 @@ pages, sourced from `content/linkedin-exports/`:
   glow), and `CommandPalette` (⌘K / Ctrl+K quick nav, opened via keyboard or
   the header's `CommandPaletteTrigger` button). All motion respects
   `prefers-reduced-motion`.
+- Skills and Certifications are deliberately *not* in the header nav
+  (`SiteShell.tsx`) — the header has no mobile-collapse mechanism yet, and
+  6 top-level links would overflow on narrow viewports. They're reachable
+  via the Experience page's teasers, cross-links between the two pages, and
+  the command palette. Revisit this once the header gets a mobile nav.
 
 Not yet implemented:
 

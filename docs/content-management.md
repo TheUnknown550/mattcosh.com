@@ -38,5 +38,10 @@ written as plain prose.
 - `src/data/timeline.ts` is derived (it maps and merges the other data
   files) — add new milestones to the underlying data file, not to
   `timeline.ts` directly.
+- Skills (`/skills`) and Certifications (`/certifications`) each have their
+  own page since the full lists are too long to sit comfortably inside
+  Experience. The Experience page shows condensed teasers only (category
+  chips / 3 most recent certs) — don't paste the full lists back into
+  Experience; keep them on their dedicated pages and link out instead.
 - See `docs/project-data.md` for the metadata schema and
   `docs/3d-assets.md` for model conventions.
