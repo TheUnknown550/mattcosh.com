@@ -1,0 +1,45 @@
+## Overview
+
+Built during my internship at Chiang Mai University's Teaching and Learning
+Innovation Center, this is a profile-management system for OBS Studio that
+lets a shared media room support multiple users — each with their own
+isolated settings — without anyone stepping on anyone else's configuration.
+
+## The Problem
+
+The university's media room ran OBS Studio for streaming and recording, but
+it was set up for a single user. Every new person who wanted to use it had
+to manually reconfigure scenes, sources, and settings from scratch, and it
+was easy to accidentally overwrite someone else's setup. That friction
+added up fast across a room shared by different students and organizations.
+
+## What I Built
+
+I built a system that gives each user their own OBS profile, settings, and
+configuration, and lets them switch between accounts without manual
+reconfiguration. Alongside it, I reconfigured and relinked the room's IoT
+and wireless devices so equipment could be controlled from one centralized
+management setup, rather than each device being handled independently.
+
+## Key Features
+
+- Per-user OBS profiles with isolated scenes, sources, and settings.
+- Fast, safe switching between users in a shared production environment.
+- Centralized control over the room's IoT and wireless equipment.
+- Real deployment in an active university media facility, not just a prototype.
+
+## Challenges
+
+The constraint that shaped everything was that this had to work in a room
+already being used day-to-day — I couldn't take it offline for long
+stretches to experiment. That meant testing changes carefully and rolling
+out the session-handling logic incrementally, rather than shipping one big
+rewrite.
+
+## What I Learned
+
+This was my first time designing for a genuinely shared, multi-user
+physical space rather than a single end user. It taught me to think about
+session handling and configuration isolation as first-class problems, and
+gave me a much better feel for what "production" means when your users are
+walking into the same room as your system.

@@ -42,3 +42,19 @@ export interface Project {
 - Must be unique across all projects.
 - Must exactly match the MDX file name (`content/projects/<slug>.mdx`) and
   the URL segment (`/projects/<slug>`).
+
+## Related data: experience, education, skills, certifications, timeline
+
+The same pattern (typed data in `src/types/*`, arrays in `src/data/*`)
+covers the Experience and Roadmap pages:
+
+- `src/types/experience.ts` / `src/data/experience.ts` — work history.
+- `src/types/education.ts` / `src/data/education.ts` — schools/degrees.
+- `src/types/skill.ts` / `src/data/skills.ts` — skills grouped by category.
+- `src/types/certification.ts` / `src/data/certifications.ts` — certs.
+- `src/types/honor.ts` / `src/data/honors.ts` — awards/competition results.
+- `src/types/timeline.ts` / `src/data/timeline.ts` — merges all of the
+  above (plus `projects`) into one chronological `TimelineEntry[]` for the
+  Roadmap page. Don't hand-edit `timeline.ts`'s entries directly — add or
+  edit the source data file instead (education/experience/projects/
+  honors/certifications) and the timeline derives from it automatically.

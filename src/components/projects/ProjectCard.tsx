@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Project } from "@/types/project";
+import { TiltCard } from "@/components/common/TiltCard";
 
 interface ProjectCardProps {
   project: Project;
@@ -7,18 +8,45 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project }: ProjectCardProps) {
   return (
-    <Link
-      href={`/projects/${project.slug}`}
-      className="block border border-line p-4"
-    >
-      <h3 className="font-semibold">{project.title}</h3>
-      <p className="text-sm text-ink-muted">{project.shortDescription}</p>
-      <p className="mt-2 text-xs text-ink-muted">
-        {project.category} &middot; {project.status} &middot; {project.year}
-      </p>
-      <p className="mt-1 text-xs text-ink-muted">
-        {project.techStack.join(", ")}
-      </p>
-    </Link>
+    <TiltCard className="group h-full rounded-lg">
+      <Link
+        href={`/projects/${project.slug}`}
+        className="flex h-full flex-col rounded-lg border border-line bg-surface p-6 transition-colors duration-300 group-hover:border-signal"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <p className="font-mono text-xs uppercase tracking-wide text-signal">
+            {project.category} · {project.year}
+          </p>
+          {project.recognitions && project.recognitions.length > 0 && (
+            <span
+              aria-hidden="true"
+              title={project.recognitions[0]}
+              className="shrink-0 text-accent"
+            >
+              ★
+            </span>
+          )}
+        </div>
+
+        <h3 className="mt-4 font-display text-xl font-semibold text-ink">
+          {project.title}
+        </h3>
+        <p className="mt-3 flex-1 text-sm leading-relaxed text-ink-muted">
+          {project.shortDescription}
+        </p>
+
+        <ul className="mt-6 flex flex-wrap gap-x-2 gap-y-2 font-mono text-[11px] uppercase tracking-wide text-ink-muted">
+          {project.techStack.slice(0, 4).map((tech) => (
+            <li key={tech} className="rounded-full border border-line px-2.5 py-1">
+              {tech}
+            </li>
+          ))}
+        </ul>
+
+        <p className="mt-6 font-mono text-xs uppercase tracking-wide text-ink transition-colors group-hover:text-accent">
+          {project.status === "In Progress" ? "In progress" : "View case study"} →
+        </p>
+      </Link>
+    </TiltCard>
   );
 }

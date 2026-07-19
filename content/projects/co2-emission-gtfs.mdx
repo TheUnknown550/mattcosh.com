@@ -1,0 +1,49 @@
+## Overview
+
+A research project turned data-viz tool: simulating and visualizing how
+much CO₂ a city's public transit system emits, using real GTFS transit
+data, a physically-inspired dispersion model, and interactive Deck.GL and
+Chart.js visualizations. I presented the underlying research at the 31st
+Tri-U International Joint Seminar & Symposium at Mie University, Japan,
+where it won the Workshop Presentation Award.
+
+## The Problem
+
+Public transit emissions data usually exists as aggregate numbers — total
+CO₂ per year, per route, per agency — which makes it hard to see *where*
+and *when* emissions actually concentrate across a city. I wanted something
+closer to a weather map: emissions as a spatial, time-based phenomenon you
+could actually watch move.
+
+## What I Built
+
+I built a CO₂ emission simulation on top of GTFS transit datasets, starting
+with SFMTA's San Francisco data as a case study. Each simulated vehicle
+emits particles that disperse using a Gaussian model, get pushed around by
+wind, accumulate over time, and decay — closer to a real atmospheric
+process than a static heatmap. Deck.GL renders the spatial spread over the
+city map, while Chart.js tracks hourly accumulation trends alongside it.
+
+## Key Features
+
+- A particle-based emission model with Gaussian dispersion, wind influence, and decay.
+- Map-based spatial visualization built on Deck.GL, layered directly over real GTFS routes.
+- Hourly accumulation charts built with Chart.js, paired with the spatial view.
+- A comparison between trail-based and particle-drop visualization approaches to cut clutter in dense transit corridors.
+
+## Challenges
+
+The hardest part wasn't the visualization — it was making the underlying
+model realistic enough to be worth visualizing. Naive per-vehicle emission
+dumps looked fine on a map but didn't behave anything like real dispersion,
+so I spent most of the effort tuning the wind-influenced, time-decaying
+particle model until it produced patterns that matched intuition (and
+literature) about how emissions actually spread.
+
+## What I Learned
+
+This was my first project framed explicitly as research rather than a
+product, which meant writing it up formally and defending the modeling
+choices to an academic audience. It pushed me to be a lot more rigorous
+about *why* a visualization looks the way it does, not just whether it
+looks good.

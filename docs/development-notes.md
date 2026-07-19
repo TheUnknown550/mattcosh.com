@@ -1,42 +1,54 @@
 # Development Notes
 
-## Current stage: landing page designed, project pages still basic
+## Current stage: four real pages, data-driven from LinkedIn exports
 
-The landing page (`src/app/page.tsx`) now has a real visual design and real
-content, sourced from `content/linkedin-exports/`:
+The site now has a real visual design and real content across all four
+pages, sourced from `content/linkedin-exports/`:
 
-- Dark theme (`--color-void` background, `--color-signal` teal +
-  `--color-accent` orange dual accent), `Space Grotesk` / `IBM Plex Sans` /
-  `IBM Plex Mono` type system — see `src/app/globals.css`.
-- Hero, About, Testimonial, and a flagship-project spotlight
+- **Landing (`src/app/page.tsx`)** — Hero, About, Highlights (animated
+  stat row + roadmap teaser), Testimonial, and a flagship-project spotlight
   (`src/components/home/*`), separated by a heartbeat/EKG-trace divider
   (`src/components/common/PulseDivider.tsx`) — a nod to CS-M, the cardiac
   monitoring flagship project.
+- **Projects (`src/app/projects/page.tsx`, `[slug]/page.tsx`)** — a
+  filterable grid of all 7 real projects (`src/data/projects.ts`), each
+  with a full MDX case study (`content/projects/*.mdx`) now actually
+  rendered via a dynamic `@content/*` import (see `src/lib/mdx.ts` and
+  `src/mdx-components.tsx` for the styled component overrides).
+- **Experience (`src/app/experience/page.tsx`)** — work history, education,
+  a grouped skills cloud, and certifications, all sourced from
+  `src/data/experience.ts`, `education.ts`, `skills.ts`, `certifications.ts`.
+- **Roadmap (`src/app/roadmap/page.tsx`)** — every milestone (education,
+  work, projects, awards, certifications) merged chronologically in
+  `src/data/timeline.ts` and rendered by `PulseTimeline`
+  (`src/components/roadmap/PulseTimeline.tsx`): a vertical line that draws
+  itself as the page scrolls, with a traveling pulse dot and type-filterable
+  milestone cards.
+- Dark theme (`--color-void` background, `--color-signal` teal +
+  `--color-accent` orange dual accent), `Space Grotesk` / `IBM Plex Sans` /
+  `IBM Plex Mono` type system — see `src/app/globals.css`.
 - The 3D hero object (`src/components/three/HeroGeometry.tsx`) rotates and
   pulses on a heartbeat-like cadence; both stop under
   `prefers-reduced-motion`.
-- Real project data: `src/data/projects.ts` currently holds one real entry
-  (CS-M) with a `recognitions` field for awards/press.
-
-`/projects` and `/projects/[slug]` are still intentionally basic (no final
-styling) — only their text colors were updated so they stay legible against
-the new dark body background.
+- Shared interactive primitives, all hand-rolled (no animation library):
+  `FilterTabs` (sliding pill indicator), `TiltCard` (cursor-tracked tilt +
+  glow), and `CommandPalette` (⌘K / Ctrl+K quick nav, opened via keyboard or
+  the header's `CommandPaletteTrigger` button). All motion respects
+  `prefers-reduced-motion`.
 
 Not yet implemented:
 
-- Final styling for `/projects` and `/projects/[slug]`.
-- Full MDX rendering on the project detail page (currently a placeholder
-  notice; see `src/lib/mdx.ts` and `src/app/projects/[slug]/page.tsx`).
-- Additional real projects beyond CS-M.
+- Cover images / 3D models for individual projects (`coverImage`,
+  `modelPath` on `Project` are still unused).
+- A resume download link (`public/resume/resume.pdf` doesn't exist yet).
 - Contact form, backend, database, CMS, or authentication — none of these
   are planned for this project; it is a static, local-content site.
 
 ## Future possible upgrades (not scheduled)
 
-- Wire up real MDX rendering via `@next/mdx`'s dynamic import of
-  `content/projects/<slug>.mdx` (path alias `@content/*` is already
-  configured in `tsconfig.json` for this).
-- Design `/projects` and `/projects/[slug]` to match the landing page.
+- Add real cover images/3D models under `public/projects/` and
+  `public/models/`, wiring `ModelViewer` into project detail pages.
 - Add a resume download link once `public/resume/resume.pdf` exists.
-- Add real 3D models under `public/models/` and wire `ModelViewer` into
-  project detail pages.
+- Revisit `PulseTimeline`'s scroll-progress calculation if the page layout
+  changes significantly (it anchors to a fixed viewport fraction, not
+  scroll-linked CSS animation-timeline, for broader browser support).

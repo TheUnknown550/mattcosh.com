@@ -1,0 +1,44 @@
+## Overview
+
+GC-Fit is a computer vision fitness coach: it watches you work out through
+a webcam, recognizes the exercise you're doing, and flags bad form in real
+time using OpenCV and MediaPipe pose estimation.
+
+## The Problem
+
+Good form matters more than reps for avoiding injury, but a personal
+trainer isn't available to everyone. I wanted to see how far real-time pose
+estimation could go toward giving people that same kind of feedback loop —
+"your knee is caving in," not just "good job" — without any wearable
+hardware.
+
+## What I Built
+
+I built a real-time pipeline using OpenCV and MediaPipe to estimate body
+pose from live video, recognize which exercise was being performed, and
+compare the tracked joint positions against correct-form references to
+flag issues as they happened — not after the set was over.
+
+## Key Features
+
+- Real-time pose estimation and exercise recognition from live video.
+- Instant form-correction feedback based on tracked joint positions.
+- Video processing at up to 60 FPS with low latency.
+- Progress tracking and workout analytics across sessions.
+- 95% experimental accuracy in pose estimation and exercise recognition during testing.
+
+## Challenges
+
+Getting feedback to feel instant, not laggy, meant the whole pipeline had
+to run fast enough to keep up with live video — there's no room for a slow
+frame here and there when you're mid-rep. Tuning the pose-estimation and
+comparison logic to hit 60 FPS without sacrificing accuracy took a lot of
+profiling and trimming.
+
+## What I Learned
+
+This was my introduction to real-time computer vision, as opposed to
+offline image processing. It taught me to think in terms of latency
+budgets per frame, not just overall accuracy — a model that's accurate but
+too slow to give feedback during the movement isn't actually useful for
+this kind of product.

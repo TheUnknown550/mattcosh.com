@@ -1,0 +1,52 @@
+## Overview
+
+CS-M started as a question my team kept coming back to: could you screen for
+heart disease with nothing but a microphone? Over two and a half years it
+grew from that question into custom recording hardware, a signal-processing
+pipeline, a recurrent neural network, and a React Native app — validated
+against 500+ patient recordings and recognized by Microsoft, Intel, and
+Regeneron ISEF along the way.
+
+## The Problem
+
+Early detection of cardiac abnormalities usually requires clinical
+equipment and a trained ear. That puts routine screening out of reach for a
+lot of people, especially outside major hospitals. We wanted to know whether
+a low-cost device and a well-trained model could catch the same patterns a
+cardiologist listens for — cheaply enough to put in more hands.
+
+## What I Built
+
+I led the signal-processing side of the project: building the dataset
+pipeline, preprocessing and denoising raw heart-sound audio, and preparing
+features for the classification model. In parallel, I helped design and
+test the recording hardware itself, iterating on device form factor and
+placement to get cleaner input signal before it ever reached the model.
+
+The team split from there — hardware, AI, mobile, and research validation —
+and I worked across those boundaries to keep the audio pipeline compatible
+with whatever the model and app needed next.
+
+## Key Features
+
+- Custom heart-sound recording hardware, purpose-built rather than adapted from a stethoscope.
+- A denoising and feature-preparation pipeline tuned specifically for cardiac audio.
+- An RNN-based classifier reaching 94.7% experimental accuracy on abnormality detection.
+- A React Native app that made the whole pipeline usable outside a lab.
+- A patent-pending signal-processing approach, validated on 500+ patient recordings.
+
+## Challenges
+
+Heart sounds are quiet and easily buried in ambient noise, so most of the
+early iteration cycles were about the hardware and preprocessing, not the
+model — a bad recording can't be fixed downstream. Getting a filtering
+approach that held up across different devices, environments, and patients
+took a lot of testing before the model work could really start compounding.
+
+## What I Learned
+
+This was my first time seeing a project all the way from a rough hardware
+prototype through to an international competition stage. It taught me that
+most of the hard problems in applied AI live outside the model — in data
+quality, hardware design, and the discipline of validating against real
+patient data instead of a clean benchmark set.
