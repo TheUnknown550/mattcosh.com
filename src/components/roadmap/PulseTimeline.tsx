@@ -43,16 +43,18 @@ const TONE_CLASSES = {
   neutral: "border-line bg-surface text-ink-muted",
 } as const;
 
+const SCROLL_STEP = 340;
+
 /**
- * The Roadmap page's centerpiece: a vertical line that "draws" itself as the
- * page scrolls (an EKG-style live trace, tying back to the CS-M cardiac
- * motif used elsewhere on the site), with milestone nodes running alongside
- * it. Progress is driven imperatively via refs (not React state) so the
- * scroll loop doesn't re-render the full node list every frame.
+ * The Roadmap page's centerpiece: a horizontal line that "draws" itself as
+ * the row scrolls (an EKG-style live trace, tying back to the CS-M cardiac
+ * motif used elsewhere on the site), with milestone cards running left to
+ * right. Progress is driven imperatively via refs (not React state) so the
+ * scroll handler doesn't re-render the full card list every frame.
  */
 export function PulseTimeline({ entries }: PulseTimelineProps) {
   const [filter, setFilter] = useState<FilterValue>("All");
-  const containerRef = useRef<HTMLDivElement>(null);
+  const scrollerRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
   const dotRef = useRef<HTMLDivElement>(null);
 
@@ -79,10 +81,21 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
     ];
   }, [entries]);
 
+  // Jump back to the start whenever the filtered set changes — the previous
+  // scroll offset has no meaning against a different set of cards.
   useEffect(() => {
+    scrollerRef.current?.scrollTo({ left: 0 });
+  }, [filter]);
+
+  useEffect(() => {
+    const scroller = scrollerRef.current;
+    const fill = fillRef.current;
+    const dot = dotRef.current;
+    if (!scroller || !fill || !dot) return;
+
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduceMotion) {
-      if (fillRef.current) fillRef.current.style.height = "100%";
+      fill.style.width = "100%";
       return;
     }
 
@@ -91,16 +104,15 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
     // being scheduled while nothing is actually moving.
     let raf = 0;
     function updateProgress() {
-      const container = containerRef.current;
-      const fill = fillRef.current;
-      const dot = dotRef.current;
-      if (!container || !fill || !dot) return;
-      const rect = container.getBoundingClientRect();
-      const anchor = window.innerHeight * 0.4;
-      const pct = Math.min(1, Math.max(0, (anchor - rect.top) / rect.height));
-      fill.style.height = `${pct * 100}%`;
-      dot.style.top = `${pct * 100}%`;
-      dot.style.opacity = pct > 0 && pct < 1 ? "1" : "0";
+      if (!scroller || !fill || !dot) return;
+      // Position relative to the scroller's own content, not a percentage —
+      // both elements scroll along with the cards, so this keeps the fill's
+      // trailing edge (and the dot) pinned to the right edge of whatever is
+      // currently visible, revealing more of the line as you scroll right.
+      const edge = scroller.scrollLeft + scroller.clientWidth;
+      fill.style.width = `${edge}px`;
+      dot.style.left = `${edge}px`;
+      dot.style.opacity = scroller.scrollWidth > scroller.clientWidth ? "1" : "0";
     }
     function onScrollOrResize() {
       cancelAnimationFrame(raf);
@@ -108,46 +120,76 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
     }
 
     updateProgress();
-    window.addEventListener("scroll", onScrollOrResize, { passive: true });
+    scroller.addEventListener("scroll", onScrollOrResize, { passive: true });
     window.addEventListener("resize", onScrollOrResize);
     return () => {
       cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScrollOrResize);
+      scroller.removeEventListener("scroll", onScrollOrResize);
       window.removeEventListener("resize", onScrollOrResize);
     };
-  }, []);
+  }, [filtered.length]);
+
+  function scrollByStep(direction: 1 | -1) {
+    scrollerRef.current?.scrollBy({ left: direction * SCROLL_STEP, behavior: "smooth" });
+  }
 
   return (
     <div>
-      <FilterTabs options={options} value={filter} onChange={setFilter} />
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <FilterTabs options={options} value={filter} onChange={setFilter} />
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => scrollByStep(-1)}
+            aria-label="Scroll to earlier milestones"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink-muted transition-colors hover:border-signal hover:text-ink"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            onClick={() => scrollByStep(1)}
+            aria-label="Scroll to later milestones"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-ink-muted transition-colors hover:border-signal hover:text-ink"
+          >
+            ›
+          </button>
+        </div>
+      </div>
 
-      <div ref={containerRef} className="relative mt-12">
-        <div
-          aria-hidden="true"
-          className="absolute top-0 bottom-0 left-4 w-px bg-line sm:left-5"
-        />
-        <div
-          ref={fillRef}
-          aria-hidden="true"
-          className="absolute top-0 left-4 w-px bg-signal shadow-[0_0_10px_rgba(45,217,201,0.6)] sm:left-5"
-          style={{ height: 0 }}
-        />
-        <div
-          ref={dotRef}
-          aria-hidden="true"
-          className="absolute left-4 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-signal opacity-0 shadow-[0_0_12px_rgba(45,217,201,0.8)] sm:left-5"
-          style={{ top: 0 }}
-        />
+      <div
+        ref={scrollerRef}
+        role="region"
+        aria-label="Roadmap timeline, scrollable horizontally"
+        tabIndex={0}
+        className="mt-10 snap-x snap-proximity overflow-x-auto overflow-y-hidden pb-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal"
+      >
+        <div className="relative flex w-max items-start gap-8 px-1">
+          <div
+            aria-hidden="true"
+            className="absolute left-0 right-0 top-5 h-px bg-line"
+          />
+          <div
+            ref={fillRef}
+            aria-hidden="true"
+            className="absolute left-0 top-5 h-px bg-signal shadow-[0_0_10px_rgba(45,217,201,0.6)]"
+            style={{ width: 0 }}
+          />
+          <div
+            ref={dotRef}
+            aria-hidden="true"
+            className="absolute top-5 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-signal opacity-0 shadow-[0_0_12px_rgba(45,217,201,0.8)]"
+            style={{ left: 0 }}
+          />
 
-        <ul className="flex flex-col gap-8">
           {filtered.map((entry) => {
             const tone = TONE_CLASSES[TYPE_TONE[entry.type]];
             return (
-              <li
+              <div
                 key={entry.id}
-                className="relative grid grid-cols-[2rem_1fr] gap-4 sm:grid-cols-[2.5rem_1fr] sm:gap-6"
+                className="flex w-64 shrink-0 snap-start flex-col items-center sm:w-72"
               >
-                <div className="flex justify-center pt-1">
+                <div className="flex h-10 items-center justify-center">
                   <span
                     className={`animate-dot-pulse flex h-8 w-8 items-center justify-center rounded-full border font-mono text-xs font-semibold sm:h-9 sm:w-9 ${tone}`}
                   >
@@ -155,26 +197,24 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
                   </span>
                 </div>
 
-                <Reveal>
+                <Reveal className="mt-4 w-full">
                   <TiltCard className="rounded-lg">
                     <div className="rounded-lg border border-line bg-surface p-5 transition-colors duration-300 hover:border-signal">
-                      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                        <h3 className="font-display text-base font-semibold text-ink sm:text-lg">
-                          {entry.title}
-                        </h3>
-                        <p className="font-mono text-xs uppercase tracking-wide text-ink-muted">
-                          {entry.dateLabel}
-                        </p>
-                      </div>
+                      <p className="font-mono text-xs uppercase tracking-wide text-ink-muted">
+                        {entry.dateLabel}
+                      </p>
+                      <h3 className="mt-2 font-display text-base font-semibold text-ink sm:text-lg">
+                        {entry.title}
+                      </h3>
                       {entry.subtitle && (
                         <p className="mt-1 text-sm text-ink-muted">{entry.subtitle}</p>
                       )}
-                      <p className="mt-3 text-sm leading-relaxed text-ink-muted">
+                      <p className="mt-3 line-clamp-4 text-sm leading-relaxed text-ink-muted">
                         {entry.description}
                       </p>
                       {entry.tags && entry.tags.length > 0 && (
                         <ul className="mt-4 flex flex-wrap gap-2 font-mono text-[11px] uppercase tracking-wide text-ink-muted">
-                          {entry.tags.slice(0, 4).map((tag) => (
+                          {entry.tags.slice(0, 3).map((tag) => (
                             <li key={tag} className="rounded-full border border-line px-2.5 py-1">
                               {tag}
                             </li>
@@ -202,10 +242,10 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
                     </div>
                   </TiltCard>
                 </Reveal>
-              </li>
+              </div>
             );
           })}
-        </ul>
+        </div>
       </div>
     </div>
   );

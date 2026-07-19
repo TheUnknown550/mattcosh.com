@@ -54,7 +54,7 @@ covers the Experience and Roadmap pages:
 - `src/types/certification.ts` / `src/data/certifications.ts` — certs.
 - `src/types/honor.ts` / `src/data/honors.ts` — awards/competition results.
 - `src/types/timeline.ts` / `src/data/timeline.ts` — merges all of the
-  above (plus `projects`) into one chronological `TimelineEntry[]` for the
-  Roadmap page. Don't hand-edit `timeline.ts`'s entries directly — add or
+  above (plus `projects`) into one `TimelineEntry[]` for the Roadmap page,
+  sorted newest first. Don't hand-edit `timeline.ts`'s entries directly — add or
   edit the source data file instead (education/experience/projects/
   honors/certifications) and the timeline derives from it automatically.

@@ -136,17 +136,6 @@ body {
   }
 }
 
-/* PulseTimeline — the Roadmap page's EKG spine that "draws" as you scroll. */
-.pulse-timeline-line {
-  transition: stroke-dashoffset 0.15s linear;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .pulse-timeline-line {
-    transition: none;
-  }
-}
-
 @keyframes node-pop {
   from {
     transform: scale(0.4);

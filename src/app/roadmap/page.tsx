@@ -4,7 +4,7 @@ import { Reveal } from "@/components/common/Reveal";
 
 export default function RoadmapPage() {
   return (
-    <div className="mx-auto max-w-4xl py-16 lg:py-24">
+    <div className="mx-auto max-w-6xl py-16 lg:py-24">
       <Reveal>
         <p className="font-mono text-xs uppercase tracking-wide text-signal">
           The whole story
@@ -13,9 +13,9 @@ export default function RoadmapPage() {
           Roadmap
         </h1>
         <p className="mt-4 max-w-2xl text-lg text-ink-muted">
-          Every milestone in one chronological feed — school, work, projects,
-          awards, and certifications. Scroll to trace the pulse from 2021 to
-          now.
+          Every milestone in one feed — school, work, projects, awards, and
+          certifications — newest first. Scroll sideways to trace the pulse
+          back to 2021.
         </p>
       </Reveal>
 

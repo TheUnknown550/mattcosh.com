@@ -28,11 +28,12 @@ pages, sourced from `content/linkedin-exports/`:
 - **Certifications (`src/app/certifications/page.tsx`)** — all 9
   certifications with issuer/date, reusing `CertificationList.tsx`.
 - **Roadmap (`src/app/roadmap/page.tsx`)** — every milestone (education,
-  work, projects, awards, certifications) merged chronologically in
-  `src/data/timeline.ts` and rendered by `PulseTimeline`
-  (`src/components/roadmap/PulseTimeline.tsx`): a vertical line that draws
-  itself as the page scrolls, with a traveling pulse dot and type-filterable
-  milestone cards.
+  work, projects, awards, certifications) merged in `src/data/timeline.ts`,
+  newest first, and rendered by `PulseTimeline`
+  (`src/components/roadmap/PulseTimeline.tsx`): a horizontally-scrolling
+  row of cards with an EKG line that draws itself and a traveling pulse dot
+  as you scroll sideways (mouse wheel, trackpad, touch, arrow-key focus, or
+  the ‹ › buttons), plus type-filterable cards and scroll-snap.
 - Dark theme (`--color-void` background, `--color-signal` teal +
   `--color-accent` orange dual accent), `Space Grotesk` / `IBM Plex Sans` /
   `IBM Plex Mono` type system — see `src/app/globals.css`.

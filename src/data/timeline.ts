@@ -65,8 +65,8 @@ const certificationEntries: TimelineEntry[] = certifications.map((cert) => ({
 
 /**
  * Every milestone (education, work, projects, awards, certifications) merged
- * into one chronological feed for the Roadmap page — see
- * src/components/roadmap/PulseTimeline.tsx.
+ * into one reverse-chronological feed (newest first) for the Roadmap page —
+ * see src/components/roadmap/PulseTimeline.tsx.
  */
 export const timeline: TimelineEntry[] = [
   ...educationEntries,
@@ -74,4 +74,4 @@ export const timeline: TimelineEntry[] = [
   ...projectEntries,
   ...awardEntries,
   ...certificationEntries,
-].sort((a, b) => a.sortDate.localeCompare(b.sortDate));
+].sort((a, b) => b.sortDate.localeCompare(a.sortDate));
