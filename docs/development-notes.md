@@ -43,14 +43,14 @@ pages, sourced from `content/linkedin-exports/`:
   `docs/3d-assets.md`.
 - Shared interactive primitives, all hand-rolled (no animation library):
   `FilterTabs` (sliding pill indicator), `TiltCard` (cursor-tracked tilt +
-  glow), and `CommandPalette` (⌘K / Ctrl+K quick nav, opened via keyboard or
-  the header's `CommandPaletteTrigger` button). All motion respects
-  `prefers-reduced-motion`.
-- Skills and Certifications are deliberately *not* in the header nav
-  (`SiteShell.tsx`) — the header has no mobile-collapse mechanism yet, and
-  6 top-level links would overflow on narrow viewports. They're reachable
-  via the Experience page's teasers, cross-links between the two pages, and
-  the command palette. Revisit this once the header gets a mobile nav.
+  glow), and `CommandPalette` (⌘K / Ctrl+K quick nav — keyboard-only now,
+  no header trigger button). All motion respects `prefers-reduced-motion`.
+- **Header nav (`SiteShell.tsx`)** now lists every page (Projects,
+  Experience, Skills, Certifications, Roadmap) inline on `md`+ viewports.
+  Below `md`, the inline nav is hidden and `MobileNav.tsx` renders a
+  hamburger button that toggles a dropdown panel with the same links — the
+  panel anchors to the header via `position: relative` + `top-full`, not a
+  hardcoded pixel offset, so it stays correct if header height changes.
 
 Not yet implemented:
 

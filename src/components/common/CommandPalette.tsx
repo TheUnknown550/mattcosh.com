@@ -73,13 +73,9 @@ export function CommandPalette() {
         setOpen(false);
       }
     }
-    // Lets the header's visible ⌘K hint button open the palette without
-    // lifting state up into SiteShell — see CommandPaletteTrigger.
     window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("open-command-palette", openPalette);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("open-command-palette", openPalette);
     };
   }, []);
 
