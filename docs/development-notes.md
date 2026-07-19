@@ -5,9 +5,12 @@
 The site now has a real visual design and real content across all four
 pages, sourced from `content/linkedin-exports/`:
 
-- **Landing (`src/app/page.tsx`)** — Hero, About, Highlights (animated
-  stat row + roadmap teaser), Testimonial, and a flagship-project spotlight
-  (`src/components/home/*`), separated by a heartbeat/EKG-trace divider
+- **Landing (`src/app/page.tsx`)** — Hero (with a portrait treatment —
+  `public/img/profile.png` framed by ambient glow + sonar pulse rings and
+  two data-driven badges, see `HeroPortrait.tsx`), About (bio + a quick-facts
+  panel), Highlights (animated stat row + roadmap teaser), Testimonial, a
+  flagship-project spotlight, and a closing CTA (`src/components/home/*`),
+  separated by a heartbeat/EKG-trace divider
   (`src/components/common/PulseDivider.tsx`) — a nod to CS-M, the cardiac
   monitoring flagship project.
 - **Projects (`src/app/projects/page.tsx`, `[slug]/page.tsx`)** — a
@@ -27,9 +30,11 @@ pages, sourced from `content/linkedin-exports/`:
 - Dark theme (`--color-void` background, `--color-signal` teal +
   `--color-accent` orange dual accent), `Space Grotesk` / `IBM Plex Sans` /
   `IBM Plex Mono` type system — see `src/app/globals.css`.
-- The 3D hero object (`src/components/three/HeroGeometry.tsx`) rotates and
-  pulses on a heartbeat-like cadence; both stop under
-  `prefers-reduced-motion`.
+- The Hero no longer uses a 3D object (`HeroGeometry`/`HeroScene` were
+  removed once the portrait replaced them) — `src/components/three/*`
+  (`SceneCanvas`, `ModelViewer`, `ThreePlaceholder`) remains as documented,
+  reusable infra for a future project-detail 3D model viewer, per
+  `docs/3d-assets.md`.
 - Shared interactive primitives, all hand-rolled (no animation library):
   `FilterTabs` (sliding pill indicator), `TiltCard` (cursor-tracked tilt +
   glow), and `CommandPalette` (⌘K / Ctrl+K quick nav, opened via keyboard or
@@ -39,7 +44,8 @@ pages, sourced from `content/linkedin-exports/`:
 Not yet implemented:
 
 - Cover images / 3D models for individual projects (`coverImage`,
-  `modelPath` on `Project` are still unused).
+  `modelPath` on `Project` are still unused). The Hero's portrait
+  (`public/img/profile.png`) is the only real image asset in use so far.
 - A resume download link (`public/resume/resume.pdf` doesn't exist yet).
 - Contact form, backend, database, CMS, or authentication — none of these
   are planned for this project; it is a static, local-content site.

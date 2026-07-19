@@ -3,6 +3,7 @@ import { About } from "@/components/home/About";
 import { Highlights } from "@/components/home/Highlights";
 import { Testimonial } from "@/components/home/Testimonial";
 import { FeaturedWork } from "@/components/home/FeaturedWork";
+import { ClosingCTA } from "@/components/home/ClosingCTA";
 import { PulseDivider } from "@/components/common/PulseDivider";
 import { Reveal } from "@/components/common/Reveal";
 
@@ -25,6 +26,10 @@ export default function Home() {
       <PulseDivider />
       <Reveal>
         <FeaturedWork />
+      </Reveal>
+      <PulseDivider />
+      <Reveal>
+        <ClosingCTA />
       </Reveal>
     </>
   );

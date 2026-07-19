@@ -14,6 +14,7 @@ written as plain prose.
 | 3D models                           | `public/models/`                      |
 | Site icons                          | `public/icons/`                       |
 | Resume/CV                           | `public/resume/`                      |
+| Profile photo (Hero portrait)        | `public/img/profile.png`             |
 | Work history                        | `src/data/experience.ts`              |
 | Education                           | `src/data/education.ts`               |
 | Skills (grouped)                    | `src/data/skills.ts`                  |
