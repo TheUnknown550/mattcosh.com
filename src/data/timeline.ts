@@ -22,6 +22,7 @@ const workEntries: TimelineEntry[] = experience.map((entry) => ({
   subtitle: `${entry.company} · ${entry.location}`,
   dateLabel: `${entry.startLabel} — ${entry.endLabel}`,
   sortDate: entry.sortDate,
+  endSortDate: entry.endSortDate,
   description: entry.summary,
 }));
 
@@ -31,10 +32,8 @@ const projectEntries: TimelineEntry[] = projects.map((project) => ({
   title: project.title,
   subtitle: `${project.category} · ${project.year}`,
   dateLabel: project.year,
-  // Projects only carry a year, not a month — pad to "YYYY-01" so string
-  // comparison sorts consistently against the "YYYY-MM" dates used by
-  // every other entry type instead of always sorting year-only entries first.
-  sortDate: `${project.year.slice(0, 4)}-01`,
+  sortDate: project.startSortDate,
+  endSortDate: project.endSortDate,
   description: project.shortDescription,
   tags: project.techStack,
   link: { label: "View project", href: `/projects/${project.slug}` },

@@ -31,12 +31,25 @@ pages, sourced from `content/linkedin-exports/`:
   work, projects, awards, certifications) merged in `src/data/timeline.ts`,
   newest first, and rendered by `PulseTimeline`
   (`src/components/roadmap/PulseTimeline.tsx`): a horizontally-scrolling,
-  click-and-drag-able row of cards with an EKG line that draws itself and a
-  traveling pulse dot as you scroll sideways — plain mouse wheel included
-  (redirected to horizontal via a native, non-passive `wheel` listener,
-  since React's `onWheel` is passive by default and can't call
-  `preventDefault()`), plus trackpad, touch, drag, arrow-key focus, or the
-  ‹ › buttons. Themed scrollbar via `.pulse-scroller` in `globals.css`.
+  click-and-drag-able "git graph". `work`/`project` entries whose date
+  ranges genuinely overlap branch off the main trunk and merge back in
+  (git-graph/`git log --graph` style — lane assignment is a greedy
+  interval-colouring in `src/lib/timelineLanes.ts`); education/awards/
+  certifications are point-in-time and always render on the trunk (a
+  multi-year education span would otherwise make almost everything
+  "concurrent"). Branch curves are SVG paths computed from each card's
+  *measured* DOM position (a `useLayoutEffect`, same pattern as
+  `FilterTabs`' sliding indicator) rather than date-proportional math, so
+  they stay correct across breakpoints without a full Gantt-chart layout.
+  **Gotcha already hit once:** the effect that measures positions depends
+  on the filtered-entries array — that array must stay memoized
+  (`useMemo`), or a fresh reference every render retriggers the effect
+  every render → infinite loop. The EKG progress line/dot from before
+  still tracks scroll position on the trunk. Mouse wheel scrolls
+  horizontally via a native non-passive `wheel` listener (React's
+  `onWheel` is passive by default and can't call `preventDefault()`);
+  trackpad, touch, drag, arrow-key focus, and ‹ › buttons all work too.
+  Themed scrollbar via `.pulse-scroller` in `globals.css`.
 - Dark theme (`--color-void` background, `--color-signal` teal +
   `--color-accent` orange dual accent), `Space Grotesk` / `IBM Plex Sans` /
   `IBM Plex Mono` type system — see `src/app/globals.css`.

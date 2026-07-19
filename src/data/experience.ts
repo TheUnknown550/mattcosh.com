@@ -12,6 +12,7 @@ export const experience: ExperienceEntry[] = [
     startLabel: "Apr 2026",
     endLabel: "Present",
     sortDate: "2026-04",
+    endSortDate: null,
     summary:
       "Building production features across the stack for client-facing products, from APIs and BFF logic to email workflows, inside an Agile team.",
     highlights: [
@@ -28,6 +29,7 @@ export const experience: ExperienceEntry[] = [
     startLabel: "Dec 2025",
     endLabel: "Present",
     sortDate: "2025-12",
+    endSortDate: null,
     summary:
       "Delivering freelance software and hardware projects for independent clients, from landing pages to full-stack apps and IoT circuit design.",
     highlights: [
@@ -44,6 +46,7 @@ export const experience: ExperienceEntry[] = [
     startLabel: "Nov 2024",
     endLabel: "Apr 2026",
     sortDate: "2024-11",
+    endSortDate: "2026-04",
     summary:
       "Supported 80+ students across Calculus II, Computer Algorithm Lab, and Information Systems & Network Engineering Lab.",
     highlights: [
@@ -60,6 +63,7 @@ export const experience: ExperienceEntry[] = [
     startLabel: "Mar 2025",
     endLabel: "Jun 2025",
     sortDate: "2025-03",
+    endSortDate: "2025-06",
     summary:
       "Three-month internship supporting IoT system setup, media-room automation, and Raspberry Pi-based workflows.",
     highlights: [

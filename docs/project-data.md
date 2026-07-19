@@ -12,7 +12,9 @@ export interface Project {
   shortDescription: string; // One or two sentences, used on cards
   category: ProjectCategory; // "AI/ML" | "Full-Stack" | "IoT" | "Robotics" | "Mobile" | "Research" | "Other"
   status: ProjectStatus;    // "Completed" | "In Progress" | "Archived"
-  year: string;             // e.g. "2026"
+  year: string;             // e.g. "2026" — display only
+  startSortDate: string;    // "YYYY-MM" — precise start, used by the Roadmap's branch graph
+  endSortDate: string | null; // "YYYY-MM", or null if ongoing (status "In Progress")
   techStack: string[];      // e.g. ["Next.js", "TypeScript"]
   featured: boolean;        // Show on homepage/featured sections
   recognitions?: string[];  // Awards/press, e.g. ["Microsoft Imagine Cup — World Runner-Up"]

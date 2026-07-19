@@ -16,6 +16,11 @@ export interface Project {
   category: ProjectCategory;
   status: ProjectStatus;
   year: string;
+  /** "YYYY-MM" — precise start, used for the Roadmap's branch graph
+   * (concurrency detection) rather than the display-only `year` string. */
+  startSortDate: string;
+  /** "YYYY-MM", or null if still ongoing (status "In Progress"). */
+  endSortDate: string | null;
   techStack: string[];
   featured: boolean;
   recognitions?: string[];

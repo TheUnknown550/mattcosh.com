@@ -13,9 +13,9 @@ export default function RoadmapPage() {
           Roadmap
         </h1>
         <p className="mt-4 max-w-2xl text-lg text-ink-muted">
-          Every milestone in one feed — school, work, projects, awards, and
-          certifications — newest first. Scroll sideways to trace the pulse
-          back to 2021.
+          Every milestone in one feed — newest first. Roles and projects that
+          overlapped in time branch off the main line and merge back in,
+          git-graph style. Scroll sideways to trace it back to 2021.
         </p>
       </Reveal>
 
