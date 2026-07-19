@@ -30,10 +30,13 @@ pages, sourced from `content/linkedin-exports/`:
 - **Roadmap (`src/app/roadmap/page.tsx`)** — every milestone (education,
   work, projects, awards, certifications) merged in `src/data/timeline.ts`,
   newest first, and rendered by `PulseTimeline`
-  (`src/components/roadmap/PulseTimeline.tsx`): a horizontally-scrolling
-  row of cards with an EKG line that draws itself and a traveling pulse dot
-  as you scroll sideways (mouse wheel, trackpad, touch, arrow-key focus, or
-  the ‹ › buttons), plus type-filterable cards and scroll-snap.
+  (`src/components/roadmap/PulseTimeline.tsx`): a horizontally-scrolling,
+  click-and-drag-able row of cards with an EKG line that draws itself and a
+  traveling pulse dot as you scroll sideways — plain mouse wheel included
+  (redirected to horizontal via a native, non-passive `wheel` listener,
+  since React's `onWheel` is passive by default and can't call
+  `preventDefault()`), plus trackpad, touch, drag, arrow-key focus, or the
+  ‹ › buttons. Themed scrollbar via `.pulse-scroller` in `globals.css`.
 - Dark theme (`--color-void` background, `--color-signal` teal +
   `--color-accent` orange dual accent), `Space Grotesk` / `IBM Plex Sans` /
   `IBM Plex Mono` type system — see `src/app/globals.css`.

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent } from "react";
 import Link from "next/link";
 import type { TimelineEntry, TimelineEntryType } from "@/types/timeline";
 import { FilterTabs } from "@/components/common/FilterTabs";
@@ -57,6 +58,10 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
   const dotRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef(false);
+  const dragStartXRef = useRef(0);
+  const dragStartScrollLeftRef = useRef(0);
+  const draggedDistanceRef = useRef(0);
 
   const filtered =
     filter === "All" ? entries : entries.filter((entry) => entry.type === filter);
@@ -129,8 +134,73 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
     };
   }, [filtered.length]);
 
+  // Lets a plain vertical mouse wheel (not just shift+wheel or a trackpad's
+  // horizontal gesture) drive the horizontal scroll — without this, wheel
+  // input does nothing here and just scrolls the page instead, which reads
+  // as the timeline being "stuck". Registered as a native, non-passive
+  // listener because React's onWheel is passive by default and silently
+  // ignores preventDefault().
+  useEffect(() => {
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+
+    function handleWheel(event: WheelEvent) {
+      if (Math.abs(event.deltaX) >= Math.abs(event.deltaY)) return;
+      const el = scrollerRef.current;
+      if (!el) return;
+      event.preventDefault();
+      el.scrollLeft += event.deltaY;
+    }
+
+    scroller.addEventListener("wheel", handleWheel, { passive: false });
+    return () => scroller.removeEventListener("wheel", handleWheel);
+  }, []);
+
   function scrollByStep(direction: 1 | -1) {
     scrollerRef.current?.scrollBy({ left: direction * SCROLL_STEP, behavior: "smooth" });
+  }
+
+  // Click-and-drag panning for mouse users (touch already scrolls natively,
+  // so this only engages for pointerType "mouse").
+  function handlePointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+    if (event.pointerType !== "mouse") return;
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    isDraggingRef.current = true;
+    draggedDistanceRef.current = 0;
+    dragStartXRef.current = event.clientX;
+    dragStartScrollLeftRef.current = scroller.scrollLeft;
+    scroller.classList.add("dragging");
+    scroller.setPointerCapture(event.pointerId);
+  }
+
+  function handlePointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+    if (!isDraggingRef.current) return;
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    const delta = event.clientX - dragStartXRef.current;
+    draggedDistanceRef.current = Math.abs(delta);
+    scroller.scrollLeft = dragStartScrollLeftRef.current - delta;
+  }
+
+  function endDrag(event: ReactPointerEvent<HTMLDivElement>) {
+    if (!isDraggingRef.current) return;
+    isDraggingRef.current = false;
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+    scroller.classList.remove("dragging");
+    if (scroller.hasPointerCapture(event.pointerId)) {
+      scroller.releasePointerCapture(event.pointerId);
+    }
+  }
+
+  // Swallows the click that would otherwise fire on a link/button under the
+  // pointer right after a real drag, without affecting genuine clicks.
+  function handleClickCapture(event: ReactMouseEvent<HTMLDivElement>) {
+    if (draggedDistanceRef.current > 5) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
   }
 
   return (
@@ -160,9 +230,14 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
       <div
         ref={scrollerRef}
         role="region"
-        aria-label="Roadmap timeline, scrollable horizontally"
+        aria-label="Roadmap timeline, scrollable horizontally — click and drag, or scroll"
         tabIndex={0}
-        className="mt-10 snap-x snap-proximity overflow-x-auto overflow-y-hidden pb-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal"
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onClickCapture={handleClickCapture}
+        className="pulse-scroller mt-10 overflow-x-auto overflow-y-hidden pb-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-signal"
       >
         <div className="relative flex w-max items-start gap-8 px-1">
           <div
@@ -187,7 +262,7 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
             return (
               <div
                 key={entry.id}
-                className="flex w-64 shrink-0 snap-start flex-col items-center sm:w-72"
+                className="flex w-64 shrink-0 flex-col items-center sm:w-72"
               >
                 <div className="flex h-10 items-center justify-center">
                   <span
