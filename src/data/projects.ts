@@ -47,10 +47,10 @@ export const projects: Project[] = [
     title: "OBS Multi-User Management System",
     shortDescription:
       "A profile-switching system for OBS Studio that gives every user of a shared university media room an isolated, one-click configuration.",
-    category: "IoT",
+    category: "Other",
     status: "Completed",
     year: "2025",
-    techStack: ["OBS Studio", "Raspberry Pi", "IoT Automation", "Session Management"],
+    techStack: ["OBS Studio", "Session Management", "System Integration", "Automation"],
     featured: false,
   },
   {
