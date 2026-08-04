@@ -11,6 +11,7 @@ export const education: EducationEntry[] = [
     startLabel: "May 2023",
     endLabel: "Mar 2027",
     sortDate: "2023-05",
+    endSortDate: "2027-03",
     notes:
       "Focused on computer networks, system design, cybersecurity fundamentals, and software development, with three consecutive years on the Faculty of Engineering's Certificate of Academic Excellence.",
   },
@@ -21,5 +22,6 @@ export const education: EducationEntry[] = [
     startLabel: "May 2021",
     endLabel: "Mar 2023",
     sortDate: "2021-05",
+    endSortDate: "2023-03",
   },
 ];

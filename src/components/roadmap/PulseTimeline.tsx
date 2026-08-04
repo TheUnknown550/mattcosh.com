@@ -54,7 +54,10 @@ const NODE_ANCHOR_OFFSET = 26;
 function isRangedEntry(
   entry: TimelineEntry,
 ): entry is TimelineEntry & { endSortDate: string | null } {
-  return (entry.type === "work" || entry.type === "project") && entry.endSortDate !== undefined;
+  return (
+    (entry.type === "education" || entry.type === "work" || entry.type === "project") &&
+    entry.endSortDate !== undefined
+  );
 }
 
 /**
@@ -274,6 +277,15 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
     return bestId;
   }
 
+  // A known end date beyond the newest milestone is still in the future from
+  // the graph's perspective, so its lane must remain open above the graph.
+  function isOpenRange(entry: TimelineEntry & { endSortDate: string | null }): boolean {
+    return (
+      entry.endSortDate === null ||
+      (filtered[0] !== undefined && entry.endSortDate > filtered[0].sortDate)
+    );
+  }
+
   // A ranged entry only stays in its assigned lane if it can actually be
   // drawn as a proper branch — either still-open (draws the straight
   // unmerged line) or with a real merge target above it. Otherwise there's
@@ -283,7 +295,7 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
     const lane = laneById[entry.id] ?? 0;
     if (lane === 0 || !isRangedEntry(entry)) return lane;
     const endSortDate = entry.endSortDate;
-    if (endSortDate === null) return lane;
+    if (endSortDate === null || isOpenRange(entry)) return lane;
     return findMergeTargetId({ ...entry, endSortDate }, index) === null ? 0 : lane;
   }
 
@@ -355,7 +367,7 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
             // Still ongoing — nothing has been "merged" yet, so the lane
             // stays open: a straight, unmerged line running off the top of
             // the graph rather than curving into a single trunk point.
-            if (entry.endSortDate === null) {
+            if (isOpenRange(entry)) {
               return (
                 <line
                   key={`branch-${entry.id}`}

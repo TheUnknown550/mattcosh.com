@@ -32,14 +32,12 @@ pages, sourced from `content/linkedin-exports/`:
   newest first, and rendered by `PulseTimeline`
   (`src/components/roadmap/PulseTimeline.tsx`): a **vertical**, multi-coloured
   "git graph" (VS Code Git Graph extension-style), newest at the top,
-  flowing with normal page scroll. `work`/`project` entries whose date
-  ranges genuinely overlap branch off the main trunk into their own coloured
+  flowing with normal page scroll. Duration entries (`education`, `work`, and
+  `project`) whose date ranges genuinely overlap branch off the main trunk into their own coloured
   lane (lane assignment is a greedy interval-colouring in
-  `src/lib/timelineLanes.ts`; colour is cycled per lane via a fixed palette
-  in `PulseTimeline.tsx`, trunk/lane 0 always teal); education/awards/
-  certifications are point-in-time and always render on the trunk (a
-  multi-year education span would otherwise make almost everything
-  "concurrent"). A branch only curves back into the trunk once the
+  `src/lib/timelineLanes.ts`; colour identifies the milestone type in
+  `PulseTimeline.tsx`); awards and certifications are point-in-time and
+  always render on the trunk. A branch only curves back into the trunk once the
   entry has actually *finished* (a real `endSortDate`) — still-ongoing
   entries (`endSortDate: null`) stay open: a straight, unmerged line running
   off the top of the graph, rather than every "Present" role curving into

@@ -12,6 +12,7 @@ const educationEntries: TimelineEntry[] = education.map((entry) => ({
   subtitle: entry.degree,
   dateLabel: `${entry.startLabel} — ${entry.endLabel}`,
   sortDate: entry.sortDate,
+  endSortDate: entry.endSortDate,
   description: entry.notes ?? entry.degree,
 }));
 
