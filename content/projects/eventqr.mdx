@@ -1,0 +1,33 @@
+## Overview
+
+EventQR is a free, full-stack attendance platform for organizers running
+multi-session events. It gives every attendee a unique QR code, then records
+each check-in against the specific session they attend.
+
+## The Problem
+
+Event organizers often need more than a single registration list: they need
+to know who attended each individual session. Manual sign-in is slow and
+hard to reconcile, especially when an attendee can join several sessions.
+
+## What I Built
+
+I built the complete platform, from attendee registration and QR-code
+generation through scanner-based check-ins and session-level attendance
+records. The application uses React and TypeScript on the frontend, with a
+Node.js, Express, and PostgreSQL backend.
+
+## Key Features
+
+- Event and session management for organizers.
+- Attendee registration and unique QR-code generation.
+- Scanner-based check-ins with session-specific attendance records.
+- Independent attendance tracking when the same attendee joins multiple sessions.
+- Production deployment, testing, and ongoing product improvements.
+
+## What I Learned
+
+Building EventQR reinforced how much operational detail sits behind a
+seemingly simple check-in flow. Designing the data model around events,
+sessions, and repeat attendees made the platform useful for real organizers,
+not only a one-off demo.

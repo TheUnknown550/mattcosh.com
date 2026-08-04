@@ -14,7 +14,7 @@ pages, sourced from `content/linkedin-exports/`:
   (`src/components/common/PulseDivider.tsx`) — a nod to CS-M, the cardiac
   monitoring flagship project.
 - **Projects (`src/app/projects/page.tsx`, `[slug]/page.tsx`)** — a
-  filterable grid of all 7 real projects (`src/data/projects.ts`), each
+  filterable grid of all 9 real projects (`src/data/projects.ts`), each
   with a full MDX case study (`content/projects/*.mdx`) now actually
   rendered via a dynamic `@content/*` import (see `src/lib/mdx.ts` and
   `src/mdx-components.tsx` for the styled component overrides).

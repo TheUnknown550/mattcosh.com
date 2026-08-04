@@ -15,7 +15,7 @@ export default function ProjectsPage() {
           Projects
         </h1>
         <p className="mt-4 max-w-2xl text-lg text-ink-muted">
-          Seven projects across applied AI, full-stack development, and IoT —
+          Nine projects across applied AI, full-stack development, and IoT —
           from an award-winning cardiac monitor to the site you&rsquo;re
           reading this on.
         </p>

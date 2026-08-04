@@ -41,7 +41,7 @@ export const experience: ExperienceEntry[] = [
   {
     id: "cmu-ta",
     company: "Chiang Mai University",
-    title: "Teaching Assistant",
+    title: "Teaching Assistant (TA)",
     location: "Chiang Mai",
     startLabel: "Nov 2024",
     endLabel: "Apr 2026",

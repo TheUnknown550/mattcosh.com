@@ -6,7 +6,7 @@ import type { Certification } from "@/types/certification";
 export const certifications: Certification[] = [
   {
     id: "daiot-helsinki",
-    name: "Developing the Artificial Intelligence of Things (DAIoT) Workshop",
+    name: "Developing the Artificial Intelligence of Things (DAIoT) Workshop — Helsinki University",
     authority: "University of Helsinki",
     issuedLabel: "Feb 2026",
     sortDate: "2026-02",
@@ -66,7 +66,7 @@ export const certifications: Certification[] = [
   },
   {
     id: "iit-gandhinagar",
-    name: "Workshop on AI Driven Innovations in India",
+    name: "Workshop on AI Driven Innovations in INDIA",
     authority: "Indian Institute of Technology Gandhinagar",
     issuedLabel: "Mar 2025",
     sortDate: "2025-03",

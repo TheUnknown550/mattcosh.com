@@ -1,0 +1,34 @@
+## Overview
+
+A bilingual full-stack judging and voting platform built for the Creative
+Excellence Awards 2026. It supports rubric-based evaluation, finalist
+selection, awards administration, and a complete record of voting activity.
+
+## The Problem
+
+Awards programs need a reliable way to coordinate judges, scoring criteria,
+nominated projects, and results. The process also needs safeguards so that
+score changes are traceable and an independent finalist round does not alter
+the original results.
+
+## What I Built
+
+I built the platform end to end using React, TypeScript, Go, PostgreSQL,
+Docker Compose, and Nginx. It includes role-based workflows for judges and
+administrators, plus full Thai and English support.
+
+## Key Features
+
+- Judge and administrator workflows with award-group assignments.
+- Rubric-based project scoring, rankings, vote summaries, and account management.
+- Server-side score calculation and audit logs for vote submissions and modifications.
+- Administrative tools for categories, nominated projects, criteria, judges, results, and CSV exports.
+- Bulk project imports with asynchronous image processing, Google Drive retrieval, WebP conversion, and duplicate-safe updates.
+- A separate finalist presentation round that preserves and locks the original-round results.
+
+## What I Learned
+
+This project emphasized that administrative systems need just as much care as
+their public-facing counterparts. Auditability, clear role boundaries, and
+safe bulk operations were essential to keeping a complex judging process
+trustworthy and manageable.
