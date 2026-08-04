@@ -171,9 +171,20 @@ body {
   animation: dot-pulse 2.4s ease-in-out infinite;
 }
 
+/* Roadmap branches are revealed by scroll progress from their trunk merge to
+   their lane node. A short transition absorbs uneven wheel/touch deltas. */
+.roadmap-branch {
+  opacity: 0;
+  transition: stroke-dashoffset 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-dot-pulse {
     animation: none;
+  }
+
+  .roadmap-branch {
+    transition: none;
   }
 }
 
@@ -199,4 +210,3 @@ body {
     opacity: 0;
   }
 }
-

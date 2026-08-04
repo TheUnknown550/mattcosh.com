@@ -77,7 +77,7 @@ function buildBranchPath(trunkX: number, laneX: number, bottomY: number, topY: n
   const curveSpan = Math.min(span * 0.35, 36);
   const bendStartY = Math.min(topY + curveSpan, bottomY);
   const midY = (topY + bendStartY) / 2;
-  return `M ${laneX} ${bottomY} L ${laneX} ${bendStartY} C ${laneX} ${midY}, ${trunkX} ${midY}, ${trunkX} ${topY}`;
+  return `M ${trunkX} ${topY} C ${trunkX} ${midY}, ${laneX} ${midY}, ${laneX} ${bendStartY} L ${laneX} ${bottomY}`;
 }
 
 /**
@@ -94,6 +94,7 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
   const fillRef = useRef<HTMLDivElement>(null);
   const dotRef = useRef<HTMLDivElement>(null);
   const rowRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const branchRefs = useRef<Map<string, SVGGeometryElement>>(new Map());
   const [nodeY, setNodeY] = useState<Record<string, number>>({});
   const [contentHeight, setContentHeight] = useState(0);
 
@@ -181,6 +182,11 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduceMotion) {
       fill.style.height = "100%";
+      branchRefs.current.forEach((branch) => {
+        branch.style.strokeDasharray = "none";
+        branch.style.strokeDashoffset = "0";
+        branch.style.opacity = "0.85";
+      });
       return;
     }
 
@@ -193,6 +199,20 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
       fill.style.height = `${progress}px`;
       dot.style.top = `${progress}px`;
       dot.style.opacity = rect.height > 0 ? "1" : "0";
+
+      branchRefs.current.forEach((branch) => {
+        const totalLength = branch.getTotalLength();
+        const startY = Number(branch.dataset.revealStart);
+        const endY = Number(branch.dataset.revealEnd);
+        const branchProgress =
+          endY > startY
+            ? Math.min(Math.max((progress - startY) / (endY - startY), 0), 1)
+            : Number(progress >= endY);
+
+        branch.style.strokeDasharray = `${totalLength}`;
+        branch.style.strokeDashoffset = `${totalLength * (1 - branchProgress)}`;
+        branch.style.opacity = "0.85";
+      });
     }
     function onScrollOrResize() {
       cancelAnimationFrame(raf);
@@ -212,6 +232,11 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
   function registerRow(id: string, el: HTMLDivElement | null) {
     if (el) rowRefs.current.set(id, el);
     else rowRefs.current.delete(id);
+  }
+
+  function registerBranch(id: string, el: SVGGeometryElement | null) {
+    if (el) branchRefs.current.set(id, el);
+    else branchRefs.current.delete(id);
   }
 
   // For a branching entry that has actually finished, finds which row its
@@ -315,10 +340,14 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
               return (
                 <line
                   key={`branch-${entry.id}`}
+                  ref={(el) => registerBranch(entry.id, el)}
+                  data-reveal-start={0}
+                  data-reveal-end={bottomY}
                   x1={laneX}
-                  y1={bottomY}
+                  y1={0}
                   x2={laneX}
-                  y2={0}
+                  y2={bottomY}
+                  className="roadmap-branch"
                   stroke={color}
                   strokeWidth={2.5}
                   strokeLinecap="round"
@@ -338,8 +367,12 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
             return (
               <path
                 key={`branch-${entry.id}`}
+                ref={(el) => registerBranch(entry.id, el)}
+                data-reveal-start={topY}
+                data-reveal-end={bottomY}
                 d={buildBranchPath(geometry.trunkX, laneX, bottomY, topY)}
                 fill="none"
+                className="roadmap-branch"
                 stroke={color}
                 strokeWidth={2.5}
                 strokeLinecap="round"
