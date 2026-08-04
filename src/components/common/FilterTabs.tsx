@@ -12,6 +12,8 @@ interface FilterTabsProps<T extends string> {
   options: FilterTabOption<T>[];
   value: T;
   onChange: (value: T) => void;
+  selectedValues?: T[];
+  onToggle?: (value: T) => void;
 }
 
 /**
@@ -22,6 +24,8 @@ export function FilterTabs<T extends string>({
   options,
   value,
   onChange,
+  selectedValues,
+  onToggle,
 }: FilterTabsProps<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [indicator, setIndicator] = useState<{ left: number; width: number } | null>(null);
@@ -37,13 +41,14 @@ export function FilterTabs<T extends string>({
   }, [value, options]);
 
   const activeTone = options.find((option) => option.value === value)?.tone ?? "#2dd9c9";
+  const isMultiSelect = selectedValues !== undefined && onToggle !== undefined;
 
   return (
     <div
       ref={containerRef}
       className="relative flex flex-wrap gap-1 rounded-full border border-line bg-surface p-1 font-mono text-xs uppercase tracking-wide"
     >
-      {indicator && (
+      {!isMultiSelect && indicator && (
         <span
           aria-hidden="true"
           className="absolute top-1 bottom-1 rounded-full transition-all duration-300 ease-out motion-reduce:transition-none"
@@ -55,26 +60,40 @@ export function FilterTabs<T extends string>({
           }}
         />
       )}
-      {options.map((option) => (
-        <button
-          key={option.value}
-          data-value={option.value}
-          type="button"
-          onClick={() => onChange(option.value)}
-          className={`relative z-10 inline-flex items-center gap-2 rounded-full px-4 py-2 transition-colors duration-200 ${
-            value === option.value ? "text-ink" : "text-ink-muted hover:text-ink"
-          }`}
-        >
-          {option.tone && (
-            <span
-              aria-hidden="true"
-              className="h-1.5 w-1.5 rounded-full"
-              style={{ backgroundColor: option.tone }}
-            />
-          )}
-          {option.label}
-        </button>
-      ))}
+      {options.map((option) => {
+        const isSelected = isMultiSelect
+          ? selectedValues.includes(option.value)
+          : value === option.value;
+        return (
+          <button
+            key={option.value}
+            data-value={option.value}
+            type="button"
+            aria-pressed={isSelected}
+            onClick={() => (isMultiSelect ? onToggle(option.value) : onChange(option.value))}
+            className={`relative z-10 inline-flex items-center gap-2 rounded-full px-4 py-2 transition-colors duration-200 ${
+              isSelected ? "text-ink" : "text-ink-muted hover:text-ink"
+            }`}
+            style={
+              isMultiSelect && isSelected
+                ? {
+                    border: `1px solid ${(option.tone ?? "#2dd9c9")}66`,
+                    backgroundColor: `${option.tone ?? "#2dd9c9"}1f`,
+                  }
+                : undefined
+            }
+          >
+            {option.tone && (
+              <span
+                aria-hidden="true"
+                className="h-1.5 w-1.5 rounded-full"
+                style={{ backgroundColor: option.tone }}
+              />
+            )}
+            {option.label}
+          </button>
+        );
+      })}
     </div>
   );
 }

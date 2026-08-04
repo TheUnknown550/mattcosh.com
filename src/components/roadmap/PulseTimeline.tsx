@@ -82,7 +82,7 @@ function buildBranchPath(trunkX: number, laneX: number, bottomY: number, topY: n
  * date-proportional math) so they stay correct regardless of card height.
  */
 export function PulseTimeline({ entries }: PulseTimelineProps) {
-  const [filter, setFilter] = useState<FilterValue>("All");
+  const [selectedTypes, setSelectedTypes] = useState<TimelineEntryType[]>([]);
   const graphRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
   const dotRef = useRef<HTMLDivElement>(null);
@@ -91,14 +91,17 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
   const [nodeY, setNodeY] = useState<Record<string, number>>({});
   const [contentHeight, setContentHeight] = useState(0);
 
-  // Memoized so its reference is stable across renders when filter/entries
+  // Memoized so its reference is stable across renders when selectedTypes/entries
   // haven't actually changed — it's a dependency of the position-measuring
   // effect below, and a fresh array reference on every render would retrigger
   // that effect every render (setNodeY -> re-render -> "changed" dependency
   // -> effect again), an infinite loop.
   const filtered = useMemo(
-    () => (filter === "All" ? entries : entries.filter((entry) => entry.type === filter)),
-    [filter, entries],
+    () =>
+      selectedTypes.length === 0
+        ? entries
+        : entries.filter((entry) => selectedTypes.includes(entry.type)),
+    [selectedTypes, entries],
   );
 
   const options = useMemo(() => {
@@ -121,6 +124,18 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
         })),
     ];
   }, [entries]);
+
+  function toggleFilter(value: FilterValue) {
+    if (value === "All") {
+      setSelectedTypes([]);
+      return;
+    }
+    setSelectedTypes((current) =>
+      current.includes(value)
+        ? current.filter((type) => type !== value)
+        : [...current, value],
+    );
+  }
 
   const { laneById, laneCount } = useMemo(() => {
     const ranged = filtered.filter(isRangedEntry);
@@ -274,7 +289,15 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
 
   return (
     <div>
-      <FilterTabs options={options} value={filter} onChange={setFilter} />
+      <FilterTabs
+        options={options}
+        value="All"
+        onChange={() => setSelectedTypes([])}
+        selectedValues={
+          selectedTypes.length === 0 ? ["All"] : selectedTypes
+        }
+        onToggle={toggleFilter}
+      />
 
       <div ref={graphRef} className="relative mt-10 flex flex-col gap-6">
         <div
