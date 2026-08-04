@@ -200,35 +200,3 @@ body {
   }
 }
 
-/* PulseTimeline's horizontal scroller — themed scrollbar + drag cursor. */
-.pulse-scroller {
-  cursor: grab;
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-signal) var(--color-surface);
-  /* Keeps the scroll gesture contained instead of leaking into the
-     browser's back/forward swipe navigation at the scroll boundaries. */
-  overscroll-behavior-x: contain;
-}
-
-.pulse-scroller.dragging {
-  cursor: grabbing;
-  user-select: none;
-}
-
-.pulse-scroller::-webkit-scrollbar {
-  height: 8px;
-}
-
-.pulse-scroller::-webkit-scrollbar-track {
-  background: var(--color-surface);
-  border-radius: 999px;
-}
-
-.pulse-scroller::-webkit-scrollbar-thumb {
-  background: var(--color-signal);
-  border-radius: 999px;
-}
-
-.pulse-scroller::-webkit-scrollbar-thumb:hover {
-  background: var(--color-accent);
-}

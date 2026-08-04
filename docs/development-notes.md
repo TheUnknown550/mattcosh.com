@@ -30,26 +30,33 @@ pages, sourced from `content/linkedin-exports/`:
 - **Roadmap (`src/app/roadmap/page.tsx`)** — every milestone (education,
   work, projects, awards, certifications) merged in `src/data/timeline.ts`,
   newest first, and rendered by `PulseTimeline`
-  (`src/components/roadmap/PulseTimeline.tsx`): a horizontally-scrolling,
-  click-and-drag-able "git graph". `work`/`project` entries whose date
-  ranges genuinely overlap branch off the main trunk and merge back in
-  (git-graph/`git log --graph` style — lane assignment is a greedy
-  interval-colouring in `src/lib/timelineLanes.ts`); education/awards/
+  (`src/components/roadmap/PulseTimeline.tsx`): a **vertical**, multi-coloured
+  "git graph" (VS Code Git Graph extension-style), newest at the top,
+  flowing with normal page scroll. `work`/`project` entries whose date
+  ranges genuinely overlap branch off the main trunk into their own coloured
+  lane (lane assignment is a greedy interval-colouring in
+  `src/lib/timelineLanes.ts`; colour is cycled per lane via a fixed palette
+  in `PulseTimeline.tsx`, trunk/lane 0 always teal); education/awards/
   certifications are point-in-time and always render on the trunk (a
   multi-year education span would otherwise make almost everything
-  "concurrent"). Branch curves are SVG paths computed from each card's
-  *measured* DOM position (a `useLayoutEffect`, same pattern as
-  `FilterTabs`' sliding indicator) rather than date-proportional math, so
-  they stay correct across breakpoints without a full Gantt-chart layout.
+  "concurrent"). A branch only curves back into the trunk once the
+  entry has actually *finished* (a real `endSortDate`) — still-ongoing
+  entries (`endSortDate: null`) stay open: a straight, unmerged line running
+  off the top of the graph, rather than every "Present" role curving into
+  the same single point at the newest row. Branch curves are SVG paths
+  computed from each card's *measured* DOM position (a `useLayoutEffect`,
+  same pattern as `FilterTabs`' sliding indicator) rather than
+  date-proportional math, so they stay correct regardless of card height.
   **Gotcha already hit once:** the effect that measures positions depends
   on the filtered-entries array — that array must stay memoized
   (`useMemo`), or a fresh reference every render retriggers the effect
-  every render → infinite loop. The EKG progress line/dot from before
-  still tracks scroll position on the trunk. Mouse wheel scrolls
-  horizontally via a native non-passive `wheel` listener (React's
-  `onWheel` is passive by default and can't call `preventDefault()`);
-  trackpad, touch, drag, arrow-key focus, and ‹ › buttons all work too.
-  Themed scrollbar via `.pulse-scroller` in `globals.css`.
+  every render → infinite loop. The graph's trunk/fill/SVG need an
+  *explicit* pixel height (measured via `scrollHeight`), not a percentage —
+  percentage heights don't resolve against an auto-height flex parent. The
+  EKG progress line/dot now tracks the page's scroll position against the
+  trunk (anchored to a fixed viewport fraction) instead of horizontal
+  scroll. There's no more inner scroll container, drag-to-pan, or
+  horizontal wheel handling — the graph is part of normal page flow.
 - Dark theme (`--color-void` background, `--color-signal` teal +
   `--color-accent` orange dual accent), `Space Grotesk` / `IBM Plex Sans` /
   `IBM Plex Mono` type system — see `src/app/globals.css`.

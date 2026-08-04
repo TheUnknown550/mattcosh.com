@@ -14,8 +14,9 @@ export default function RoadmapPage() {
         </h1>
         <p className="mt-4 max-w-2xl text-lg text-ink-muted">
           Every milestone in one feed — newest first. Roles and projects that
-          overlapped in time branch off the main line and merge back in,
-          git-graph style. Scroll sideways to trace it back to 2021.
+          overlapped in time branch off the main line in their own colour and
+          merge back in, git-graph style. Scroll down to trace it back to
+          2021.
         </p>
       </Reveal>
 

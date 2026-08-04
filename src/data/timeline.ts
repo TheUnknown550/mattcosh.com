@@ -65,12 +65,17 @@ const certificationEntries: TimelineEntry[] = certifications.map((cert) => ({
 /**
  * Every milestone (education, work, projects, awards, certifications) merged
  * into one reverse-chronological feed (newest first) for the Roadmap page —
- * see src/components/roadmap/PulseTimeline.tsx.
+ * see src/components/roadmap/PulseTimeline.tsx. `sort` is stable, so when two
+ * entries land in the same month (only month-level precision is tracked),
+ * ties keep their relative order from this array — work/project entries are
+ * listed first so a project that started later in the same month as a
+ * point-in-time education/award/certification milestone still renders above
+ * it (newest first).
  */
 export const timeline: TimelineEntry[] = [
-  ...educationEntries,
   ...workEntries,
   ...projectEntries,
+  ...educationEntries,
   ...awardEntries,
   ...certificationEntries,
 ].sort((a, b) => b.sortDate.localeCompare(a.sortDate));
