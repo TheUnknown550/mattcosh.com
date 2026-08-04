@@ -31,20 +31,13 @@ const TYPE_GLYPH: Record<TimelineEntryType, string> = {
 };
 
 /** Cycled by lane number, VS Code Git Graph-style — lane 0 (trunk) is always the signal teal. */
-const LANE_PALETTE = [
-  "#2dd9c9", // signal teal — trunk
-  "#ff5a1f", // accent orange
-  "#c792ea", // purple
-  "#82aaff", // blue
-  "#f07178", // red/pink
-  "#c3e88d", // green
-  "#ffcb6b", // yellow
-  "#89ddff", // cyan
-];
-
-function laneColor(lane: number): string {
-  return LANE_PALETTE[lane % LANE_PALETTE.length];
-}
+const TYPE_COLOR: Record<TimelineEntryType, string> = {
+  education: "#82aaff",
+  work: "#ff5a1f",
+  project: "#2dd9c9",
+  award: "#ffcb6b",
+  certification: "#c792ea",
+};
 
 const LANE_STEP = 36;
 const NODE_SIZE = 32;
@@ -118,12 +111,13 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
     );
     const types = Object.keys(TYPE_LABELS) as TimelineEntryType[];
     return [
-      { value: "All" as FilterValue, label: `All (${entries.length})` },
+      { value: "All" as FilterValue, label: `All (${entries.length})`, tone: "#2dd9c9" },
       ...types
         .filter((type) => counts[type])
         .map((type) => ({
           value: type as FilterValue,
           label: `${TYPE_LABELS[type]} (${counts[type]})`,
+          tone: TYPE_COLOR[type],
         })),
     ];
   }, [entries]);
@@ -311,6 +305,7 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
             if (y === undefined) return null;
             const lane = getEffectiveLane(entry, index);
             const x = geometry.trunkX + laneOffsetIndex(lane) * LANE_STEP;
+            const color = TYPE_COLOR[entry.type];
             return (
               <line
                 key={`stem-${entry.id}`}
@@ -318,8 +313,9 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
                 y1={y}
                 x2={geometry.graphWidth}
                 y2={y}
-                stroke="var(--color-line)"
+                stroke={color}
                 strokeWidth={1}
+                strokeOpacity={0.4}
                 strokeLinecap="round"
               />
             );
@@ -331,7 +327,7 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
             const bottomY = nodeY[entry.id];
             if (bottomY === undefined) return null;
             const laneX = geometry.trunkX + laneOffsetIndex(lane) * LANE_STEP;
-            const color = laneColor(lane);
+            const color = TYPE_COLOR[entry.type];
 
             // Still ongoing — nothing has been "merged" yet, so the lane
             // stays open: a straight, unmerged line running off the top of
@@ -386,7 +382,7 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
           const y = nodeY[entry.id];
           const lane = getEffectiveLane(entry, index);
           const x = geometry.trunkX + laneOffsetIndex(lane) * LANE_STEP;
-          const color = laneColor(lane);
+          const color = TYPE_COLOR[entry.type];
           return (
             <div
               key={`node-${entry.id}`}
@@ -416,8 +412,20 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
           >
             <Reveal>
               <TiltCard className="rounded-lg">
-                <div className="rounded-lg border border-line bg-surface p-5 transition-colors duration-300 hover:border-signal">
-                  <p className="font-mono text-xs uppercase tracking-wide text-ink-muted">
+                <div
+                  className="rounded-lg border border-line border-l-2 bg-surface p-5 transition-colors duration-300 hover:border-signal"
+                  style={{ borderLeftColor: TYPE_COLOR[entry.type] }}
+                >
+                  <p className="flex items-center gap-2 font-mono text-xs uppercase tracking-wide text-ink-muted">
+                    <span
+                      aria-hidden="true"
+                      className="h-1.5 w-1.5 rounded-full"
+                      style={{ backgroundColor: TYPE_COLOR[entry.type] }}
+                    />
+                    <span style={{ color: TYPE_COLOR[entry.type] }}>
+                      {TYPE_LABELS[entry.type]}
+                    </span>
+                    <span aria-hidden="true">·</span>
                     {entry.dateLabel}
                   </p>
                   <h3 className="mt-2 font-display text-base font-semibold text-ink sm:text-lg">
@@ -444,14 +452,16 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
                         href={entry.link.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="mt-4 inline-flex font-mono text-xs uppercase tracking-wide text-signal transition-colors hover:text-accent"
+                        className="mt-4 inline-flex font-mono text-xs uppercase tracking-wide transition-colors hover:text-accent"
+                        style={{ color: TYPE_COLOR[entry.type] }}
                       >
                         {entry.link.label} ↗
                       </a>
                     ) : (
                       <Link
                         href={entry.link.href}
-                        className="mt-4 inline-flex font-mono text-xs uppercase tracking-wide text-signal transition-colors hover:text-accent"
+                        className="mt-4 inline-flex font-mono text-xs uppercase tracking-wide transition-colors hover:text-accent"
+                        style={{ color: TYPE_COLOR[entry.type] }}
                       >
                         {entry.link.label} →
                       </Link>

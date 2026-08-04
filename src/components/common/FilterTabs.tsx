@@ -5,6 +5,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 interface FilterTabOption<T extends string> {
   value: T;
   label: string;
+  tone?: string;
 }
 
 interface FilterTabsProps<T extends string> {
@@ -35,6 +36,8 @@ export function FilterTabs<T extends string>({
     setIndicator({ left: activeEl.offsetLeft, width: activeEl.offsetWidth });
   }, [value, options]);
 
+  const activeTone = options.find((option) => option.value === value)?.tone ?? "#2dd9c9";
+
   return (
     <div
       ref={containerRef}
@@ -43,8 +46,13 @@ export function FilterTabs<T extends string>({
       {indicator && (
         <span
           aria-hidden="true"
-          className="absolute top-1 bottom-1 rounded-full border border-signal/40 bg-signal/15 transition-all duration-300 ease-out motion-reduce:transition-none"
-          style={{ left: indicator.left, width: indicator.width }}
+          className="absolute top-1 bottom-1 rounded-full transition-all duration-300 ease-out motion-reduce:transition-none"
+          style={{
+            left: indicator.left,
+            width: indicator.width,
+            border: `1px solid ${activeTone}66`,
+            backgroundColor: `${activeTone}1f`,
+          }}
         />
       )}
       {options.map((option) => (
@@ -53,10 +61,17 @@ export function FilterTabs<T extends string>({
           data-value={option.value}
           type="button"
           onClick={() => onChange(option.value)}
-          className={`relative z-10 rounded-full px-4 py-2 transition-colors duration-200 ${
+          className={`relative z-10 inline-flex items-center gap-2 rounded-full px-4 py-2 transition-colors duration-200 ${
             value === option.value ? "text-ink" : "text-ink-muted hover:text-ink"
           }`}
         >
+          {option.tone && (
+            <span
+              aria-hidden="true"
+              className="h-1.5 w-1.5 rounded-full"
+              style={{ backgroundColor: option.tone }}
+            />
+          )}
           {option.label}
         </button>
       ))}
