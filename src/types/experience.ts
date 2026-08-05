@@ -11,4 +11,6 @@ export interface ExperienceEntry {
   endSortDate: string | null;
   summary: string;
   highlights: string[];
+  skillsGained: string[];
+  whatILearned: string[];
 }

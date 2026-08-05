@@ -442,28 +442,33 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
         })}
 
         {filtered.map((entry) => {
-          const projectHref =
-            entry.type === "project" && entry.link && !entry.link.href.startsWith("http")
+          const detailHref =
+            (entry.type === "project" || entry.type === "work") &&
+            entry.link &&
+            !entry.link.href.startsWith("http")
               ? entry.link.href
               : null;
+          const cardHref =
+            detailHref ?? (entry.type === "education" ? "/experience" : null);
+          const cardLabel = entry.type === "project" ? "View project" : "View experience";
           return (
             <div
               key={entry.id}
               ref={(el) => registerRow(entry.id, el)}
-              role={projectHref ? "link" : undefined}
-              tabIndex={projectHref ? 0 : undefined}
-              onClick={projectHref ? () => router.push(projectHref) : undefined}
+              role={cardHref ? "link" : undefined}
+              tabIndex={cardHref ? 0 : undefined}
+              onClick={cardHref ? () => router.push(cardHref) : undefined}
               onKeyDown={
-                projectHref
+                cardHref
                   ? (event) => {
                       if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault();
-                        router.push(projectHref);
+                        router.push(cardHref);
                       }
                     }
                   : undefined
               }
-              className={projectHref ? "cursor-pointer" : undefined}
+              className={cardHref ? "cursor-pointer" : undefined}
               style={{ paddingLeft: geometry.graphWidth }}
             >
             <Reveal>
@@ -502,9 +507,9 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
                       ))}
                     </ul>
                   )}
-                  {projectHref ? (
+                  {cardHref ? (
                     <p className="mt-4 inline-flex font-mono text-xs uppercase tracking-wide text-signal">
-                      View project →
+                      {cardLabel} →
                     </p>
                   ) : (
                     entry.link &&

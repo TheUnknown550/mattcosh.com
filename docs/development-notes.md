@@ -20,8 +20,9 @@ pages, sourced from `content/linkedin-exports/`:
   component adds a consistent resume-oriented summary, skills-developed,
   recognition, and detailed case-study layout to every project page (see
   `src/lib/mdx.ts` and `src/mdx-components.tsx` for styled prose overrides).
-- **Experience (`src/app/experience/page.tsx`)** — work history and
-  education in full, plus condensed Skills/Certifications teasers that link
+- **Experience (`src/app/experience/page.tsx`, `experience/[id]/page.tsx`)** — work-history
+  overview cards link to a shared `ExperienceDetail` page with responsibilities,
+  skills gained, and lessons learned; education in full, plus condensed Skills/Certifications teasers that link
   out to their own pages (kept condensed deliberately — see
   `docs/content-management.md` on not duplicating full content across pages).
 - **Skills (`src/app/skills/page.tsx`)** — all ~65 skills grouped by

@@ -25,6 +25,7 @@ const workEntries: TimelineEntry[] = experience.map((entry) => ({
   sortDate: entry.sortDate,
   endSortDate: entry.endSortDate,
   description: entry.summary,
+  link: { label: "View experience", href: `/experience/${entry.id}` },
 }));
 
 const projectEntries: TimelineEntry[] = projects.map((project) => ({
