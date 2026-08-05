@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { TimelineEntry, TimelineEntryType } from "@/types/timeline";
 import { FilterTabs } from "@/components/common/FilterTabs";
 import { TiltCard } from "@/components/common/TiltCard";
@@ -86,6 +87,7 @@ function buildBranchPath(trunkX: number, laneX: number, bottomY: number, topY: n
  */
 export function PulseTimeline({ entries }: PulseTimelineProps) {
   const [selectedTypes, setSelectedTypes] = useState<TimelineEntryType[]>([]);
+  const router = useRouter();
   const graphRef = useRef<HTMLDivElement>(null);
   const fillRef = useRef<HTMLDivElement>(null);
   const dotRef = useRef<HTMLDivElement>(null);
@@ -439,12 +441,31 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
           );
         })}
 
-        {filtered.map((entry) => (
-          <div
-            key={entry.id}
-            ref={(el) => registerRow(entry.id, el)}
-            style={{ paddingLeft: geometry.graphWidth }}
-          >
+        {filtered.map((entry) => {
+          const projectHref =
+            entry.type === "project" && entry.link && !entry.link.href.startsWith("http")
+              ? entry.link.href
+              : null;
+          return (
+            <div
+              key={entry.id}
+              ref={(el) => registerRow(entry.id, el)}
+              role={projectHref ? "link" : undefined}
+              tabIndex={projectHref ? 0 : undefined}
+              onClick={projectHref ? () => router.push(projectHref) : undefined}
+              onKeyDown={
+                projectHref
+                  ? (event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        router.push(projectHref);
+                      }
+                    }
+                  : undefined
+              }
+              className={projectHref ? "cursor-pointer" : undefined}
+              style={{ paddingLeft: geometry.graphWidth }}
+            >
             <Reveal>
               <TiltCard className="rounded-lg">
                 <div
@@ -481,7 +502,12 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
                       ))}
                     </ul>
                   )}
-                  {entry.link &&
+                  {projectHref ? (
+                    <p className="mt-4 inline-flex font-mono text-xs uppercase tracking-wide text-signal">
+                      View project →
+                    </p>
+                  ) : (
+                    entry.link &&
                     (entry.link.href.startsWith("http") ? (
                       <a
                         href={entry.link.href}
@@ -500,12 +526,13 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
                       >
                         {entry.link.label} →
                       </Link>
-                    ))}
+                    ))) }
                 </div>
               </TiltCard>
             </Reveal>
-          </div>
-        ))}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
