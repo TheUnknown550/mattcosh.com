@@ -4,8 +4,6 @@ import { SkillsExplorer } from "@/components/skills/SkillsExplorer";
 import { Reveal } from "@/components/common/Reveal";
 
 export default function SkillsPage() {
-  const totalSkills = skills.reduce((sum, group) => sum + group.skills.length, 0);
-
   return (
     <div className="mx-auto max-w-5xl py-16 lg:py-24">
       <Link
@@ -16,10 +14,7 @@ export default function SkillsPage() {
       </Link>
 
       <Reveal className="mt-8">
-        <p className="font-mono text-xs uppercase tracking-wide text-signal">
-          {totalSkills} skills · {skills.length} areas
-        </p>
-        <h1 className="mt-4 font-display text-4xl font-semibold text-ink lg:text-5xl">
+        <h1 className="font-display text-4xl font-semibold text-ink lg:text-5xl">
           Skills
         </h1>
         <p className="mt-4 max-w-2xl text-lg text-ink-muted">

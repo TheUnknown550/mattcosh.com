@@ -14,15 +14,9 @@ export default function ExperiencePage() {
   return (
     <div className="mx-auto max-w-6xl py-16 lg:py-24">
       <Reveal>
-        <p className="font-mono text-xs uppercase tracking-wide text-signal">Résumé</p>
-        <h1 className="mt-4 font-display text-4xl font-semibold text-ink lg:text-5xl">
+        <h1 className="font-display text-4xl font-semibold text-ink lg:text-5xl">
           Experience
         </h1>
-        <p className="mt-4 max-w-2xl text-lg text-ink-muted">
-          Four roles across a production engineering team, a freelance client
-          base, and two teaching positions at Chiang Mai University — plus
-          the education behind them.
-        </p>
       </Reveal>
 
       <PulseDivider />
