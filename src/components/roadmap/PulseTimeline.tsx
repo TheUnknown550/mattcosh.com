@@ -472,7 +472,7 @@ export function PulseTimeline({ entries }: PulseTimelineProps) {
               style={{ paddingLeft: geometry.graphWidth }}
             >
             <Reveal>
-              <TiltCard className="rounded-lg">
+              <TiltCard className="rounded-lg" maxTiltDeg={1.5}>
                 <div
                   className="rounded-lg border border-line border-l-2 bg-surface p-5 transition-colors duration-300 hover:border-signal"
                   style={{ borderLeftColor: TYPE_COLOR[entry.type] }}
