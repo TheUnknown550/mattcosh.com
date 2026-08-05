@@ -25,6 +25,10 @@ export const metadata: Metadata = {
   title: "Matt Cosh",
   description:
     "Software developer building applied AI, full-stack, AIoT, and networking projects.",
+  icons: {
+    icon: [{ url: "/icon", type: "image/png", sizes: "512x512" }],
+    shortcut: "/icon",
+  },
 };
 
 export default function RootLayout({

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { CommandPalette } from "@/components/common/CommandPalette";
 import { MobileNav } from "@/components/layout/MobileNav";
 
@@ -19,12 +20,21 @@ export function SiteShell({ children }: SiteShellProps) {
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-line/80 bg-void/95 backdrop-blur">
-        <div className="relative mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4 lg:px-8">
+        <div className="relative mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-2.5 lg:px-8">
           <Link
             href="/"
-            className="font-display text-lg font-semibold tracking-tight text-ink"
+            className="group flex items-center gap-3 font-display text-2xl font-semibold tracking-tight text-ink"
           >
-            Matt Cosh
+            <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-signal bg-surface">
+              <Image
+                src="/img/profile.png"
+                alt=""
+                fill
+                sizes="56px"
+                className="object-contain"
+              />
+            </span>
+            mattcosh.com
           </Link>
           <nav className="hidden items-center gap-6 font-mono text-sm uppercase tracking-wide text-ink-muted md:flex">
             {NAV_LINKS.map((link) => (
