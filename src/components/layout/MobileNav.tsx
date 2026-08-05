@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface NavLink {
   href: string;
@@ -21,6 +22,7 @@ interface MobileNavProps {
  */
 export function MobileNav({ links }: MobileNavProps) {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!open) {
@@ -85,16 +87,24 @@ export function MobileNav({ links }: MobileNavProps) {
           <nav
             className="animate-palette-in absolute inset-x-0 top-full z-40 flex flex-col gap-1 border-b border-line bg-surface px-6 py-6 font-mono text-sm uppercase tracking-wide text-ink-muted"
           >
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className="rounded-md px-2 py-3 transition-colors hover:text-ink"
-              >
-                {link.label}
-              </Link>
-            ))}
+            {links.map((link) => {
+              const isActive =
+                pathname === link.href || pathname.startsWith(`${link.href}/`);
+
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`rounded-md px-2 py-3 transition-colors hover:text-ink ${
+                    isActive ? "bg-void text-ink" : ""
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
             <a
               href="https://github.com/TheUnknown550"
               target="_blank"

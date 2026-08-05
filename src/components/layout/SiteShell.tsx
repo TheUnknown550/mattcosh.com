@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { CommandPalette } from "@/components/common/CommandPalette";
+import { DesktopNav } from "@/components/layout/DesktopNav";
 import { MobileNav } from "@/components/layout/MobileNav";
 
 interface SiteShellProps {
@@ -36,33 +37,7 @@ export function SiteShell({ children }: SiteShellProps) {
             </span>
             mattcosh.com
           </Link>
-          <nav className="hidden items-center gap-6 font-mono text-sm uppercase tracking-wide text-ink-muted md:flex">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="group relative pb-1 transition-colors hover:text-ink"
-              >
-                {link.label}
-                <span
-                  aria-hidden="true"
-                  className="absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-current transition-transform duration-300 ease-out group-hover:scale-x-100 motion-reduce:transition-none"
-                />
-              </Link>
-            ))}
-            <a
-              href="https://github.com/TheUnknown550"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative pb-1 transition-colors hover:text-ink"
-            >
-              GitHub ↗
-              <span
-                aria-hidden="true"
-                className="absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-current transition-transform duration-300 ease-out group-hover:scale-x-100 motion-reduce:transition-none"
-              />
-            </a>
-          </nav>
+          <DesktopNav links={NAV_LINKS} />
           <MobileNav links={NAV_LINKS} />
         </div>
       </header>
