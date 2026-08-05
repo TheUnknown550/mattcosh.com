@@ -12,7 +12,7 @@ export default function ExperiencePage() {
   const recentCertifications = certifications.slice(0, 3);
 
   return (
-    <div className="mx-auto max-w-6xl py-16 lg:py-24">
+    <div className="mx-auto max-w-6xl py-8 lg:py-12">
       <Reveal>
         <h1 className="font-display text-4xl font-semibold text-ink lg:text-5xl">
           Experience

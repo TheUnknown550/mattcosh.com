@@ -5,15 +5,8 @@ import { Reveal } from "@/components/common/Reveal";
 
 export default function CertificationsPage() {
   return (
-    <div className="mx-auto max-w-3xl py-16 lg:py-24">
-      <Link
-        href="/experience"
-        className="font-mono text-xs uppercase tracking-wide text-ink-muted transition-colors hover:text-ink"
-      >
-        ← Experience
-      </Link>
-
-      <Reveal className="mt-8">
+    <div className="mx-auto max-w-3xl py-8 lg:py-12">
+      <Reveal>
         <h1 className="font-display text-4xl font-semibold text-ink lg:text-5xl">
           Certifications
         </h1>

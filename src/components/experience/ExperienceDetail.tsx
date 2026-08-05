@@ -15,7 +15,7 @@ export function ExperienceDetail({ entry }: ExperienceDetailProps) {
   ];
 
   return (
-    <article className="mx-auto max-w-6xl py-16 lg:py-24">
+    <article className="mx-auto max-w-6xl py-8 lg:py-12">
       <Link
         href="/experience"
         className="group inline-flex items-center gap-2 font-mono text-xs uppercase tracking-wide text-ink-muted transition-colors hover:text-ink"
