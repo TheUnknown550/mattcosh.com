@@ -26,7 +26,7 @@ export function SiteShell({ children }: SiteShellProps) {
             href="/"
             className="group flex items-center gap-3 font-display text-2xl font-semibold tracking-tight text-ink"
           >
-            <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-signal bg-surface">
+            <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border border-ink bg-surface">
               <Image
                 src="/img/profile.png"
                 alt=""
