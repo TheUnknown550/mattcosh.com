@@ -16,8 +16,10 @@ pages, sourced from `content/linkedin-exports/`:
 - **Projects (`src/app/projects/page.tsx`, `[slug]/page.tsx`)** — a
   filterable grid of all 9 real projects (`src/data/projects.ts`), each
   with a full MDX case study (`content/projects/*.mdx`) now actually
-  rendered via a dynamic `@content/*` import (see `src/lib/mdx.ts` and
-  `src/mdx-components.tsx` for the styled component overrides).
+  rendered via a dynamic `@content/*` import. The shared `ProjectDetail`
+  component adds a consistent resume-oriented summary, skills-developed,
+  recognition, and detailed case-study layout to every project page (see
+  `src/lib/mdx.ts` and `src/mdx-components.tsx` for styled prose overrides).
 - **Experience (`src/app/experience/page.tsx`)** — work history and
   education in full, plus condensed Skills/Certifications teasers that link
   out to their own pages (kept condensed deliberately — see
