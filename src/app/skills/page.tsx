@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { skills } from "@/data/skills";
 import { SkillsExplorer } from "@/components/skills/SkillsExplorer";
+import { PulseDivider } from "@/components/common/PulseDivider";
 import { Reveal } from "@/components/common/Reveal";
 
 export default function SkillsPage() {
@@ -17,7 +18,9 @@ export default function SkillsPage() {
         </p>
       </Reveal>
 
-      <Reveal className="mt-12">
+      <PulseDivider />
+
+      <Reveal className="mt-6">
         <SkillsExplorer groups={skills} />
       </Reveal>
 

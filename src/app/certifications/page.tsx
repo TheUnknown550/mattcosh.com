@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { certifications } from "@/data/certifications";
 import { CertificationList } from "@/components/certifications/CertificationList";
+import { PulseDivider } from "@/components/common/PulseDivider";
 import { Reveal } from "@/components/common/Reveal";
 
 export default function CertificationsPage() {
@@ -12,7 +13,9 @@ export default function CertificationsPage() {
         </h1>
       </Reveal>
 
-      <Reveal className="mt-12">
+      <PulseDivider />
+
+      <Reveal className="mt-6">
         <CertificationList certifications={certifications} />
       </Reveal>
 

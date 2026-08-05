@@ -1,5 +1,6 @@
 import { getAllProjects } from "@/lib/projects";
 import { ProjectsExplorer } from "@/components/projects/ProjectsExplorer";
+import { PulseDivider } from "@/components/common/PulseDivider";
 import { Reveal } from "@/components/common/Reveal";
 
 export default function ProjectsPage() {
@@ -13,7 +14,9 @@ export default function ProjectsPage() {
         </h1>
       </Reveal>
 
-      <Reveal className="mt-12">
+      <PulseDivider />
+
+      <Reveal className="mt-6">
         <ProjectsExplorer projects={projects} />
       </Reveal>
     </div>

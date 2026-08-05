@@ -1,5 +1,6 @@
 import { timeline } from "@/data/timeline";
 import { PulseTimeline } from "@/components/roadmap/PulseTimeline";
+import { PulseDivider } from "@/components/common/PulseDivider";
 import { Reveal } from "@/components/common/Reveal";
 
 export default function RoadmapPage() {
@@ -11,7 +12,9 @@ export default function RoadmapPage() {
         </h1>
       </Reveal>
 
-      <div className="mt-12">
+      <PulseDivider />
+
+      <div className="mt-6">
         <PulseTimeline entries={timeline} />
       </div>
     </div>
