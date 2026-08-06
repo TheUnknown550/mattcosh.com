@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
-  GRAPH_NODE_COLORS,
   type GraphFocusStop,
   type PortfolioGraphNode,
 } from "@/data/portfolioGraph";
@@ -10,10 +9,7 @@ function GraphDetailPanel({ node }: { node: PortfolioGraphNode }) {
   if (node.type === "core") {
     return (
       <aside className="pointer-events-auto w-full max-w-sm rounded-xl border border-line/90 bg-surface/95 p-5 shadow-2xl shadow-void/40 backdrop-blur-md">
-        <p className="font-mono text-[11px] uppercase tracking-wide text-signal">
-          Portfolio core
-        </p>
-        <h2 className="mt-3 font-display text-2xl font-semibold leading-tight text-ink">
+        <h2 className="font-display text-2xl font-semibold leading-tight text-ink">
           Matt Tanthai Cosh
         </h2>
         <section className="mt-5 border-t border-line pt-4">
@@ -72,13 +68,7 @@ function GraphDetailPanel({ node }: { node: PortfolioGraphNode }) {
 
   return (
     <aside className="pointer-events-auto w-full max-w-sm rounded-xl border border-line/90 bg-surface/95 p-5 shadow-2xl shadow-void/40 backdrop-blur-md">
-      <p
-        className="font-mono text-[11px] uppercase tracking-wide"
-        style={{ color: GRAPH_NODE_COLORS[node.type] }}
-      >
-        {node.eyebrow}
-      </p>
-      <h2 className="mt-3 font-display text-2xl font-semibold leading-tight text-ink">
+      <h2 className="font-display text-2xl font-semibold leading-tight text-ink">
         {node.title}
       </h2>
       <p className="mt-3 text-sm leading-relaxed text-ink-muted">
@@ -241,7 +231,7 @@ export function GraphOverlay({
       <button
         type="button"
         onClick={onEnter}
-        className={`absolute bottom-8 left-6 font-mono text-[10px] uppercase tracking-wide text-ink-muted transition-opacity duration-500 hover:text-signal lg:left-10 ${
+        className={`absolute right-6 bottom-8 font-mono text-[10px] uppercase tracking-wide text-ink-muted transition-opacity duration-500 hover:text-signal lg:right-10 ${
           isExplorer
             ? "pointer-events-none opacity-0"
             : "pointer-events-auto opacity-100"

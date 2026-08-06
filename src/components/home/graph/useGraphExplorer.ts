@@ -6,11 +6,7 @@ import {
   graphFocusStops,
   portfolioGraphNodes,
 } from "@/data/portfolioGraph";
-import {
-  EXPLORER_START_NODE_ID,
-  GRAPH_TYPE_LABELS,
-  OVERVIEW_STOP,
-} from "./constants";
+import { EXPLORER_START_NODE_ID, OVERVIEW_STOP } from "./constants";
 
 export function useGraphExplorer() {
   const [isExplorer, setIsExplorer] = useState(false);
@@ -31,12 +27,6 @@ export function useGraphExplorer() {
         )
       : undefined) ?? OVERVIEW_STOP;
   const navigationNodes = useMemo(() => {
-    if (selectedNode.type !== "core") {
-      return portfolioGraphNodes.filter(
-        (node) => node.type === selectedNode.type,
-      );
-    }
-
     const allNodes = portfolioGraphNodes.filter((node) => node.type !== "core");
     const preferredNode = allNodes.find(
       (node) => node.id === EXPLORER_START_NODE_ID,
@@ -48,7 +38,7 @@ export function useGraphExplorer() {
           ...allNodes.filter((node) => node.id !== preferredNode.id),
         ]
       : allNodes;
-  }, [selectedNode.type]);
+  }, []);
   const selectedNavigationIndex = navigationNodes.findIndex(
     (node) => node.id === selectedNode.id,
   );
@@ -122,7 +112,7 @@ export function useGraphExplorer() {
     exitExplorer,
     isExplorer,
     isNodeFocused,
-    navigationLabel: GRAPH_TYPE_LABELS[selectedNode.type],
+    navigationLabel: "All nodes",
     navigationNodes,
     reduceMotion,
     selectedNavigationIndex,
