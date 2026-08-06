@@ -135,10 +135,7 @@ export function GraphOverlay({
           isExplorer ? "-translate-x-8 opacity-0" : "translate-x-0 opacity-100"
         }`}
       >
-        <p className="font-mono text-xs uppercase tracking-wide text-signal">
-          Software developer — Chiang Mai, Thailand
-        </p>
-        <h1 className="mt-4 font-display text-[clamp(2.35rem,4.6vw,5.25rem)] font-semibold leading-[0.98] tracking-tight text-ink">
+        <h1 className="font-display text-[clamp(2.35rem,4.6vw,5.25rem)] font-semibold leading-[0.98] tracking-tight text-ink">
           I turn signals into systems.
         </h1>
         <p className="mt-6 hidden max-w-md text-base leading-relaxed text-ink-muted sm:block sm:text-lg">
@@ -237,7 +234,7 @@ export function GraphOverlay({
             : "pointer-events-auto opacity-100"
         }`}
       >
-        Enter graph view →
+        ← Enter graph view
       </button>
     </div>
   );
