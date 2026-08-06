@@ -4,7 +4,6 @@ import Image from "next/image";
 import { CommandPalette } from "@/components/common/CommandPalette";
 import { DesktopNav } from "@/components/layout/DesktopNav";
 import { MobileNav } from "@/components/layout/MobileNav";
-import { NeuralNetworkBackground } from "@/components/three/NeuralNetworkBackground";
 
 interface SiteShellProps {
   children: ReactNode;
@@ -21,8 +20,7 @@ const NAV_LINKS = [
 export function SiteShell({ children }: SiteShellProps) {
   return (
     <>
-      <NeuralNetworkBackground />
-      <div className="relative z-10 flex min-h-full flex-1 flex-col">
+      <div className="flex min-h-full flex-1 flex-col">
       <header className="sticky top-0 z-40 border-b border-line/80 bg-void/95 backdrop-blur">
         <div className="relative mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-2.5 lg:px-8">
           <Link

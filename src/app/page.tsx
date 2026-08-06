@@ -1,4 +1,4 @@
-import { Hero } from "@/components/home/Hero";
+import { GraphJourney } from "@/components/home/GraphJourney";
 import { About } from "@/components/home/About";
 import { Highlights } from "@/components/home/Highlights";
 import { Testimonial } from "@/components/home/Testimonial";
@@ -10,7 +10,7 @@ import { Reveal } from "@/components/common/Reveal";
 export default function Home() {
   return (
     <>
-      <Hero />
+      <GraphJourney />
       <PulseDivider />
       <Reveal>
         <About />
