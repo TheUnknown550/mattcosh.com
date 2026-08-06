@@ -1,11 +1,13 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
+import { useRef } from "react";
 import { GraphOverlay } from "./graph/GraphOverlay";
 import { PortfolioGraphScene } from "./graph/PortfolioGraphScene";
 import { useGraphExplorer } from "./graph/useGraphExplorer";
 
 export function GraphJourney() {
+  const pointerStart = useRef<{ x: number; y: number } | null>(null);
   const {
     activeStop,
     clearFocus,
@@ -24,10 +26,20 @@ export function GraphJourney() {
 
   return (
     <section
-      className="relative min-h-[calc(100svh-77px)]"
+      className={
+        isExplorer
+          ? "fixed inset-0 z-50 h-svh bg-void"
+          : "relative min-h-[calc(100svh-77px)]"
+      }
       aria-label="Portfolio graph"
     >
-      <div className="relative h-[calc(100svh-77px)] overflow-hidden">
+      <div
+        className={
+          isExplorer
+            ? "relative h-svh overflow-hidden"
+            : "relative h-[calc(100svh-77px)] overflow-hidden"
+        }
+      >
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 opacity-40"
@@ -49,12 +61,26 @@ export function GraphJourney() {
             powerPreference: "high-performance",
           }}
           className="absolute inset-0"
-          onClick={() => {
+          onPointerDown={(event) => {
+            pointerStart.current = {
+              x: event.nativeEvent.clientX,
+              y: event.nativeEvent.clientY,
+            };
+          }}
+          onPointerUp={(event) => {
+            const start = pointerStart.current;
+            pointerStart.current = null;
+            if (!start) return;
+
+            const deltaX = event.nativeEvent.clientX - start.x;
+            const deltaY = event.nativeEvent.clientY - start.y;
+            if (deltaX * deltaX + deltaY * deltaY > 64) return;
+
             if (isExplorer) {
               clearFocus();
-              return;
+            } else {
+              enterExplorer();
             }
-            enterExplorer();
           }}
         >
           <PortfolioGraphScene
@@ -76,6 +102,7 @@ export function GraphJourney() {
           navigationPosition={Math.max(selectedNavigationIndex, 0) + 1}
           node={selectedNode}
           onExit={exitExplorer}
+          onEnter={enterExplorer}
           onPrevious={() => selectAdjacentNode(-1)}
           onNext={() => selectAdjacentNode(1)}
         />

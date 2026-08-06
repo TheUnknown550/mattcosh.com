@@ -119,6 +119,7 @@ interface GraphOverlayProps {
   navigationLength: number;
   navigationPosition: number;
   node: PortfolioGraphNode;
+  onEnter: () => void;
   onExit: () => void;
   onNext: () => void;
   onPrevious: () => void;
@@ -132,6 +133,7 @@ export function GraphOverlay({
   navigationLength,
   navigationPosition,
   node,
+  onEnter,
   onExit,
   onNext,
   onPrevious,
@@ -236,13 +238,17 @@ export function GraphOverlay({
         </>
       )}
 
-      <p
-        className={`absolute bottom-8 left-6 font-mono text-[10px] uppercase tracking-wide text-ink-muted transition-opacity duration-500 lg:left-10 ${
-          isExplorer ? "opacity-0" : "opacity-100"
+      <button
+        type="button"
+        onClick={onEnter}
+        className={`absolute bottom-8 left-6 font-mono text-[10px] uppercase tracking-wide text-ink-muted transition-opacity duration-500 hover:text-signal lg:left-10 ${
+          isExplorer
+            ? "pointer-events-none opacity-0"
+            : "pointer-events-auto opacity-100"
         }`}
       >
-        Click the graph to explore →
-      </p>
+        Enter graph view →
+      </button>
     </div>
   );
 }
