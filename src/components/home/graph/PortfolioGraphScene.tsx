@@ -268,11 +268,14 @@ function ClusterDensity({
 function HomeCameraRig({
   isExplorer,
   reduceMotion,
+  controls,
 }: {
   isExplorer: boolean;
   reduceMotion: boolean;
+  controls: RefObject<OrbitControlsImpl | null>;
 }) {
   const { camera, size } = useThree();
+  const hasLandingInteraction = useRef(false);
   const homeCameraPosition = useMemo(
     () =>
       HOME_CAMERA_DIRECTION.clone().setLength(
@@ -280,8 +283,25 @@ function HomeCameraRig({
       ),
     [size.height, size.width],
   );
+
+  useEffect(() => {
+    if (isExplorer) {
+      hasLandingInteraction.current = false;
+      return;
+    }
+
+    const orbitControls = controls.current;
+    if (!orbitControls) return;
+    const pauseHomeCamera = () => {
+      hasLandingInteraction.current = true;
+    };
+
+    orbitControls.addEventListener("start", pauseHomeCamera);
+    return () => orbitControls.removeEventListener("start", pauseHomeCamera);
+  }, [controls, isExplorer]);
+
   useFrame((_, delta) => {
-    if (!isExplorer) {
+    if (!isExplorer && !hasLandingInteraction.current) {
       const smoothing = reduceMotion ? 1 : 1 - Math.exp(-4 * delta);
       camera.position.lerp(homeCameraPosition, smoothing);
       camera.lookAt(HOME_CAMERA_TARGET);
@@ -302,7 +322,7 @@ function NodeFocusRig({
   controls: RefObject<OrbitControlsImpl | null>;
 }) {
   const { camera } = useThree();
-  const lastNodeId = useRef(node.id);
+  const lastNodeId = useRef("");
   const target = useRef(new Vector3(...node.position));
   const cameraTarget = useRef(new Vector3());
   const isFocusing = useRef(false);
@@ -317,7 +337,7 @@ function NodeFocusRig({
   }, [controls, isExplorer]);
   useEffect(() => {
     if (!isExplorer) {
-      lastNodeId.current = node.id;
+      lastNodeId.current = "";
       isFocusing.current = false;
       return;
     }
@@ -364,8 +384,8 @@ export function PortfolioGraphScene({
   reduceMotion,
 }: {
   activeStop: GraphFocusStop;
-  selectedNodeId: string;
-  selectedNode: PortfolioGraphNode;
+  selectedNodeId?: string;
+  selectedNode?: PortfolioGraphNode;
   onSelect: (id: string) => void;
   onExplore: () => void;
   isExplorer: boolean;
@@ -383,7 +403,8 @@ export function PortfolioGraphScene({
         portfolioGraphEdges
           .filter(
             ({ source, target }) =>
-              source === selectedNodeId || target === selectedNodeId,
+              selectedNodeId &&
+              (source === selectedNodeId || target === selectedNodeId),
           )
           .flatMap(({ source, target }) => [source, target]),
       ),
@@ -476,33 +497,37 @@ export function PortfolioGraphScene({
   });
   return (
     <>
-      <HomeCameraRig isExplorer={isExplorer} reduceMotion={reduceMotion} />
-      {isExplorer && (
-        <OrbitControls
-          ref={orbitControls}
-          makeDefault
-          enableDamping
-          dampingFactor={0.07}
-          enablePan
-          enableRotate
-          enableZoom
-          minDistance={4.5}
-          maxDistance={48}
-          screenSpacePanning
-          mouseButtons={{
-            LEFT: MOUSE.ROTATE,
-            MIDDLE: MOUSE.PAN,
-            RIGHT: MOUSE.PAN,
-          }}
-          touches={{ ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_PAN }}
-        />
-      )}
-      <NodeFocusRig
-        node={selectedNode}
+      <OrbitControls
+        ref={orbitControls}
+        makeDefault
+        enableDamping
+        dampingFactor={0.07}
+        enablePan={isExplorer}
+        enableRotate
+        enableZoom={isExplorer}
+        minDistance={4.5}
+        maxDistance={48}
+        screenSpacePanning={isExplorer}
+        mouseButtons={{
+          LEFT: MOUSE.ROTATE,
+          MIDDLE: MOUSE.PAN,
+          RIGHT: MOUSE.PAN,
+        }}
+        touches={{ ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_PAN }}
+      />
+      <HomeCameraRig
         isExplorer={isExplorer}
         reduceMotion={reduceMotion}
         controls={orbitControls}
       />
+      {selectedNode && (
+        <NodeFocusRig
+          node={selectedNode}
+          isExplorer={isExplorer}
+          reduceMotion={reduceMotion}
+          controls={orbitControls}
+        />
+      )}
       <group ref={group}>
         <lineSegments geometry={edgeGeometry}>
           <lineBasicMaterial

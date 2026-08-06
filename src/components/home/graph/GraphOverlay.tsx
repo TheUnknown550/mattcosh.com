@@ -114,6 +114,7 @@ function GraphLegend({ activeStop }: { activeStop: GraphFocusStop }) {
 interface GraphOverlayProps {
   activeStop: GraphFocusStop;
   isExplorer: boolean;
+  isNodeFocused: boolean;
   navigationLabel: string;
   navigationLength: number;
   navigationPosition: number;
@@ -126,6 +127,7 @@ interface GraphOverlayProps {
 export function GraphOverlay({
   activeStop,
   isExplorer,
+  isNodeFocused,
   navigationLabel,
   navigationLength,
   navigationPosition,
@@ -200,14 +202,16 @@ export function GraphOverlay({
           <p className="absolute top-6 right-6 font-mono text-[10px] uppercase tracking-wide text-ink-muted lg:top-8 lg:right-10">
             Drag to orbit · scroll to zoom · right-drag to move
           </p>
-          <div className="absolute right-6 bottom-20 left-6 flex flex-col items-start justify-between gap-5 sm:left-auto sm:w-[min(24rem,36vw)] lg:right-10">
-            <GraphDetailPanel node={node} />
-            <GraphLegend activeStop={activeStop} />
-          </div>
+          {isNodeFocused && (
+            <div className="absolute right-6 bottom-6 left-6 flex flex-col items-start justify-between gap-5 sm:left-auto sm:w-[min(24rem,36vw)] lg:right-10 lg:bottom-8">
+              <GraphDetailPanel node={node} />
+              <GraphLegend activeStop={activeStop} />
+            </div>
+          )}
           <button
             type="button"
             onClick={onPrevious}
-            className="pointer-events-auto absolute bottom-20 left-6 z-20 inline-flex h-11 items-center gap-3 rounded-md border border-line bg-void/80 px-4 font-mono text-xs uppercase tracking-wide text-ink transition-colors hover:border-signal hover:text-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal lg:bottom-24 lg:left-10"
+            className="pointer-events-auto absolute bottom-6 left-6 z-20 inline-flex h-11 items-center gap-3 rounded-md border border-line bg-void/80 px-4 font-mono text-xs uppercase tracking-wide text-ink transition-colors hover:border-signal hover:text-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal lg:bottom-8 lg:left-10"
             aria-label={`Previous ${navigationLabel.toLowerCase()}`}
           >
             <span aria-hidden="true" className="text-lg leading-none">
@@ -215,13 +219,13 @@ export function GraphOverlay({
             </span>
             <span className="hidden sm:inline">Previous {navigationLabel}</span>
           </button>
-          <p className="absolute bottom-24 left-1/2 z-20 hidden -translate-x-1/2 font-mono text-[10px] uppercase tracking-wide text-ink-muted sm:block lg:bottom-28">
+          <p className="absolute bottom-9 left-1/2 z-20 hidden -translate-x-1/2 font-mono text-[10px] uppercase tracking-wide text-ink-muted sm:block lg:bottom-11">
             {navigationLabel} {navigationPosition} / {navigationLength}
           </p>
           <button
             type="button"
             onClick={onNext}
-            className="pointer-events-auto absolute right-6 bottom-20 z-20 inline-flex h-11 items-center gap-3 rounded-md border border-line bg-void/80 px-4 font-mono text-xs uppercase tracking-wide text-ink transition-colors hover:border-signal hover:text-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal lg:right-10 lg:bottom-24"
+            className="pointer-events-auto absolute right-6 bottom-6 z-20 inline-flex h-11 items-center gap-3 rounded-md border border-line bg-void/80 px-4 font-mono text-xs uppercase tracking-wide text-ink transition-colors hover:border-signal hover:text-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal lg:right-10 lg:bottom-8"
             aria-label={`Next ${navigationLabel.toLowerCase()}`}
           >
             <span className="hidden sm:inline">Next {navigationLabel}</span>

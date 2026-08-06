@@ -8,21 +8,26 @@ import { useGraphExplorer } from "./graph/useGraphExplorer";
 export function GraphJourney() {
   const {
     activeStop,
+    clearFocus,
     enterExplorer,
     exitExplorer,
     isExplorer,
+    isNodeFocused,
     navigationLabel,
     navigationNodes,
     reduceMotion,
     selectedNavigationIndex,
     selectedNode,
     selectAdjacentNode,
-    setSelectedNodeId,
+    focusNode,
   } = useGraphExplorer();
 
   return (
-    <section className="relative min-h-svh" aria-label="Portfolio graph">
-      <div className="relative h-svh overflow-hidden">
+    <section
+      className="relative min-h-[calc(100svh-77px)]"
+      aria-label="Portfolio graph"
+    >
+      <div className="relative h-[calc(100svh-77px)] overflow-hidden">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 opacity-40"
@@ -44,13 +49,19 @@ export function GraphJourney() {
             powerPreference: "high-performance",
           }}
           className="absolute inset-0"
-          onPointerDown={enterExplorer}
+          onClick={() => {
+            if (isExplorer) {
+              clearFocus();
+              return;
+            }
+            enterExplorer();
+          }}
         >
           <PortfolioGraphScene
             activeStop={activeStop}
-            selectedNodeId={selectedNode.id}
-            selectedNode={selectedNode}
-            onSelect={setSelectedNodeId}
+            selectedNodeId={isNodeFocused ? selectedNode.id : undefined}
+            selectedNode={isNodeFocused ? selectedNode : undefined}
+            onSelect={focusNode}
             onExplore={enterExplorer}
             isExplorer={isExplorer}
             reduceMotion={reduceMotion}
@@ -59,6 +70,7 @@ export function GraphJourney() {
         <GraphOverlay
           activeStop={activeStop}
           isExplorer={isExplorer}
+          isNodeFocused={isNodeFocused}
           navigationLabel={navigationLabel}
           navigationLength={navigationNodes.length}
           navigationPosition={Math.max(selectedNavigationIndex, 0) + 1}

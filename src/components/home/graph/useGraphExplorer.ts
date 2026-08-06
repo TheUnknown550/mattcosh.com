@@ -14,6 +14,7 @@ import {
 
 export function useGraphExplorer() {
   const [isExplorer, setIsExplorer] = useState(false);
+  const [isNodeFocused, setIsNodeFocused] = useState(false);
   const [selectedNodeId, setSelectedNodeId] = useState(
     OVERVIEW_STOP.featuredNodeId,
   );
@@ -22,20 +23,32 @@ export function useGraphExplorer() {
     getPortfolioGraphNode(selectedNodeId) ??
     getPortfolioGraphNode(OVERVIEW_STOP.featuredNodeId)!;
   const activeStop =
-    (isExplorer
+    (isExplorer && isNodeFocused
       ? graphFocusStops.find(
           (stop) =>
             stop.id !== "overview" &&
             stop.nodeTypes.includes(selectedNode.type),
         )
       : undefined) ?? OVERVIEW_STOP;
-  const navigationNodes = useMemo(
-    () =>
-      selectedNode.type === "core"
-        ? portfolioGraphNodes.filter((node) => node.type !== "core")
-        : portfolioGraphNodes.filter((node) => node.type === selectedNode.type),
-    [selectedNode.type],
-  );
+  const navigationNodes = useMemo(() => {
+    if (selectedNode.type !== "core") {
+      return portfolioGraphNodes.filter(
+        (node) => node.type === selectedNode.type,
+      );
+    }
+
+    const allNodes = portfolioGraphNodes.filter((node) => node.type !== "core");
+    const preferredNode = allNodes.find(
+      (node) => node.id === EXPLORER_START_NODE_ID,
+    );
+
+    return preferredNode
+      ? [
+          preferredNode,
+          ...allNodes.filter((node) => node.id !== preferredNode.id),
+        ]
+      : allNodes;
+  }, [selectedNode.type]);
   const selectedNavigationIndex = navigationNodes.findIndex(
     (node) => node.id === selectedNode.id,
   );
@@ -52,28 +65,40 @@ export function useGraphExplorer() {
   useEffect(() => {
     if (!isExplorer) return;
 
-    const { body, documentElement } = document;
+    const { body } = document;
     const previousBodyOverflow = body.style.overflow;
-    const previousDocumentOverflow = documentElement.style.overflow;
+    const previousOverscrollBehavior = body.style.overscrollBehavior;
 
     body.style.overflow = "hidden";
-    documentElement.style.overflow = "hidden";
+    body.style.overscrollBehavior = "none";
 
     return () => {
       body.style.overflow = previousBodyOverflow;
-      documentElement.style.overflow = previousDocumentOverflow;
+      body.style.overscrollBehavior = previousOverscrollBehavior;
     };
   }, [isExplorer]);
 
   const enterExplorer = () => {
     if (isExplorer) return;
-    setSelectedNodeId(EXPLORER_START_NODE_ID);
+    setSelectedNodeId(OVERVIEW_STOP.featuredNodeId);
+    setIsNodeFocused(true);
     setIsExplorer(true);
   };
 
   const exitExplorer = () => {
     setSelectedNodeId(OVERVIEW_STOP.featuredNodeId);
+    setIsNodeFocused(false);
     setIsExplorer(false);
+  };
+
+  const focusNode = (nodeId: string) => {
+    setSelectedNodeId(nodeId);
+    setIsNodeFocused(true);
+    setIsExplorer(true);
+  };
+
+  const clearFocus = () => {
+    setIsNodeFocused(false);
   };
 
   const selectAdjacentNode = (direction: -1 | 1) => {
@@ -87,21 +112,22 @@ export function useGraphExplorer() {
       (currentIndex + direction + navigationNodes.length) %
       navigationNodes.length;
 
-    setSelectedNodeId(navigationNodes[nextIndex].id);
-    setIsExplorer(true);
+    focusNode(navigationNodes[nextIndex].id);
   };
 
   return {
     activeStop,
+    clearFocus,
     enterExplorer,
     exitExplorer,
     isExplorer,
+    isNodeFocused,
     navigationLabel: GRAPH_TYPE_LABELS[selectedNode.type],
     navigationNodes,
     reduceMotion,
     selectedNavigationIndex,
     selectedNode,
     selectAdjacentNode,
-    setSelectedNodeId,
+    focusNode,
   };
 }
