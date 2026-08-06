@@ -7,6 +7,69 @@ import {
 } from "@/data/portfolioGraph";
 
 function GraphDetailPanel({ node }: { node: PortfolioGraphNode }) {
+  if (node.type === "core") {
+    return (
+      <aside className="pointer-events-auto w-full max-w-sm rounded-xl border border-line/90 bg-surface/95 p-5 shadow-2xl shadow-void/40 backdrop-blur-md">
+        <p className="font-mono text-[11px] uppercase tracking-wide text-signal">
+          Portfolio core
+        </p>
+        <h2 className="mt-3 font-display text-2xl font-semibold leading-tight text-ink">
+          Matt Tanthai Cosh
+        </h2>
+        <section className="mt-5 border-t border-line pt-4">
+          <h3 className="font-mono text-[10px] uppercase tracking-[0.16em] text-ink-muted">
+            About
+          </h3>
+          <p className="mt-2 text-sm leading-relaxed text-ink-muted">
+            An Information Systems and Network Engineering student building
+            practical AI, full-stack, IoT, and software systems that connect
+            real-world problems to useful technology.
+          </p>
+        </section>
+        <dl className="mt-5 grid gap-3 border-t border-line pt-4 text-sm">
+          <div className="flex items-baseline justify-between gap-4">
+            <dt className="font-mono text-[10px] uppercase tracking-wide text-ink-muted">
+              Based in
+            </dt>
+            <dd className="text-right text-ink">Chiang Mai, Thailand</dd>
+          </div>
+          <div className="flex items-baseline justify-between gap-4">
+            <dt className="font-mono text-[10px] uppercase tracking-wide text-ink-muted">
+              Studying
+            </dt>
+            <dd className="text-right text-ink">
+              ISNE · Chiang Mai University
+            </dd>
+          </div>
+          <div className="flex items-baseline justify-between gap-4">
+            <dt className="font-mono text-[10px] uppercase tracking-wide text-ink-muted">
+              Contact
+            </dt>
+            <dd className="text-right text-ink">mattcosh06@gmail.com</dd>
+          </div>
+        </dl>
+        <div className="mt-5 flex flex-wrap gap-x-5 gap-y-3 border-t border-line pt-4 font-mono text-xs uppercase tracking-wide">
+          <Link
+            href="https://www.linkedin.com/in/matt-cosh"
+            target="_blank"
+            rel="noreferrer"
+            className="text-signal transition-colors hover:text-ink"
+          >
+            LinkedIn ↗
+          </Link>
+          <Link
+            href="https://github.com/TheUnknown550"
+            target="_blank"
+            rel="noreferrer"
+            className="text-signal transition-colors hover:text-ink"
+          >
+            GitHub ↗
+          </Link>
+        </div>
+      </aside>
+    );
+  }
+
   return (
     <aside className="pointer-events-auto w-full max-w-sm rounded-xl border border-line/90 bg-surface/95 p-5 shadow-2xl shadow-void/40 backdrop-blur-md">
       <p
