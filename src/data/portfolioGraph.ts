@@ -60,22 +60,22 @@ export const GRAPH_NODE_COLORS: Record<PortfolioGraphNodeType, string> = {
 
 const CLUSTER_CENTERS: Record<PortfolioGraphNodeType, GraphPosition> = {
   core: [0, 0.35, 0],
-  skill: [0, -3.25, 1.05],
-  project: [5.15, -0.2, -1.1],
-  experience: [-5.15, -0.25, 0.75],
-  education: [-4.85, 3.8, -0.85],
-  certification: [4.9, -3.85, -0.55],
-  award: [4.95, 3.65, -1.35],
+  skill: [0, -3.25, 2.7],
+  project: [5.15, -0.2, -4.2],
+  experience: [-5.15, -0.25, 3.6],
+  education: [-4.85, 3.8, -3.2],
+  certification: [4.9, -3.85, 3],
+  award: [4.95, 3.65, 2.2],
 };
 
 const CLUSTER_SPREAD: Record<PortfolioGraphNodeType, [number, number, number]> = {
   core: [0, 0, 0],
-  skill: [1.05, 0.85, 0.95],
-  project: [1.3, 1.05, 1.05],
-  experience: [1.15, 1.1, 0.8],
-  education: [0.9, 1.15, 0.65],
-  certification: [1.1, 0.95, 1],
-  award: [0.95, 1.05, 1.1],
+  skill: [1.05, 0.85, 1.8],
+  project: [1.3, 1.05, 2],
+  experience: [1.15, 1.1, 1.6],
+  education: [0.9, 1.15, 1.4],
+  certification: [1.1, 0.95, 1.8],
+  award: [0.95, 1.05, 2],
 };
 
 const CLUSTER_COLUMNS: Record<PortfolioGraphNodeType, number> = {
@@ -93,37 +93,37 @@ export const graphClusterLabels: GraphClusterLabel[] = [
     id: "projects",
     type: "project",
     title: "Projects",
-    position: [5.15, 1.7, -1.1],
+    position: [5.15, 1.7, -4.2],
   },
   {
     id: "experience",
     type: "experience",
     title: "Experience",
-    position: [-5.15, 1.65, 0.75],
+    position: [-5.15, 1.65, 3.6],
   },
   {
     id: "education",
     type: "education",
     title: "Education",
-    position: [-4.85, 5.45, -0.85],
+    position: [-4.85, 5.45, -3.2],
   },
   {
     id: "awards",
     type: "award",
     title: "Awards",
-    position: [4.95, 5.25, -1.35],
+    position: [4.95, 5.25, 2.2],
   },
   {
     id: "certifications",
     type: "certification",
     title: "Certifications",
-    position: [4.9, -2.45, -0.55],
+    position: [4.9, -2.45, 3],
   },
   {
     id: "skills",
     type: "skill",
     title: "Skills",
-    position: [0, -1.75, 1.05],
+    position: [0, -1.75, 2.7],
   },
 ];
 
@@ -140,7 +140,7 @@ function positionInCluster(
   const rows = Math.ceil(count / columns);
   const column = index % columns;
   const row = Math.floor(index / columns);
-  const depthOffset = ((index * 2) % 5 - 2) * depth * 0.42;
+  const depthOffset = ((index * 2) % 5 - 2) * depth * 0.65;
 
   return [
     centerX + (column - (columns - 1) / 2) * gapX,

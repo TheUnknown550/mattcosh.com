@@ -4,7 +4,7 @@ import { Html, OrbitControls } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { type RefObject, useEffect, useMemo, useRef, useState } from "react";
 import {
   BufferGeometry,
   Float32BufferAttribute,
@@ -15,6 +15,7 @@ import {
   Vector3,
 } from "three";
 import type { Mesh } from "three";
+import type { OrbitControls as OrbitControlsImpl } from "three-stdlib";
 import {
   GRAPH_NODE_COLORS,
   getPortfolioGraphNode,
@@ -24,12 +25,33 @@ import {
   portfolioGraphNodes,
   type GraphFocusStop,
   type PortfolioGraphNode,
+  type PortfolioGraphNodeType,
 } from "@/data/portfolioGraph";
 
-const HOME_CAMERA_POSITION = new Vector3(0, 0, 16.75);
+const HOME_CAMERA_DIRECTION = new Vector3(8, 5.5, 18);
 const HOME_CAMERA_TARGET = new Vector3(0, 0.1, 0);
+const CORE_POSITION = new Vector3(
+  ...getPortfolioGraphNode("core-matt-cosh")!.position,
+);
 const OVERVIEW_STOP = graphFocusStops[0];
-const PROJECT_NODES = portfolioGraphNodes.filter((node) => node.type === "project");
+const EXPLORER_START_NODE_ID = "project-cs-m-cardiac-monitor";
+const GRAPH_TYPE_LABELS: Record<PortfolioGraphNodeType, string> = {
+  core: "All nodes",
+  project: "Projects",
+  experience: "Experience",
+  education: "Education",
+  skill: "Skills",
+  certification: "Certifications",
+  award: "Awards",
+};
+const DENSE_CLUSTER_TYPES: PortfolioGraphNodeType[] = [
+  "project",
+  "experience",
+  "education",
+  "skill",
+  "certification",
+  "award",
+];
 
 function SignalPacket({
   source,
@@ -179,6 +201,106 @@ function GraphClusterLabel({
   );
 }
 
+function ClusterDensity({
+  type,
+  activeStop,
+}: {
+  type: PortfolioGraphNodeType;
+  activeStop: GraphFocusStop;
+}) {
+  const nodes = useMemo(
+    () => portfolioGraphNodes.filter((node) => node.type === type),
+    [type],
+  );
+  const { pointGeometry, lineGeometry } = useMemo(() => {
+    const pointPositions: number[] = [];
+    const linePositions: number[] = [];
+
+    nodes.forEach((node, nodeIndex) => {
+      const satellites: Vector3[] = [];
+      const [x, y, z] = node.position;
+
+      for (let satelliteIndex = 0; satelliteIndex < 5; satelliteIndex += 1) {
+        const angle =
+          (satelliteIndex / 5) * Math.PI * 2 + nodeIndex * 0.73 + 0.35;
+        const radius = 0.14 + ((nodeIndex + satelliteIndex) % 4) * 0.055;
+        const satellite = new Vector3(
+          x + Math.cos(angle) * radius,
+          y + Math.sin(angle) * radius,
+          z + Math.sin(angle * 1.7 + nodeIndex) * (0.16 + radius * 0.8),
+        );
+        satellites.push(satellite);
+        pointPositions.push(satellite.x, satellite.y, satellite.z);
+        linePositions.push(x, y, z, satellite.x, satellite.y, satellite.z);
+
+        if (satelliteIndex > 0) {
+          const previous = satellites[satelliteIndex - 1];
+          linePositions.push(
+            previous.x,
+            previous.y,
+            previous.z,
+            satellite.x,
+            satellite.y,
+            satellite.z,
+          );
+        }
+      }
+
+      const first = satellites[0];
+      const last = satellites[satellites.length - 1];
+      linePositions.push(last.x, last.y, last.z, first.x, first.y, first.z);
+    });
+
+    const nextPointGeometry = new BufferGeometry();
+    nextPointGeometry.setAttribute(
+      "position",
+      new Float32BufferAttribute(pointPositions, 3),
+    );
+    const nextLineGeometry = new BufferGeometry();
+    nextLineGeometry.setAttribute(
+      "position",
+      new Float32BufferAttribute(linePositions, 3),
+    );
+
+    return {
+      pointGeometry: nextPointGeometry,
+      lineGeometry: nextLineGeometry,
+    };
+  }, [nodes]);
+  const isFocused = activeStop.id === "overview" || activeStop.nodeTypes.includes(type);
+
+  useEffect(
+    () => () => {
+      pointGeometry.dispose();
+      lineGeometry.dispose();
+    },
+    [lineGeometry, pointGeometry],
+  );
+
+  return (
+    <group>
+      <lineSegments geometry={lineGeometry}>
+        <lineBasicMaterial
+          color={GRAPH_NODE_COLORS[type]}
+          transparent
+          opacity={isFocused ? 0.28 : 0.045}
+          depthWrite={false}
+        />
+      </lineSegments>
+      <points geometry={pointGeometry}>
+        <pointsMaterial
+          color={GRAPH_NODE_COLORS[type]}
+          size={0.045}
+          sizeAttenuation
+          transparent
+          opacity={isFocused ? 0.76 : 0.12}
+          depthWrite={false}
+        />
+      </points>
+    </group>
+  );
+}
+
 function HomeCameraRig({
   isExplorer,
   reduceMotion,
@@ -186,14 +308,96 @@ function HomeCameraRig({
   isExplorer: boolean;
   reduceMotion: boolean;
 }) {
-  const { camera } = useThree();
+  const { camera, size } = useThree();
+  const homeCameraPosition = useMemo(() => {
+    const aspect = size.width / size.height;
+    const distance = aspect < 0.8 ? 36 : 22;
+    return HOME_CAMERA_DIRECTION.clone().setLength(distance);
+  }, [size.height, size.width]);
 
   useFrame((_, delta) => {
     if (isExplorer) return;
 
     const smoothing = reduceMotion ? 1 : 1 - Math.exp(-4 * delta);
-    camera.position.lerp(HOME_CAMERA_POSITION, smoothing);
+    camera.position.lerp(homeCameraPosition, smoothing);
     camera.lookAt(HOME_CAMERA_TARGET);
+  });
+
+  return null;
+}
+
+function NodeFocusRig({
+  node,
+  isExplorer,
+  reduceMotion,
+  controls,
+}: {
+  node: PortfolioGraphNode;
+  isExplorer: boolean;
+  reduceMotion: boolean;
+  controls: RefObject<OrbitControlsImpl | null>;
+}) {
+  const { camera } = useThree();
+  const lastNodeId = useRef(node.id);
+  const target = useRef(new Vector3(...node.position));
+  const cameraTarget = useRef(new Vector3());
+  const isFocusing = useRef(false);
+
+  useEffect(() => {
+    const orbitControls = controls.current;
+    if (!isExplorer || !orbitControls) return;
+
+    const releaseCamera = () => {
+      isFocusing.current = false;
+    };
+
+    orbitControls.addEventListener("start", releaseCamera);
+    return () => orbitControls.removeEventListener("start", releaseCamera);
+  }, [controls, isExplorer]);
+
+  useEffect(() => {
+    if (!isExplorer) {
+      lastNodeId.current = node.id;
+      isFocusing.current = false;
+      return;
+    }
+
+    if (lastNodeId.current === node.id || !controls.current) return;
+
+    lastNodeId.current = node.id;
+    target.current.set(...node.position);
+
+    const orbitDirection =
+      node.type === "core"
+        ? camera.position.clone().sub(controls.current.target).normalize()
+        : target.current.clone().sub(CORE_POSITION).normalize();
+
+    if (node.type !== "core") {
+      orbitDirection.y += 0.12;
+      orbitDirection.normalize();
+    }
+    const focusDistance = node.type === "core" ? 9 : node.type === "skill" ? 6.5 : 5.4;
+
+    cameraTarget.current
+      .copy(target.current)
+      .addScaledVector(orbitDirection, focusDistance);
+    isFocusing.current = true;
+  }, [camera, controls, isExplorer, node]);
+
+  useFrame((_, delta) => {
+    if (!isFocusing.current || !controls.current) return;
+
+    const smoothing = reduceMotion ? 1 : 1 - Math.exp(-5.5 * delta);
+    controls.current.target.lerp(target.current, smoothing);
+    camera.position.lerp(cameraTarget.current, smoothing);
+    controls.current.update();
+
+    if (
+      controls.current.target.distanceTo(target.current) < 0.015 &&
+      camera.position.distanceTo(cameraTarget.current) < 0.02
+    ) {
+      isFocusing.current = false;
+    }
   });
 
   return null;
@@ -202,6 +406,7 @@ function HomeCameraRig({
 function PortfolioGraphScene({
   activeStop,
   selectedNodeId,
+  selectedNode,
   onSelect,
   onExplore,
   isExplorer,
@@ -209,12 +414,14 @@ function PortfolioGraphScene({
 }: {
   activeStop: GraphFocusStop;
   selectedNodeId: string;
+  selectedNode: PortfolioGraphNode;
   onSelect: (id: string) => void;
   onExplore: () => void;
   isExplorer: boolean;
   reduceMotion: boolean;
 }) {
   const group = useRef<Group>(null);
+  const orbitControls = useRef<OrbitControlsImpl>(null);
   const nodesById = useMemo(
     () => new Map(portfolioGraphNodes.map((node) => [node.id, node])),
     [],
@@ -312,12 +519,15 @@ function PortfolioGraphScene({
       <HomeCameraRig isExplorer={isExplorer} reduceMotion={reduceMotion} />
       {isExplorer && (
         <OrbitControls
+          ref={orbitControls}
           makeDefault
           enableDamping
           dampingFactor={0.07}
           enablePan
           enableRotate
-          enableZoom={false}
+          enableZoom
+          minDistance={4.5}
+          maxDistance={48}
           screenSpacePanning
           mouseButtons={{
             LEFT: MOUSE.ROTATE,
@@ -328,9 +538,14 @@ function PortfolioGraphScene({
             ONE: TOUCH.ROTATE,
             TWO: TOUCH.DOLLY_PAN,
           }}
-          target={[0, 0.1, 0]}
         />
       )}
+      <NodeFocusRig
+        node={selectedNode}
+        isExplorer={isExplorer}
+        reduceMotion={reduceMotion}
+        controls={orbitControls}
+      />
       <group ref={group}>
         <lineSegments geometry={edgeGeometry}>
           <lineBasicMaterial
@@ -348,6 +563,9 @@ function PortfolioGraphScene({
             depthWrite={false}
           />
         </lineSegments>
+        {DENSE_CLUSTER_TYPES.map((type) => (
+          <ClusterDensity key={type} type={type} activeStop={activeStop} />
+        ))}
         {portfolioGraphNodes.map((node) => (
           <GraphNode
             key={node.id}
@@ -439,9 +657,17 @@ export function GraphJourney() {
             stop.id !== "overview" && stop.nodeTypes.includes(selectedNode.type),
         )
       : undefined) ?? OVERVIEW_STOP;
-  const selectedProjectIndex = PROJECT_NODES.findIndex(
+  const navigationNodes = useMemo(
+    () =>
+      selectedNode.type === "core"
+        ? portfolioGraphNodes.filter((node) => node.type !== "core")
+        : portfolioGraphNodes.filter((node) => node.type === selectedNode.type),
+    [selectedNode.type],
+  );
+  const selectedNavigationIndex = navigationNodes.findIndex(
     (node) => node.id === selectedNode.id,
   );
+  const navigationLabel = GRAPH_TYPE_LABELS[selectedNode.type];
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -452,17 +678,33 @@ export function GraphJourney() {
     return () => mediaQuery.removeEventListener("change", updatePreference);
   }, []);
 
-  const selectAdjacentProject = (direction: -1 | 1) => {
+  useEffect(() => {
+    if (!isExplorer) return;
+
+    const { body, documentElement } = document;
+    const previousBodyOverflow = body.style.overflow;
+    const previousDocumentOverflow = documentElement.style.overflow;
+
+    body.style.overflow = "hidden";
+    documentElement.style.overflow = "hidden";
+
+    return () => {
+      body.style.overflow = previousBodyOverflow;
+      documentElement.style.overflow = previousDocumentOverflow;
+    };
+  }, [isExplorer]);
+
+  const selectAdjacentNode = (direction: -1 | 1) => {
     const currentIndex =
-      selectedProjectIndex >= 0
-        ? selectedProjectIndex
+      selectedNavigationIndex >= 0
+        ? selectedNavigationIndex
         : direction > 0
           ? -1
           : 0;
     const nextIndex =
-      (currentIndex + direction + PROJECT_NODES.length) % PROJECT_NODES.length;
+      (currentIndex + direction + navigationNodes.length) % navigationNodes.length;
 
-    setSelectedNodeId(PROJECT_NODES[nextIndex].id);
+    setSelectedNodeId(navigationNodes[nextIndex].id);
     setIsExplorer(true);
   };
 
@@ -471,18 +713,34 @@ export function GraphJourney() {
   return (
     <section className="relative min-h-svh" aria-label="Portfolio graph">
       <div className="relative h-svh overflow-hidden">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 opacity-40"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(110, 136, 151, 0.14) 1px, transparent 1px), linear-gradient(90deg, rgba(110, 136, 151, 0.14) 1px, transparent 1px)",
+            backgroundPosition: "center center",
+            backgroundSize: "10rem 10rem",
+            maskImage:
+              "radial-gradient(ellipse at center, black 15%, transparent 75%)",
+          }}
+        />
         <Canvas
           dpr={[1, 1.5]}
-          camera={{ position: [0, 0, 16.75], fov: 43 }}
+          camera={{ position: [8, 5.5, 18], fov: 43 }}
           gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
           className="absolute inset-0"
           onPointerDown={() => {
-            if (!isExplorer) setIsExplorer(true);
+            if (!isExplorer) {
+              setSelectedNodeId(EXPLORER_START_NODE_ID);
+              setIsExplorer(true);
+            }
           }}
         >
           <PortfolioGraphScene
             activeStop={activeStop}
             selectedNodeId={selectedNode.id}
+            selectedNode={selectedNode}
             onSelect={setSelectedNodeId}
             onExplore={() => setIsExplorer(true)}
             isExplorer={isExplorer}
@@ -560,7 +818,7 @@ export function GraphJourney() {
                 Overview
               </button>
               <p className="absolute top-6 right-6 font-mono text-[10px] uppercase tracking-wide text-ink-muted lg:top-8 lg:right-10">
-                Drag to orbit · right-drag to move
+                Drag to orbit · scroll to zoom · right-drag to move
               </p>
               <div className="absolute right-6 bottom-20 left-6 flex flex-col items-start justify-between gap-5 sm:left-auto sm:w-[min(24rem,36vw)] lg:right-10">
                 <GraphDetailPanel node={selectedNode} />
@@ -568,25 +826,25 @@ export function GraphJourney() {
               </div>
               <button
                 type="button"
-                onClick={() => selectAdjacentProject(-1)}
-                className="pointer-events-auto absolute bottom-6 left-6 inline-flex h-11 items-center gap-3 rounded-md border border-line bg-void/80 px-4 font-mono text-xs uppercase tracking-wide text-ink transition-colors hover:border-signal hover:text-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal lg:bottom-8 lg:left-10"
-                aria-label="Previous project"
+                onClick={() => selectAdjacentNode(-1)}
+                className="pointer-events-auto absolute bottom-20 left-6 z-20 inline-flex h-11 items-center gap-3 rounded-md border border-line bg-void/80 px-4 font-mono text-xs uppercase tracking-wide text-ink transition-colors hover:border-signal hover:text-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal lg:bottom-24 lg:left-10"
+                aria-label={`Previous ${navigationLabel.toLowerCase()}`}
               >
                 <span aria-hidden="true" className="text-lg leading-none">
                   ←
                 </span>
-                <span className="hidden sm:inline">Previous project</span>
+                <span className="hidden sm:inline">Previous {navigationLabel}</span>
               </button>
-              <p className="absolute bottom-9 left-1/2 hidden -translate-x-1/2 font-mono text-[10px] uppercase tracking-wide text-ink-muted sm:block">
-                Projects {Math.max(selectedProjectIndex, 0) + 1} / {PROJECT_NODES.length}
+              <p className="absolute bottom-24 left-1/2 z-20 hidden -translate-x-1/2 font-mono text-[10px] uppercase tracking-wide text-ink-muted sm:block lg:bottom-28">
+                {navigationLabel} {Math.max(selectedNavigationIndex, 0) + 1} / {navigationNodes.length}
               </p>
               <button
                 type="button"
-                onClick={() => selectAdjacentProject(1)}
-                className="pointer-events-auto absolute right-6 bottom-6 inline-flex h-11 items-center gap-3 rounded-md border border-line bg-void/80 px-4 font-mono text-xs uppercase tracking-wide text-ink transition-colors hover:border-signal hover:text-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal lg:right-10 lg:bottom-8"
-                aria-label="Next project"
+                onClick={() => selectAdjacentNode(1)}
+                className="pointer-events-auto absolute right-6 bottom-20 z-20 inline-flex h-11 items-center gap-3 rounded-md border border-line bg-void/80 px-4 font-mono text-xs uppercase tracking-wide text-ink transition-colors hover:border-signal hover:text-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal lg:right-10 lg:bottom-24"
+                aria-label={`Next ${navigationLabel.toLowerCase()}`}
               >
-                <span className="hidden sm:inline">Next project</span>
+                <span className="hidden sm:inline">Next {navigationLabel}</span>
                 <span aria-hidden="true" className="text-lg leading-none">
                   →
                 </span>
