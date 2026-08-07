@@ -1,6 +1,10 @@
 export function Testimonial() {
   return (
-    <section className="mx-auto max-w-6xl py-24">
+    <section
+      data-graph-focus-node="award-imagine-cup"
+      data-graph-focus-key="testimonial"
+      className="mx-auto max-w-6xl py-24"
+    >
       <blockquote className="max-w-3xl border-l-2 border-signal pl-8">
         <p className="font-display text-2xl font-medium leading-snug text-ink lg:text-3xl">
           &ldquo;Matt stood out as a dependable, proactive team leader. His

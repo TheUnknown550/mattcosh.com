@@ -310,6 +310,80 @@ function HomeCameraRig({
   return null;
 }
 
+function getScrollFocusPose(
+  node: PortfolioGraphNode,
+  fallbackDirection: Vector3,
+) {
+  const target = new Vector3(...node.position);
+  const orbitDirection =
+    node.type === "core"
+      ? fallbackDirection.clone().normalize()
+      : target.clone().sub(CORE_POSITION).normalize();
+
+  if (node.type !== "core") {
+    orbitDirection.y += 0.12;
+    orbitDirection.normalize();
+  }
+
+  const focusDistance =
+    node.type === "core" ? 9 : node.type === "skill" ? 6.5 : 5.4;
+  const position = target
+    .clone()
+    .addScaledVector(orbitDirection, focusDistance);
+
+  return { position, target };
+}
+
+function ScrollFocusRig({
+  controls,
+  fromNode,
+  toNode,
+  progress,
+  isExplorer,
+  reduceMotion,
+}: {
+  controls: RefObject<OrbitControlsImpl | null>;
+  fromNode?: PortfolioGraphNode;
+  toNode?: PortfolioGraphNode;
+  progress: number;
+  isExplorer: boolean;
+  reduceMotion: boolean;
+}) {
+  const { camera, size } = useThree();
+  const homePosition = useMemo(
+    () =>
+      HOME_CAMERA_DIRECTION.clone().setLength(
+        size.width / size.height < 0.8 ? 36 : 22,
+      ),
+    [size.height, size.width],
+  );
+  const fallbackDirection = useMemo(
+    () => HOME_CAMERA_DIRECTION.clone().normalize(),
+    [],
+  );
+
+  useFrame((_, delta) => {
+    const orbitControls = controls.current;
+    if (isExplorer || !orbitControls) return;
+
+    const fromPose = fromNode
+      ? getScrollFocusPose(fromNode, fallbackDirection)
+      : { position: homePosition, target: HOME_CAMERA_TARGET };
+    const toPose = toNode
+      ? getScrollFocusPose(toNode, fallbackDirection)
+      : { position: homePosition, target: HOME_CAMERA_TARGET };
+    const target = fromPose.target.clone().lerp(toPose.target, progress);
+    const position = fromPose.position.clone().lerp(toPose.position, progress);
+    const smoothing = reduceMotion ? 1 : 1 - Math.exp(-5 * delta);
+
+    orbitControls.target.lerp(target, smoothing);
+    camera.position.lerp(position, smoothing);
+    orbitControls.update();
+  });
+
+  return null;
+}
+
 function NodeFocusRig({
   node,
   isExplorer,
@@ -382,6 +456,9 @@ export function PortfolioGraphScene({
   onExplore,
   isExplorer,
   reduceMotion,
+  scrollFocusFromNodeId,
+  scrollFocusToNodeId,
+  scrollFocusProgress = 0,
 }: {
   activeStop: GraphFocusStop;
   selectedNodeId?: string;
@@ -390,6 +467,9 @@ export function PortfolioGraphScene({
   onExplore: () => void;
   isExplorer: boolean;
   reduceMotion: boolean;
+  scrollFocusFromNodeId?: string;
+  scrollFocusToNodeId?: string;
+  scrollFocusProgress?: number;
 }) {
   const group = useRef<Group>(null);
   const orbitControls = useRef<OrbitControlsImpl>(null);
@@ -397,6 +477,12 @@ export function PortfolioGraphScene({
     () => new Map(portfolioGraphNodes.map((node) => [node.id, node])),
     [],
   );
+  const scrollFocusFromNode = scrollFocusFromNodeId
+    ? nodesById.get(scrollFocusFromNodeId)
+    : undefined;
+  const scrollFocusToNode = scrollFocusToNodeId
+    ? nodesById.get(scrollFocusToNodeId)
+    : undefined;
   const selectedConnections = useMemo(
     () =>
       new Set(
@@ -519,6 +605,14 @@ export function PortfolioGraphScene({
         isExplorer={isExplorer}
         reduceMotion={reduceMotion}
         controls={orbitControls}
+      />
+      <ScrollFocusRig
+        controls={orbitControls}
+        fromNode={scrollFocusFromNode}
+        toNode={scrollFocusToNode}
+        progress={scrollFocusProgress}
+        isExplorer={isExplorer}
+        reduceMotion={reduceMotion}
       />
       {selectedNode && (
         <NodeFocusRig

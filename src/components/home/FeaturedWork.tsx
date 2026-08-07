@@ -7,7 +7,11 @@ export function FeaturedWork() {
   if (!project) return null;
 
   return (
-    <section className="mx-auto max-w-6xl py-24">
+    <section
+      data-graph-focus-node="project-cs-m-cardiac-monitor"
+      data-graph-focus-key="selected-work"
+      className="mx-auto max-w-6xl py-24"
+    >
       <div className="flex items-baseline justify-between">
         <h2 className="font-display text-3xl font-semibold text-ink">
           Selected work

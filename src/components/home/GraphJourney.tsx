@@ -4,6 +4,7 @@ import { Canvas } from "@react-three/fiber";
 import { useRef } from "react";
 import { GraphOverlay } from "./graph/GraphOverlay";
 import { PortfolioGraphScene } from "./graph/PortfolioGraphScene";
+import { useGraphScrollFocus } from "./graph/useGraphScrollFocus";
 import { useGraphExplorer } from "./graph/useGraphExplorer";
 
 export function GraphJourney() {
@@ -23,6 +24,8 @@ export function GraphJourney() {
     selectAdjacentNode,
     focusNode,
   } = useGraphExplorer();
+  const scrollFocus = useGraphScrollFocus();
+  const sceneActiveStop = isExplorer ? activeStop : scrollFocus.activeStop;
 
   return (
     <section
@@ -91,13 +94,20 @@ export function GraphJourney() {
             }}
           >
             <PortfolioGraphScene
-              activeStop={activeStop}
+              activeStop={sceneActiveStop}
               selectedNodeId={isNodeFocused ? selectedNode.id : undefined}
               selectedNode={isNodeFocused ? selectedNode : undefined}
               onSelect={focusNode}
               onExplore={enterExplorer}
               isExplorer={isExplorer}
               reduceMotion={reduceMotion}
+              scrollFocusFromNodeId={
+                isExplorer ? undefined : scrollFocus.fromNodeId
+              }
+              scrollFocusToNodeId={
+                isExplorer ? undefined : scrollFocus.toNodeId
+              }
+              scrollFocusProgress={isExplorer ? 0 : scrollFocus.progress}
             />
           </Canvas>
         </div>

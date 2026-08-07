@@ -2,7 +2,11 @@ import Link from "next/link";
 
 export function ClosingCTA() {
   return (
-    <section className="mx-auto max-w-6xl py-24 text-center">
+    <section
+      data-graph-focus-node="core-matt-cosh"
+      data-graph-focus-key="closing"
+      className="mx-auto max-w-6xl py-24 text-center"
+    >
       <p className="font-mono text-xs uppercase tracking-wide text-signal">
         Open to opportunities
       </p>
@@ -11,8 +15,8 @@ export function ClosingCTA() {
       </h2>
       <p className="mx-auto mt-4 max-w-xl text-lg text-ink-muted">
         I&rsquo;m looking for software engineering roles where I can keep
-        building reliable, practical systems — reach out on GitHub, or dig
-        into the work below.
+        building reliable, practical systems — reach out on GitHub, or dig into
+        the work below.
       </p>
 
       <div className="mt-8 flex flex-wrap items-center justify-center gap-4">

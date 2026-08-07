@@ -6,31 +6,43 @@ import { FeaturedWork } from "@/components/home/FeaturedWork";
 import { ClosingCTA } from "@/components/home/ClosingCTA";
 import { PulseDivider } from "@/components/common/PulseDivider";
 import { Reveal } from "@/components/common/Reveal";
+import { CinematicSection } from "@/components/home/graph/CinematicSection";
+import { GraphScrollFocusProvider } from "@/components/home/graph/useGraphScrollFocus";
 
 export default function Home() {
   return (
-    <>
+    <GraphScrollFocusProvider>
       <GraphJourney />
       <PulseDivider />
-      <Reveal>
-        <About />
-      </Reveal>
+      <CinematicSection sectionKey="about">
+        <Reveal>
+          <About />
+        </Reveal>
+      </CinematicSection>
       <PulseDivider />
-      <Reveal>
-        <Highlights />
-      </Reveal>
+      <CinematicSection sectionKey="highlights">
+        <Reveal>
+          <Highlights />
+        </Reveal>
+      </CinematicSection>
       <PulseDivider />
-      <Reveal>
-        <Testimonial />
-      </Reveal>
+      <CinematicSection sectionKey="testimonial">
+        <Reveal>
+          <Testimonial />
+        </Reveal>
+      </CinematicSection>
       <PulseDivider />
-      <Reveal>
-        <FeaturedWork />
-      </Reveal>
+      <CinematicSection sectionKey="selected-work">
+        <Reveal>
+          <FeaturedWork />
+        </Reveal>
+      </CinematicSection>
       <PulseDivider />
-      <Reveal>
-        <ClosingCTA />
-      </Reveal>
-    </>
+      <CinematicSection sectionKey="closing">
+        <Reveal>
+          <ClosingCTA />
+        </Reveal>
+      </CinematicSection>
+    </GraphScrollFocusProvider>
   );
 }

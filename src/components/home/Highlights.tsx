@@ -18,7 +18,11 @@ export function Highlights() {
   ];
 
   return (
-    <section className="mx-auto max-w-6xl py-24">
+    <section
+      data-graph-focus-node="core-matt-cosh"
+      data-graph-focus-key="highlights"
+      className="mx-auto max-w-6xl py-24"
+    >
       <StatRow stats={stats} />
       <Link
         href="/roadmap"
