@@ -19,14 +19,14 @@ export function Highlights() {
 
   return (
     <section
-      data-graph-focus-node="core-matt-cosh"
+      data-graph-focus-stop="overview"
       data-graph-focus-key="highlights"
-      className="mx-auto max-w-6xl py-24"
+      className="flex min-h-[calc(100svh-77px)] w-full flex-col justify-start px-6 pt-12 pb-24 md:px-[5vw]"
     >
       <StatRow stats={stats} />
       <Link
         href="/roadmap"
-        className="group mt-10 inline-flex items-center gap-2 font-mono text-sm uppercase tracking-wide text-ink-muted transition-colors hover:text-ink"
+        className="group mt-10 inline-flex items-center gap-2 font-mono text-sm uppercase tracking-wide text-ink transition-colors hover:text-signal"
       >
         See the full roadmap
         <span

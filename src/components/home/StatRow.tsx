@@ -59,7 +59,7 @@ export function StatRow({ stats }: StatRowProps) {
           <p className="font-display text-3xl font-semibold text-ink lg:text-4xl">
             {display[index]}
           </p>
-          <p className="mt-1 font-mono text-xs uppercase tracking-wide text-ink-muted">
+          <p className="mt-1 font-mono text-xs uppercase tracking-wide text-ink">
             {stat.label}
           </p>
         </div>

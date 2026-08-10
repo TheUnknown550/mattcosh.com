@@ -26,6 +26,9 @@ export function GraphJourney() {
   } = useGraphExplorer();
   const scrollFocus = useGraphScrollFocus();
   const sceneActiveStop = isExplorer ? activeStop : scrollFocus.activeStop;
+  const highlightsProgress = isExplorer
+    ? 0
+    : (scrollFocus.sectionProgressByKey.highlights ?? 0);
 
   return (
     <section
@@ -109,6 +112,7 @@ export function GraphJourney() {
                 isExplorer ? undefined : scrollFocus.toNodeId
               }
               scrollFocusProgress={isExplorer ? 0 : scrollFocus.progress}
+              overviewProgress={highlightsProgress}
             />
           </Canvas>
         </div>

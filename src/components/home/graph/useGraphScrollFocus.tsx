@@ -30,6 +30,8 @@ const INITIAL_FOCUS: GraphScrollFocus = {
 };
 
 const HOME_SNAP_SELECTOR = "[data-home-snap]";
+const GRAPH_FOCUS_SELECTOR =
+  "[data-graph-focus-node], [data-graph-focus-stop]";
 const HOME_SNAP_DURATION = 950;
 const HOME_SNAP_COOLDOWN = 320;
 
@@ -39,7 +41,12 @@ function clamp(value: number) {
   return Math.min(1, Math.max(0, value));
 }
 
-function getFocusStop(nodeId?: string) {
+function getFocusStop(nodeId?: string, stopId?: string) {
+  if (stopId) {
+    const explicitStop = graphFocusStops.find((stop) => stop.id === stopId);
+    if (explicitStop) return explicitStop;
+  }
+
   const node = nodeId ? getPortfolioGraphNode(nodeId) : undefined;
   if (!node) return graphFocusStops[0];
 
@@ -265,7 +272,7 @@ function useGraphScrollFocusState() {
     const update = () => {
       frame = 0;
       const sections = Array.from(
-        document.querySelectorAll<HTMLElement>("[data-graph-focus-node]"),
+        document.querySelectorAll<HTMLElement>(GRAPH_FOCUS_SELECTOR),
       );
       if (sections.length === 0) return;
 
@@ -281,6 +288,7 @@ function useGraphScrollFocusState() {
         const key =
           section.dataset.graphFocusKey ??
           section.dataset.graphFocusNode ??
+          section.dataset.graphFocusStop ??
           "section";
         sectionProgressByKey[key] = progress;
         return progress;
@@ -292,16 +300,21 @@ function useGraphScrollFocusState() {
         0,
       );
       const currentProgress = progressValues[activeIndex];
+      const activeSection = sections[activeIndex];
       const toNodeId =
         currentProgress > 0.01
-          ? sections[activeIndex].dataset.graphFocusNode
+          ? activeSection.dataset.graphFocusNode
+          : undefined;
+      const focusStopId =
+        currentProgress > 0.01
+          ? activeSection.dataset.graphFocusStop
           : undefined;
 
       setFocus({
         fromNodeId: undefined,
         toNodeId,
         progress: currentProgress,
-        activeStop: getFocusStop(toNodeId),
+        activeStop: getFocusStop(toNodeId, focusStopId),
         reduceMotion,
         sectionProgressByKey,
       });
