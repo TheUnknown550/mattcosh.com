@@ -75,6 +75,8 @@ function GraphNode({
   onSelect,
   onExplore,
   reduceMotion,
+  isScrollFocused,
+  scrollFocusProgress,
 }: {
   node: PortfolioGraphNode;
   activeStop: GraphFocusStop;
@@ -83,14 +85,17 @@ function GraphNode({
   onSelect: (id: string) => void;
   onExplore: () => void;
   reduceMotion: boolean;
+  isScrollFocused: boolean;
+  scrollFocusProgress: number;
 }) {
   const mesh = useRef<Mesh>(null);
+  const pulseRing = useRef<Mesh>(null);
   const position = useMemo(
     () => new Vector3(...node.position),
     [node.position],
   );
   const isInFocus = activeStop.nodeTypes.includes(node.type);
-  useFrame((_, delta) => {
+  useFrame(({ clock }, delta) => {
     if (!mesh.current) return;
     const targetOpacity =
       activeStop.id === "overview" ||
@@ -107,6 +112,30 @@ function GraphNode({
         reduceMotion ? 100 : 5,
         delta,
       );
+
+    const targetScale =
+      node.type === "core" && isScrollFocused
+        ? 1 + scrollFocusProgress * 1.45
+        : 1;
+    const scaleSmoothing = reduceMotion ? 100 : 5.5;
+    const nextScale = MathUtils.damp(
+      mesh.current.scale.x,
+      targetScale,
+      scaleSmoothing,
+      delta,
+    );
+    mesh.current.scale.setScalar(nextScale);
+
+    if (pulseRing.current) {
+      const phase = reduceMotion
+        ? 0.2
+        : (clock.elapsedTime * 0.48) % 1;
+      pulseRing.current.scale.setScalar(1 + phase * 2.2);
+      const pulseMaterial = pulseRing.current.material;
+      if ("opacity" in pulseMaterial)
+        pulseMaterial.opacity =
+          (isScrollFocused ? scrollFocusProgress : 0) * (1 - phase) * 0.72;
+    }
   });
   return (
     <group position={position}>
@@ -133,6 +162,17 @@ function GraphNode({
           depthWrite={false}
         />
       </mesh>
+      {node.type === "core" && isScrollFocused && (
+        <mesh ref={pulseRing} rotation={[Math.PI / 2, 0, 0]} scale={1.4}>
+          <torusGeometry args={[0.23, 0.018, 8, 48]} />
+          <meshBasicMaterial
+            color="#2dd9c9"
+            transparent
+            opacity={0}
+            depthWrite={false}
+          />
+        </mesh>
+      )}
       {isSelected && (
         <mesh scale={1.72}>
           <icosahedronGeometry args={[0.12, 1]} />
@@ -269,10 +309,12 @@ function HomeCameraRig({
   isExplorer,
   reduceMotion,
   controls,
+  hasScrollFocus,
 }: {
   isExplorer: boolean;
   reduceMotion: boolean;
   controls: RefObject<OrbitControlsImpl | null>;
+  hasScrollFocus: boolean;
 }) {
   const { camera, size } = useThree();
   const hasLandingInteraction = useRef(false);
@@ -301,7 +343,7 @@ function HomeCameraRig({
   }, [controls, isExplorer]);
 
   useFrame((_, delta) => {
-    if (!isExplorer && !hasLandingInteraction.current) {
+    if (!isExplorer && !hasLandingInteraction.current && !hasScrollFocus) {
       const smoothing = reduceMotion ? 1 : 1 - Math.exp(-4 * delta);
       camera.position.lerp(homeCameraPosition, smoothing);
       camera.lookAt(HOME_CAMERA_TARGET);
@@ -326,7 +368,7 @@ function getScrollFocusPose(
   }
 
   const focusDistance =
-    node.type === "core" ? 9 : node.type === "skill" ? 6.5 : 5.4;
+    node.type === "core" ? 5.8 : node.type === "skill" ? 6.5 : 5.4;
   const position = target
     .clone()
     .addScaledVector(orbitDirection, focusDistance);
@@ -605,6 +647,7 @@ export function PortfolioGraphScene({
         isExplorer={isExplorer}
         reduceMotion={reduceMotion}
         controls={orbitControls}
+        hasScrollFocus={Boolean(scrollFocusToNode)}
       />
       <ScrollFocusRig
         controls={orbitControls}
@@ -652,6 +695,10 @@ export function PortfolioGraphScene({
             onSelect={onSelect}
             onExplore={onExplore}
             reduceMotion={reduceMotion}
+            isScrollFocused={node.id === scrollFocusToNodeId}
+            scrollFocusProgress={
+              node.id === scrollFocusToNodeId ? scrollFocusProgress : 0
+            }
           />
         ))}
         {graphClusterLabels.map((label) => (

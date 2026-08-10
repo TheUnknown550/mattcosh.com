@@ -416,6 +416,14 @@ export const graphFocusStops: GraphFocusStop[] = [
     cameraTarget: [0, 0.1, 0],
   },
   {
+    id: "core",
+    label: "The core",
+    nodeTypes: ["core"],
+    featuredNodeId: coreNode.id,
+    cameraPosition: [0, 0.35, 5.8],
+    cameraTarget: [0, 0.35, 0],
+  },
+  {
     id: "projects",
     label: "Projects",
     nodeTypes: ["project"],

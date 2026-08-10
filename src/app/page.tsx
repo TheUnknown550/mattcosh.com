@@ -14,10 +14,8 @@ export default function Home() {
     <GraphScrollFocusProvider>
       <GraphJourney />
       <PulseDivider />
-      <CinematicSection sectionKey="about">
-        <Reveal>
-          <About />
-        </Reveal>
+      <CinematicSection sectionKey="about" mode="core">
+        <About />
       </CinematicSection>
       <PulseDivider />
       <CinematicSection sectionKey="highlights">
