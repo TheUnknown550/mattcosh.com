@@ -49,7 +49,7 @@ export interface GraphFocusStop {
 }
 
 export const GRAPH_NODE_COLORS: Record<PortfolioGraphNodeType, string> = {
-  core: "#f4f6f8",
+  core: "#ffffff",
   project: "#2dd9c9",
   experience: "#ff8a5b",
   education: "#82aaff",

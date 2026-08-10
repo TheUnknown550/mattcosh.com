@@ -41,6 +41,7 @@ export function CinematicSection({
 
   return (
     <div
+      data-home-snap
       data-cinematic-section={sectionKey}
       className="transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none"
       inert={reveal <= 0.45 ? true : undefined}

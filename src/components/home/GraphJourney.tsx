@@ -29,6 +29,7 @@ export function GraphJourney() {
 
   return (
     <section
+      data-home-snap
       className={
         isExplorer
           ? "fixed inset-0 z-50 h-svh bg-void"

@@ -29,6 +29,10 @@ const INITIAL_FOCUS: GraphScrollFocus = {
   sectionProgressByKey: {},
 };
 
+const HOME_SNAP_SELECTOR = "[data-home-snap]";
+const HOME_SNAP_DURATION = 950;
+const HOME_SNAP_COOLDOWN = 320;
+
 const GraphScrollFocusContext = createContext<GraphScrollFocus>(INITIAL_FOCUS);
 
 function clamp(value: number) {
@@ -58,6 +62,202 @@ function useGraphScrollFocusState() {
     mediaQuery.addEventListener("change", updatePreference);
     return () => mediaQuery.removeEventListener("change", updatePreference);
   }, []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const previousScrollSnapType = root.style.scrollSnapType;
+    const previousScrollBehavior = root.style.scrollBehavior;
+
+    root.dataset.scrollSnap = "home";
+    root.style.scrollSnapType = "none";
+    root.style.scrollBehavior = "auto";
+
+    return () => {
+      delete root.dataset.scrollSnap;
+      root.style.scrollSnapType = previousScrollSnapType;
+      root.style.scrollBehavior = previousScrollBehavior;
+    };
+  }, []);
+
+  useEffect(() => {
+    let animationFrame = 0;
+    let isAnimating = false;
+    let cooldownUntil = 0;
+    let touchStartY: number | null = null;
+
+    const isEditableTarget = (target: EventTarget | null) => {
+      if (!(target instanceof HTMLElement)) return false;
+
+      return Boolean(
+        target.closest("input, textarea, select, button, [contenteditable=\"true\"]"),
+      );
+    };
+
+    const getDocumentTop = (element: HTMLElement) => {
+      let top = 0;
+      let current: HTMLElement | null = element;
+
+      while (current) {
+        top += current.offsetTop;
+        current = current.offsetParent as HTMLElement | null;
+      }
+
+      return top;
+    };
+
+    const getSnapTargets = () =>
+      Array.from(
+        document.querySelectorAll<HTMLElement>(HOME_SNAP_SELECTOR),
+      ).map((element) => {
+        const header = document.querySelector<HTMLElement>("header");
+        const headerHeight = header?.offsetHeight ?? 77;
+        return Math.max(0, getDocumentTop(element) - headerHeight);
+      });
+
+    const getCurrentIndex = (targets: number[]) => {
+      const scrollPosition = window.scrollY + 24;
+      let currentIndex = 0;
+
+      targets.forEach((target, index) => {
+        if (target <= scrollPosition) currentIndex = index;
+      });
+
+      return currentIndex;
+    };
+
+    const easeInOut = (progress: number) =>
+      progress < 0.5
+        ? 4 * progress * progress * progress
+        : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+    const animateTo = (target: number) => {
+      const maxScroll = Math.max(
+        0,
+        document.documentElement.scrollHeight - window.innerHeight,
+      );
+      const start = window.scrollY;
+      const destination = Math.min(maxScroll, Math.max(0, target));
+
+      if (Math.abs(destination - start) < 2) return;
+
+      if (reduceMotion) {
+        window.scrollTo(0, destination);
+        cooldownUntil = performance.now() + HOME_SNAP_COOLDOWN;
+        return;
+      }
+
+      isAnimating = true;
+      const startedAt = performance.now();
+
+      const frame = (now: number) => {
+        const progress = Math.min(1, (now - startedAt) / HOME_SNAP_DURATION);
+        const easedProgress = easeInOut(progress);
+        window.scrollTo(
+          0,
+          start + (destination - start) * easedProgress,
+        );
+
+        if (progress < 1) {
+          animationFrame = window.requestAnimationFrame(frame);
+          return;
+        }
+
+        isAnimating = false;
+        cooldownUntil = performance.now() + HOME_SNAP_COOLDOWN;
+        window.scrollTo(0, destination);
+      };
+
+      animationFrame = window.requestAnimationFrame(frame);
+    };
+
+    const navigate = (direction: 1 | -1) => {
+      if (isAnimating || performance.now() < cooldownUntil) return false;
+
+      const targets = getSnapTargets();
+      if (targets.length < 2) return false;
+
+      const currentIndex = getCurrentIndex(targets);
+      const nextIndex = currentIndex + direction;
+      const destination = targets[nextIndex];
+
+      if (destination === undefined) return false;
+
+      animateTo(destination);
+      return true;
+    };
+
+    const handleWheel = (event: WheelEvent) => {
+      if (event.ctrlKey || isEditableTarget(event.target)) return;
+
+      const direction = event.deltaY > 0 ? 1 : event.deltaY < 0 ? -1 : 0;
+      if (direction === 0) return;
+
+      if (isAnimating || performance.now() < cooldownUntil) {
+        event.preventDefault();
+        return;
+      }
+
+      if (navigate(direction)) event.preventDefault();
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (isEditableTarget(event.target)) return;
+
+      const direction =
+        event.key === "ArrowDown" || event.key === "PageDown"
+          ? 1
+          : event.key === "ArrowUp" || event.key === "PageUp"
+            ? -1
+            : 0;
+
+      if (direction === 0) return;
+      if (navigate(direction)) event.preventDefault();
+    };
+
+    const handleTouchStart = (event: TouchEvent) => {
+      touchStartY = event.touches.length === 1 ? event.touches[0].clientY : null;
+    };
+
+    const handleTouchMove = (event: TouchEvent) => {
+      if (touchStartY !== null && event.touches.length === 1) {
+        event.preventDefault();
+      }
+    };
+
+    const handleTouchEnd = (event: TouchEvent) => {
+      if (touchStartY === null) return;
+
+      const endY = event.changedTouches[0]?.clientY ?? touchStartY;
+      const deltaY = touchStartY - endY;
+      touchStartY = null;
+
+      if (Math.abs(deltaY) < 32 || isEditableTarget(event.target)) return;
+
+      const direction = deltaY > 0 ? 1 : -1;
+      navigate(direction);
+    };
+
+    const handleTouchCancel = () => {
+      touchStartY = null;
+    };
+
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
+    window.addEventListener("touchend", handleTouchEnd, { passive: true });
+    window.addEventListener("touchcancel", handleTouchCancel, { passive: true });
+
+    return () => {
+      window.removeEventListener("wheel", handleWheel);
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
+      window.removeEventListener("touchcancel", handleTouchCancel);
+      if (animationFrame) window.cancelAnimationFrame(animationFrame);
+    };
+  }, [reduceMotion]);
 
   useEffect(() => {
     let frame = 0;

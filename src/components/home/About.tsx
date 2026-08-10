@@ -13,19 +13,6 @@ export function About() {
       className="about-stage relative mx-auto max-w-6xl py-24"
     >
       <div className="about-stage__backdrop" aria-hidden="true" />
-      <div className="about-stage__origin" aria-hidden="true">
-        <span className="about-stage__origin-ring about-stage__origin-ring--outer" />
-        <span className="about-stage__origin-ring about-stage__origin-ring--inner" />
-        <span className="about-stage__origin-dot" />
-      </div>
-      <span
-        aria-hidden="true"
-        className="about-stage__beam about-stage__beam--left"
-      />
-      <span
-        aria-hidden="true"
-        className="about-stage__beam about-stage__beam--right"
-      />
 
       <div className="about-stage__reveal">
         <h2 className="about-stage__title font-display text-3xl font-semibold text-ink">
@@ -33,7 +20,7 @@ export function About() {
         </h2>
         <div className="about-stage__content mt-8 flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
           <div className="about-stage__copy max-w-xl">
-            <p className="text-lg leading-relaxed text-ink-muted">
+            <p className="text-lg leading-relaxed text-ink">
               I&rsquo;m an Information Systems and Network Engineering student at
               Chiang Mai University, working across full-stack development, IoT,
               and network engineering, with a growing focus on applied AI. My

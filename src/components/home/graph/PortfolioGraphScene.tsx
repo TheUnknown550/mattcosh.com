@@ -1,6 +1,6 @@
 "use client";
 
-import { Html, OrbitControls } from "@react-three/drei";
+import { Billboard, Html, OrbitControls } from "@react-three/drei";
 import { useFrame, useThree } from "@react-three/fiber";
 import { type RefObject, useEffect, useMemo, useRef } from "react";
 import {
@@ -90,6 +90,8 @@ function GraphNode({
 }) {
   const mesh = useRef<Mesh>(null);
   const pulseRing = useRef<Mesh>(null);
+  const focusOuterRing = useRef<Mesh>(null);
+  const focusInnerRing = useRef<Mesh>(null);
   const position = useMemo(
     () => new Vector3(...node.position),
     [node.position],
@@ -125,6 +127,27 @@ function GraphNode({
       delta,
     );
     mesh.current.scale.setScalar(nextScale);
+
+    if (focusOuterRing.current && focusInnerRing.current) {
+      const targetRingOpacity = isScrollFocused ? scrollFocusProgress : 0;
+      const targetRingScale = 0.82 + scrollFocusProgress * 0.18;
+      const ringSmoothing = reduceMotion ? 100 : 7;
+
+      for (const ring of [focusOuterRing.current, focusInnerRing.current]) {
+        ring.scale.setScalar(
+          MathUtils.damp(ring.scale.x, targetRingScale, ringSmoothing, delta),
+        );
+        const ringMaterial = ring.material;
+        if ("opacity" in ringMaterial) {
+          ringMaterial.opacity = MathUtils.damp(
+            ringMaterial.opacity,
+            targetRingOpacity,
+            ringSmoothing,
+            delta,
+          );
+        }
+      }
+    }
 
     if (pulseRing.current) {
       const phase = reduceMotion
@@ -162,6 +185,28 @@ function GraphNode({
           depthWrite={false}
         />
       </mesh>
+      {node.type === "core" && (
+        <Billboard>
+          <mesh ref={focusOuterRing}>
+            <torusGeometry args={[0.48, 0.012, 8, 64]} />
+            <meshBasicMaterial
+              color="#2dd9c9"
+              transparent
+              opacity={0}
+              depthWrite={false}
+            />
+          </mesh>
+          <mesh ref={focusInnerRing}>
+            <torusGeometry args={[0.3, 0.01, 8, 64]} />
+            <meshBasicMaterial
+              color="#ff5a1f"
+              transparent
+              opacity={0}
+              depthWrite={false}
+            />
+          </mesh>
+        </Billboard>
+      )}
       {node.type === "core" && isScrollFocused && (
         <mesh ref={pulseRing} rotation={[Math.PI / 2, 0, 0]} scale={1.4}>
           <torusGeometry args={[0.23, 0.018, 8, 48]} />
