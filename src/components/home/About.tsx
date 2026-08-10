@@ -1,5 +1,4 @@
 const FACTS = [
-  { label: "Based in", value: "Chiang Mai, Thailand" },
   { label: "Studying", value: "Information Systems & Network Engineering" },
   { label: "Focus", value: "Applied AI · Full-Stack · AIoT · Networking" },
   { label: "Languages", value: "Thai, English" },
