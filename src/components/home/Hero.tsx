@@ -9,16 +9,16 @@ export function Hero() {
     <section className="mx-auto flex max-w-6xl flex-col-reverse items-center gap-12 py-16 lg:flex-row lg:items-center lg:justify-between lg:gap-16 lg:py-28">
       <div className="max-w-xl">
         <p className="animate-hero-1 font-mono text-xs uppercase tracking-wide text-signal">
-          Software developer — Chiang Mai, Thailand
+          Information Systems &amp; Network Engineering · Chiang Mai, Thailand
         </p>
         <h1 className="animate-hero-1 mt-4 font-display text-[clamp(2.75rem,7vw,5.5rem)] font-semibold leading-[0.98] tracking-tight text-ink">
-          I turn signals into systems.
+          I build systems that solve real problems.
         </h1>
         <p className="animate-hero-2 mt-6 max-w-md text-lg text-ink-muted">
-          Matt Cosh — building CS-M, an award-winning AI cardiac monitoring
-          system, alongside full-stack, IoT, and networking projects. Currently
-          shipping production features and taking on freelance work while
-          finishing a degree in Information Systems and Network Engineering.
+          I build practical tools across applied AI, full-stack software, IoT,
+          and networking — including CS-M, an award-winning AI cardiac
+          monitoring system. I’m focused on turning complex problems into
+          reliable systems that work in the real world.
         </p>
 
         <div className="animate-hero-3 mt-8 flex flex-wrap items-center gap-4">

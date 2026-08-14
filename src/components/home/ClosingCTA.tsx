@@ -12,12 +12,12 @@ export function ClosingCTA() {
         Open to opportunities
       </p>
       <h2 className="mt-4 font-display text-4xl font-semibold text-ink lg:text-5xl">
-        Let&rsquo;s build the next system.
+        Let&rsquo;s build systems that matter.
       </h2>
       <p className="mx-auto mt-4 max-w-2xl text-xl text-ink-muted">
-        I&rsquo;m looking for software engineering roles where I can keep
-        building reliable, practical systems — reach out on GitHub, or dig into
-        the work below.
+        I&rsquo;m looking for software engineering opportunities where I can build
+        reliable systems across software, AI, IoT, and networking. Reach out on
+        GitHub or LinkedIn, or explore the work below.
       </p>
 
       </div>

@@ -20,15 +20,15 @@ export function About() {
         <div className="about-stage__content mt-8 flex flex-col gap-10 max-sm:mt-5 max-sm:gap-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="about-stage__copy max-w-xl md:max-lg:rounded-r-xl md:max-lg:bg-gradient-to-r md:max-lg:from-void/95 md:max-lg:via-void/80 md:max-lg:to-void/55 md:max-lg:p-4">
             <p className="text-lg leading-relaxed text-ink max-sm:text-base max-sm:leading-snug lg:text-xl">
-              I&rsquo;m an Information Systems and Network Engineering student at
-              Chiang Mai University, working across full-stack development, IoT,
-              and network engineering, with a growing focus on applied AI. My
-              flagship project, CS-M, pairs custom heart-sound recording hardware
-              with a neural network to flag patterns linked to heart disease —
-              recognized by Microsoft Imagine Cup, Intel&rsquo;s AI Global Impact
-              Festival, and Regeneron ISEF. I hold a Google Professional
-              Certificate and I&rsquo;m looking for software engineering roles where I
-              can keep building reliable, practical systems.
+              I&rsquo;m an Information Systems &amp; Network Engineering student at
+              Chiang Mai University. I build across full-stack software, IoT,
+              networking, and applied AI, with a focus on turning complex
+              problems into practical tools. My flagship project, CS-M, combines
+              custom heart-sound hardware with a neural network to identify
+              patterns associated with heart disease — recognized by Microsoft
+              Imagine Cup, Intel&rsquo;s AI Global Impact Festival, and Regeneron ISEF.
+              I&rsquo;m looking for software engineering opportunities where I can keep
+              building reliable systems that make a difference.
             </p>
           </div>
 

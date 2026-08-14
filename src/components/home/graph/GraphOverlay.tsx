@@ -136,11 +136,11 @@ export function GraphOverlay({
         }`}
       >
         <h1 className="font-display text-[clamp(2.35rem,4.6vw,5.25rem)] font-semibold leading-[0.98] tracking-tight text-ink">
-          I turn signals into systems.
+          I build systems that solve real problems.
         </h1>
         <p className="mt-6 hidden max-w-md text-base leading-relaxed text-ink-muted sm:block sm:text-lg">
-          Explore the connected work behind my experience in applied AI,
-          full-stack software, IoT, research, and network engineering.
+          I build practical systems across applied AI, full-stack software, IoT,
+          and networking.
         </p>
         <div className="pointer-events-auto mt-8 flex flex-wrap items-center gap-4">
           <Link
@@ -159,11 +159,11 @@ export function GraphOverlay({
       </div>
 
       <div
-        className={`absolute top-1/2 right-6 hidden w-36 -translate-y-1/2 transition-all duration-700 ease-out lg:right-10 lg:block lg:w-52 ${
+        className={`absolute top-1/2 right-6 hidden w-[min(28rem,32vw)] -translate-y-1/2 transition-all duration-700 ease-out lg:right-10 lg:block ${
           isExplorer ? "translate-x-8 opacity-0" : "translate-x-0 opacity-100"
         }`}
       >
-        <div className="relative aspect-square overflow-hidden rounded-full border border-ink bg-surface shadow-2xl shadow-void/40">
+        <div className="relative mx-auto aspect-square w-52 overflow-hidden rounded-full border border-ink bg-surface shadow-2xl shadow-void/40">
           <Image
             src="/img/profile.png"
             alt="Portrait of Matt Cosh"
@@ -173,9 +173,22 @@ export function GraphOverlay({
             className="object-contain"
           />
         </div>
-        <p className="mt-4 text-center font-mono text-[10px] uppercase tracking-wide text-ink-muted">
-          Building systems that connect
-        </p>
+        <div className="mt-4 space-y-1 text-center">
+          <div className="flex items-center justify-center gap-2">
+            <p className="font-display text-lg font-semibold text-ink">
+              Matt Cosh
+            </p>
+          </div>
+          <p className="text-xs leading-relaxed text-ink">
+            Software Developer | Applied AI, Full-Stack, AIoT &amp; Networking
+          </p>
+          <p className="text-xs leading-relaxed text-ink-muted">
+            Google Professional Certificate | Imagine Cup World Runner-Up
+          </p>
+          <p className="text-xs text-ink-muted">
+            Greater Chiang Mai Area
+          </p>
+        </div>
       </div>
 
       {isExplorer && (
