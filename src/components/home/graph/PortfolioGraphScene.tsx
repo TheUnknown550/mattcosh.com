@@ -49,7 +49,7 @@ const OVERVIEW_2D_CLUSTER_CENTERS: Record<
   skill: [21.5, 0, 0],
 };
 
-const OVERVIEW_2D_CORE_POSITION: GraphPosition = [0, -4.1, 0];
+const OVERVIEW_2D_CORE_POSITION: GraphPosition = [0, -6.4, 0];
 
 type TooltipPlacement = {
   horizontal: "left" | "center" | "right";
@@ -82,7 +82,7 @@ function getOverview2DNodes() {
       ...node,
       position: [
         center[0] + (column - (columns - 1) / 2) * 1.05,
-        center[1] + ((rows - 1) / 2 - row) * 1.25,
+        center[1] + ((rows - 1) / 2 - row) * 1.85,
         center[2],
       ] as GraphPosition,
     };
@@ -94,7 +94,7 @@ function getOverview2DLabels() {
     const center = OVERVIEW_2D_CLUSTER_CENTERS[label.type];
     return {
       ...label,
-      position: [center[0], 2.5, center[2]] as GraphPosition,
+      position: [center[0], 4.8, center[2]] as GraphPosition,
     };
   });
 }

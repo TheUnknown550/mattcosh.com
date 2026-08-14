@@ -8,10 +8,12 @@ export function CinematicSection({
   sectionKey,
   children,
   mode = "standard",
+  revealScale = true,
 }: {
   sectionKey: string;
   children: ReactNode;
   mode?: "standard" | "core";
+  revealScale?: boolean;
 }) {
   const { reduceMotion, sectionProgressByKey } = useGraphScrollFocus();
   const sectionProgress = reduceMotion
@@ -25,7 +27,9 @@ export function CinematicSection({
     pointerEvents: reveal > 0.45 ? "auto" : "none",
     transform: reduceMotion || isCoreReveal
       ? "none"
-      : `translateY(${(1 - reveal) * 1.5}rem) scale(${0.72 + reveal * 0.28})`,
+      : `translateY(${(1 - reveal) * 1.5}rem)${
+          revealScale ? ` scale(${0.72 + reveal * 0.28})` : ""
+        }`,
     transformOrigin: "center center",
     willChange:
       reveal > 0.01 && reveal < 0.99 ? "opacity, transform" : "auto",
@@ -50,7 +54,7 @@ export function CinematicSection({
     <div
       data-home-snap
       data-cinematic-section={sectionKey}
-      className="relative min-h-[calc(100svh-77px)] transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none"
+      className="relative flex min-h-[calc(100svh-77px)] items-center justify-center transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none"
       inert={reveal <= 0.45 ? true : undefined}
       style={cinematicStyle}
     >

@@ -20,8 +20,8 @@ export default function Home() {
           <Highlights />
         </Reveal>
       </CinematicSection>
-      <CinematicSection sectionKey="testimonial">
-        <Reveal>
+      <CinematicSection sectionKey="testimonial" revealScale={false}>
+        <Reveal className="w-full">
           <Testimonial />
         </Reveal>
       </CinematicSection>

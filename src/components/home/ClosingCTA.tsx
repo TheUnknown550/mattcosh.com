@@ -5,7 +5,7 @@ export function ClosingCTA() {
     <section
       data-graph-focus-node="core-matt-cosh"
       data-graph-focus-key="closing"
-      className="mx-auto w-full max-w-[90rem] py-24 text-center lg:py-32"
+      className="relative z-10 mx-auto w-full max-w-[90rem] py-24 text-center lg:py-32"
     >
       <p className="font-mono text-xs uppercase tracking-wide text-signal">
         Open to opportunities
