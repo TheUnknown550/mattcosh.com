@@ -1,14 +1,17 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { useRef } from "react";
+import { useCallback, useRef, useState } from "react";
+import type { PortfolioGraphNode } from "@/data/portfolioGraph";
 import { GraphOverlay } from "./graph/GraphOverlay";
+import { GraphNodeModal } from "./graph/GraphNodeModal";
 import { PortfolioGraphScene } from "./graph/PortfolioGraphScene";
 import { useGraphScrollFocus } from "./graph/useGraphScrollFocus";
 import { useGraphExplorer } from "./graph/useGraphExplorer";
 
 export function GraphJourney() {
   const pointerStart = useRef<{ x: number; y: number } | null>(null);
+  const [modalNode, setModalNode] = useState<PortfolioGraphNode | null>(null);
   const {
     activeStop,
     clearFocus,
@@ -29,6 +32,12 @@ export function GraphJourney() {
   const highlightsProgress = isExplorer
     ? 0
     : (scrollFocus.sectionProgressByKey.highlights ?? 0);
+  const isHighlightsOverview = !isExplorer && highlightsProgress > 0.45;
+  const closeModal = useCallback(() => setModalNode(null), []);
+  const openNodeModal = useCallback(
+    (node: PortfolioGraphNode) => setModalNode(node),
+    [],
+  );
 
   return (
     <section
@@ -113,6 +122,7 @@ export function GraphJourney() {
               }
               scrollFocusProgress={isExplorer ? 0 : scrollFocus.progress}
               overviewProgress={highlightsProgress}
+              onOpenModal={isHighlightsOverview ? openNodeModal : undefined}
             />
           </Canvas>
         </div>
@@ -129,6 +139,9 @@ export function GraphJourney() {
           onPrevious={() => selectAdjacentNode(-1)}
           onNext={() => selectAdjacentNode(1)}
         />
+        {isHighlightsOverview && modalNode && (
+          <GraphNodeModal node={modalNode} onClose={closeModal} />
+        )}
       </div>
     </section>
   );

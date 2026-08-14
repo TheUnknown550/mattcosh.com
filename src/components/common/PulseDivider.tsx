@@ -26,9 +26,12 @@ const PATH = buildPulsePath();
  * cardiac-monitoring flagship project. Static trace always shows; the
  * traveling highlight is CSS-driven and respects prefers-reduced-motion.
  */
-export function PulseDivider() {
+export function PulseDivider({ className = "" }: { className?: string }) {
   return (
-    <div aria-hidden="true" className="w-full overflow-hidden py-2">
+    <div
+      aria-hidden="true"
+      className={`w-full overflow-hidden py-2 ${className}`}
+    >
       <svg
         viewBox={`0 0 ${VIEW_WIDTH} ${HEIGHT}`}
         preserveAspectRatio="none"

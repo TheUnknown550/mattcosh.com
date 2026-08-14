@@ -272,17 +272,23 @@ html[data-scroll-snap="home"] [data-home-snap] {
 }
 
 .about-stage__copy {
-  transform: translate3d(var(--cinematic-content-offset, 0rem), 0, 0);
-  transform-origin: right center;
+  transform: translate3d(
+      var(--cinematic-copy-offset-x, 0rem),
+      var(--cinematic-copy-offset-y, 0rem),
+      0
+    )
+    scale(var(--cinematic-side-scale, 1));
+  transform-origin: center center;
 }
 
 .about-stage__facts {
   transform: translate3d(
-    var(--cinematic-content-offset-negative, 0rem),
-    0,
-    0
-  );
-  transform-origin: left center;
+      var(--cinematic-facts-offset-x, 0rem),
+      var(--cinematic-facts-offset-y, 0rem),
+      0
+    )
+    scale(var(--cinematic-side-scale, 1));
+  transform-origin: center center;
   box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.18);
 }
 
@@ -293,6 +299,24 @@ html[data-scroll-snap="home"] [data-home-snap] {
 
   .about-stage__content {
     padding-top: 2.5rem;
+  }
+
+  .about-stage__copy {
+    transform: translate3d(
+        0,
+        var(--cinematic-copy-offset-y, 0rem),
+        0
+      )
+      scale(var(--cinematic-side-scale, 1));
+  }
+
+  .about-stage__facts {
+    transform: translate3d(
+        0,
+        var(--cinematic-facts-offset-y, 0rem),
+        0
+      )
+      scale(var(--cinematic-side-scale, 1));
   }
 }
 

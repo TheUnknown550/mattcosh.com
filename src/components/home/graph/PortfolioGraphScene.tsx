@@ -1,8 +1,14 @@
 "use client";
 
 import { Billboard, Html, OrbitControls } from "@react-three/drei";
-import { useFrame, useThree } from "@react-three/fiber";
-import { type RefObject, useEffect, useMemo, useRef } from "react";
+import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
+import {
+  type RefObject,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   BufferGeometry,
   Float32BufferAttribute,
@@ -44,6 +50,11 @@ const OVERVIEW_2D_CLUSTER_CENTERS: Record<
 };
 
 const OVERVIEW_2D_CORE_POSITION: GraphPosition = [0, -4.1, 0];
+
+type TooltipPlacement = {
+  horizontal: "left" | "center" | "right";
+  vertical: "above" | "below";
+};
 
 function getOverview2DNodes() {
   const nodesByType = new Map<PortfolioGraphNodeType, PortfolioGraphNode[]>();
@@ -209,6 +220,7 @@ function GraphNode({
   isConnectedToSelection,
   onSelect,
   onExplore,
+  onOpenModal,
   reduceMotion,
   isScrollFocused,
   scrollFocusProgress,
@@ -221,6 +233,7 @@ function GraphNode({
   isConnectedToSelection: boolean;
   onSelect: (id: string) => void;
   onExplore: () => void;
+  onOpenModal?: (node: PortfolioGraphNode) => void;
   reduceMotion: boolean;
   isScrollFocused: boolean;
   scrollFocusProgress: number;
@@ -231,6 +244,11 @@ function GraphNode({
   const pulseRing = useRef<Mesh>(null);
   const focusOuterRing = useRef<Mesh>(null);
   const focusInnerRing = useRef<Mesh>(null);
+  const [isHovered, setIsHovered] = useState(false);
+  const [tooltipPlacement, setTooltipPlacement] = useState<TooltipPlacement>({
+    horizontal: "center",
+    vertical: "above",
+  });
   const position = useMemo(
     () => new Vector3(...node.position),
     [node.position],
@@ -239,7 +257,58 @@ function GraphNode({
     () => new Vector3(...overviewNode.position),
     [overviewNode.position],
   );
+  const updateTooltipPlacement = (clientX: number, clientY: number) => {
+    const horizontal =
+      clientX < 260 ? "right" : clientX > window.innerWidth - 260 ? "left" : "center";
+    const vertical = clientY < 210 ? "below" : "above";
+
+    setTooltipPlacement((current) =>
+      current.horizontal === horizontal && current.vertical === vertical
+        ? current
+        : { horizontal, vertical },
+    );
+  };
+  const tooltipHorizontalClass =
+    tooltipPlacement.horizontal === "left"
+      ? "-translate-x-[55%]"
+      : tooltipPlacement.horizontal === "right"
+        ? "translate-x-[55%]"
+        : "translate-x-0";
+  const tooltipVerticalClass =
+    tooltipPlacement.vertical === "below"
+      ? "translate-y-[60%]"
+      : "-translate-y-[60%]";
   const isInFocus = activeStop.nodeTypes.includes(node.type);
+  const handleClick = (event: ThreeEvent<MouseEvent>) => {
+    event.stopPropagation();
+    if (onOpenModal) {
+      onOpenModal(node);
+      return;
+    }
+    onExplore();
+    onSelect(node.id);
+  };
+  const handlePointerOver = (event: ThreeEvent<PointerEvent>) => {
+    event.stopPropagation();
+    updateTooltipPlacement(
+      event.nativeEvent.clientX,
+      event.nativeEvent.clientY,
+    );
+    setIsHovered(true);
+    document.body.style.cursor = "pointer";
+  };
+  const handlePointerMove = (event: ThreeEvent<PointerEvent>) => {
+    event.stopPropagation();
+    updateTooltipPlacement(
+      event.nativeEvent.clientX,
+      event.nativeEvent.clientY,
+    );
+  };
+  const handlePointerOut = (event: ThreeEvent<PointerEvent>) => {
+    event.stopPropagation();
+    setIsHovered(false);
+    document.body.style.cursor = "";
+  };
   useFrame(({ clock }, delta) => {
     if (group.current) {
       group.current.position.lerpVectors(
@@ -270,7 +339,8 @@ function GraphNode({
       node.type === "core" && isScrollFocused
         ? 1 + scrollFocusProgress * 1.45
         : 1;
-    const targetScale = focusScale * overviewScale;
+    const hoverScale = isHovered ? 1.18 : 1;
+    const targetScale = focusScale * overviewScale * hoverScale;
     const scaleSmoothing = reduceMotion ? 100 : 5.5;
     const nextScale = MathUtils.damp(
       mesh.current.scale.x,
@@ -314,22 +384,26 @@ function GraphNode({
   });
   return (
     <group ref={group} position={position}>
+      {/*
+       * Keep the visual node small, but give it a forgiving raycast target.
+       * This is especially important in the wide stats overview, where the
+       * individual graph nodes are deliberately spaced across the viewport.
+       * It stays visible to the raycaster even though its material is fully
+       * transparent.
+       */}
+      <mesh
+        onClick={handleClick}
+        onPointerOver={handlePointerOver}
+        onPointerMove={handlePointerMove}
+        onPointerOut={handlePointerOut}
+      >
+        <sphereGeometry args={[0.42, 16, 16]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      </mesh>
       <mesh
         ref={mesh}
-        onClick={(event) => {
-          event.stopPropagation();
-          onExplore();
-          onSelect(node.id);
-        }}
-        onPointerOver={(event) => {
-          event.stopPropagation();
-          document.body.style.cursor = "pointer";
-        }}
-        onPointerOut={() => {
-          document.body.style.cursor = "";
-        }}
       >
-      <icosahedronGeometry args={[0.14, 1]} />
+        <icosahedronGeometry args={[0.14, 1]} />
         <meshBasicMaterial
           color={GRAPH_NODE_COLORS[node.type]}
           transparent
@@ -337,6 +411,32 @@ function GraphNode({
           depthWrite={false}
         />
       </mesh>
+      <Html
+        position={[0, 0, 0]}
+        center
+        zIndexRange={[40, 0]}
+        style={{ pointerEvents: "none" }}
+      >
+        <div
+          role="tooltip"
+          aria-hidden={!isHovered}
+          className={`w-56 rounded-md border border-line bg-surface/95 p-3 text-left shadow-[0_18px_45px_-18px_rgba(0,0,0,0.9)] backdrop-blur-sm transition-[opacity,transform] duration-200 ease-out ${tooltipHorizontalClass} ${tooltipVerticalClass} ${
+            isHovered
+              ? "translate-y-0 scale-100 opacity-100"
+              : "translate-y-1 scale-95 opacity-0"
+          }`}
+        >
+          <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-signal">
+            {node.eyebrow}
+          </p>
+          <p className="mt-1 text-sm font-semibold leading-snug text-ink">
+            {node.title}
+          </p>
+          <p className="mt-2 text-[11px] leading-relaxed text-ink-muted">
+            {node.description}
+          </p>
+        </div>
+      </Html>
       {node.type === "core" && (
         <Billboard>
           <mesh ref={focusOuterRing}>
@@ -360,7 +460,12 @@ function GraphNode({
         </Billboard>
       )}
       {node.type === "core" && isScrollFocused && (
-        <mesh ref={pulseRing} rotation={[Math.PI / 2, 0, 0]} scale={1.4}>
+        <mesh
+          ref={pulseRing}
+          renderOrder={-1}
+          rotation={[Math.PI / 2, 0, 0]}
+          scale={1.4}
+        >
           <torusGeometry args={[0.23, 0.018, 8, 48]} />
           <meshBasicMaterial
             color="#2dd9c9"
@@ -794,6 +899,7 @@ export function PortfolioGraphScene({
   selectedNode,
   onSelect,
   onExplore,
+  onOpenModal,
   isExplorer,
   reduceMotion,
   scrollFocusFromNodeId,
@@ -806,6 +912,7 @@ export function PortfolioGraphScene({
   selectedNode?: PortfolioGraphNode;
   onSelect: (id: string) => void;
   onExplore: () => void;
+  onOpenModal?: (node: PortfolioGraphNode) => void;
   isExplorer: boolean;
   reduceMotion: boolean;
   scrollFocusFromNodeId?: string;
@@ -1033,6 +1140,7 @@ export function PortfolioGraphScene({
             isConnectedToSelection={selectedConnections.has(node.id)}
             onSelect={onSelect}
             onExplore={onExplore}
+            onOpenModal={onOpenModal}
             reduceMotion={reduceMotion}
             isScrollFocused={node.id === scrollFocusToNodeId}
             scrollFocusProgress={
