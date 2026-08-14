@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ContactMenu } from "./ContactMenu";
 
 interface NavLink {
   href: string;
@@ -43,6 +44,9 @@ export function DesktopNav({ links }: DesktopNavProps) {
           </Link>
         );
       })}
+      {pathname === "/" ? (
+        <ContactMenu />
+      ) : (
       <a
         href="https://github.com/TheUnknown550"
         target="_blank"
@@ -55,6 +59,7 @@ export function DesktopNav({ links }: DesktopNavProps) {
           className="absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-current transition-transform duration-300 ease-out group-hover:scale-x-100 motion-reduce:transition-none"
         />
       </a>
+      )}
     </nav>
   );
 }

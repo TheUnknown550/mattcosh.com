@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ContactMenu } from "./ContactMenu";
 
 interface NavLink {
   href: string;
@@ -105,6 +106,9 @@ export function MobileNav({ links }: MobileNavProps) {
                 </Link>
               );
             })}
+            {pathname === "/" ? (
+              <ContactMenu mobile />
+            ) : (
             <a
               href="https://github.com/TheUnknown550"
               target="_blank"
@@ -114,6 +118,7 @@ export function MobileNav({ links }: MobileNavProps) {
             >
               GitHub ↗
             </a>
+            )}
           </nav>
         </>
       )}
