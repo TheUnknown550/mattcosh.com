@@ -26,7 +26,7 @@ export function Highlights() {
       <StatRow stats={stats} />
       <Link
         href="/roadmap"
-        className="group mt-10 inline-flex items-center gap-2 font-mono text-sm uppercase tracking-wide text-ink transition-colors hover:text-signal"
+        className="group mt-4 inline-flex items-center gap-2 self-start font-mono text-sm uppercase tracking-wide text-ink transition-colors hover:text-signal"
       >
         See the full roadmap
         <span

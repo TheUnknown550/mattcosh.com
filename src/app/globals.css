@@ -22,12 +22,29 @@ body {
 
 /* The homepage section navigator controls the easing in JavaScript. */
 html[data-scroll-snap="home"] {
+  overflow-x: clip;
   scroll-snap-type: none;
   scroll-behavior: auto;
 }
 
+body[data-landing-page="true"] {
+  overflow-x: clip;
+}
+
 html[data-scroll-snap="home"] [data-home-snap] {
   scroll-margin-top: 77px;
+}
+
+/* The landing page keeps its navigation spacious at tablet widths. Other
+   routes retain the site's standard header breakpoint. */
+@media (min-width: 640px) and (max-width: 1023px) {
+  body[data-landing-page="true"] [data-site-desktop-nav] {
+    display: none;
+  }
+
+  body[data-landing-page="true"] [data-site-mobile-nav] {
+    display: block;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

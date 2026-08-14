@@ -49,7 +49,7 @@ export function MobileNav({ links }: MobileNavProps) {
   }, [open]);
 
   return (
-    <div className="md:hidden">
+    <div data-site-mobile-nav className="md:hidden">
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}

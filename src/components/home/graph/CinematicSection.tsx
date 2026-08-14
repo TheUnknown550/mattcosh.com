@@ -8,7 +8,7 @@ export function CinematicSection({
   sectionKey,
   children,
   mode = "standard",
-  revealScale = true,
+  revealScale = false,
 }: {
   sectionKey: string;
   children: ReactNode;
@@ -54,13 +54,13 @@ export function CinematicSection({
     <div
       data-home-snap
       data-cinematic-section={sectionKey}
-      className="relative flex min-h-[calc(100svh-77px)] items-center justify-center transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none"
+      className="relative flex min-h-[calc(100svh-77px)] w-full shrink-0 items-center justify-center transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none"
       inert={reveal <= 0.45 ? true : undefined}
       style={cinematicStyle}
     >
       <PulseDivider className="pointer-events-none absolute inset-x-0 top-0 z-20" />
       {children}
-      <PulseDivider className="pointer-events-none absolute inset-x-0 bottom-0 z-20" />
+      <PulseDivider className="pointer-events-none absolute inset-x-0 bottom-4 z-20" />
     </div>
   );
 }

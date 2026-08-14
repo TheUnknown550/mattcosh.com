@@ -7,6 +7,7 @@ export function ClosingCTA() {
       data-graph-focus-key="closing"
       className="relative z-10 mx-auto w-full max-w-[90rem] py-24 text-center lg:py-32"
     >
+      <div className="relative z-10 -translate-y-32 sm:-translate-y-24 lg:-translate-y-28">
       <p className="font-mono text-xs uppercase tracking-wide text-signal">
         Open to opportunities
       </p>
@@ -18,6 +19,8 @@ export function ClosingCTA() {
         building reliable, practical systems — reach out on GitHub, or dig into
         the work below.
       </p>
+
+      </div>
 
       <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
         <a

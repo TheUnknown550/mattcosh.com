@@ -16,7 +16,7 @@ export default function Home() {
         <About />
       </CinematicSection>
       <CinematicSection sectionKey="highlights">
-        <Reveal>
+        <Reveal className="w-full">
           <Highlights />
         </Reveal>
       </CinematicSection>

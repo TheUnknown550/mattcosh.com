@@ -9,7 +9,7 @@ export function About() {
     <section
       data-graph-focus-node="core-matt-cosh"
       data-graph-focus-key="about"
-      className="about-stage relative mx-auto w-full max-w-[90rem] px-0 py-24 lg:py-28"
+      className="about-stage relative mx-auto w-full max-w-[90rem] px-0 py-24 max-sm:py-10 lg:py-28"
     >
       <div className="about-stage__backdrop" aria-hidden="true" />
 
@@ -17,9 +17,9 @@ export function About() {
         <h2 className="about-stage__title font-display text-3xl font-semibold text-ink">
           About
         </h2>
-        <div className="about-stage__content mt-8 flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between">
-          <div className="about-stage__copy max-w-2xl">
-            <p className="text-lg leading-relaxed text-ink lg:text-xl">
+        <div className="about-stage__content mt-8 flex flex-col gap-10 max-sm:mt-5 max-sm:gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="about-stage__copy max-w-xl md:max-lg:rounded-r-xl md:max-lg:bg-gradient-to-r md:max-lg:from-void/95 md:max-lg:via-void/80 md:max-lg:to-void/55 md:max-lg:p-4">
+            <p className="text-lg leading-relaxed text-ink max-sm:text-base max-sm:leading-snug lg:text-xl">
               I&rsquo;m an Information Systems and Network Engineering student at
               Chiang Mai University, working across full-stack development, IoT,
               and network engineering, with a growing focus on applied AI. My
@@ -32,7 +32,7 @@ export function About() {
             </p>
           </div>
 
-          <dl className="about-stage__facts grid shrink-0 grid-cols-1 gap-x-10 gap-y-6 rounded-lg border border-line bg-surface p-8 sm:grid-cols-2 lg:w-96 lg:grid-cols-1">
+          <dl className="about-stage__facts grid shrink-0 grid-cols-1 gap-x-10 gap-y-6 rounded-lg border border-line bg-surface p-8 max-sm:grid-cols-2 max-sm:gap-x-4 max-sm:gap-y-4 max-sm:p-4 sm:grid-cols-2 lg:w-96 lg:grid-cols-1">
             {FACTS.map((fact) => (
               <div key={fact.label}>
                 <dt className="font-mono text-[11px] uppercase tracking-wide text-signal">

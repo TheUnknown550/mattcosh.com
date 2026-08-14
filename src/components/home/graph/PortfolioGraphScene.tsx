@@ -37,26 +37,45 @@ import {
   HOME_CAMERA_TARGET,
 } from "./constants";
 
+const OVERVIEW_2D_VERTICAL_OFFSET = -1.25;
+
 const OVERVIEW_2D_CLUSTER_CENTERS: Record<
   Exclude<PortfolioGraphNodeType, "core">,
   GraphPosition
 > = {
-  project: [-21.5, 0, 0],
-  award: [-12.9, 0, 0],
-  experience: [-4.3, 0, 0],
-  certification: [4.3, 0, 0],
-  education: [12.9, 0, 0],
-  skill: [21.5, 0, 0],
+  project: [-21.5, OVERVIEW_2D_VERTICAL_OFFSET, 0],
+  award: [-12.9, OVERVIEW_2D_VERTICAL_OFFSET, 0],
+  experience: [-4.3, OVERVIEW_2D_VERTICAL_OFFSET, 0],
+  certification: [4.3, OVERVIEW_2D_VERTICAL_OFFSET, 0],
+  education: [12.9, OVERVIEW_2D_VERTICAL_OFFSET, 0],
+  skill: [21.5, OVERVIEW_2D_VERTICAL_OFFSET, 0],
 };
 
-const OVERVIEW_2D_CORE_POSITION: GraphPosition = [0, -6.4, 0];
+const COMPACT_OVERVIEW_2D_CLUSTER_CENTERS: Record<
+  Exclude<PortfolioGraphNodeType, "core">,
+  GraphPosition
+> = {
+  project: [-5.5, 2.5, 0],
+  award: [5.5, 2.5, 0],
+  experience: [-5.5, -1.5, 0],
+  certification: [5.5, -1.5, 0],
+  education: [-5.5, -5.5, 0],
+  skill: [5.5, -5.5, 0],
+};
 
 type TooltipPlacement = {
   horizontal: "left" | "center" | "right";
   vertical: "above" | "below";
 };
 
-function getOverview2DNodes() {
+function getOverview2DNodes(compact = false) {
+  const clusterCenters = compact
+    ? COMPACT_OVERVIEW_2D_CLUSTER_CENTERS
+    : OVERVIEW_2D_CLUSTER_CENTERS;
+  const rowSpacing = compact ? 1.1 : 1.85;
+  const corePosition: GraphPosition = compact
+    ? [0, -9, 0]
+    : [0, -6.4 + OVERVIEW_2D_VERTICAL_OFFSET, 0];
   const nodesByType = new Map<PortfolioGraphNodeType, PortfolioGraphNode[]>();
 
   portfolioGraphNodes.forEach((node) => {
@@ -67,7 +86,7 @@ function getOverview2DNodes() {
 
   return portfolioGraphNodes.map((node) => {
     if (node.type === "core") {
-      return { ...node, position: OVERVIEW_2D_CORE_POSITION };
+      return { ...node, position: corePosition };
     }
 
     const typeNodes = nodesByType.get(node.type) ?? [];
@@ -76,25 +95,29 @@ function getOverview2DNodes() {
     const rows = Math.ceil(typeNodes.length / columns);
     const column = nodeIndex % columns;
     const row = Math.floor(nodeIndex / columns);
-    const center = OVERVIEW_2D_CLUSTER_CENTERS[node.type];
+    const center = clusterCenters[node.type];
 
     return {
       ...node,
       position: [
         center[0] + (column - (columns - 1) / 2) * 1.05,
-        center[1] + ((rows - 1) / 2 - row) * 1.85,
+        center[1] + ((rows - 1) / 2 - row) * rowSpacing,
         center[2],
       ] as GraphPosition,
     };
   });
 }
 
-function getOverview2DLabels() {
+function getOverview2DLabels(compact = false) {
+  const clusterCenters = compact
+    ? COMPACT_OVERVIEW_2D_CLUSTER_CENTERS
+    : OVERVIEW_2D_CLUSTER_CENTERS;
+  const labelOffset = compact ? 2.1 : 4.8;
   return graphClusterLabels.map((label) => {
-    const center = OVERVIEW_2D_CLUSTER_CENTERS[label.type];
+    const center = clusterCenters[label.type];
     return {
       ...label,
-      position: [center[0], 4.8, center[2]] as GraphPosition,
+      position: [center[0], center[1] + labelOffset, center[2]] as GraphPosition,
     };
   });
 }
@@ -691,12 +714,12 @@ function HomeCameraRig({
   const homeCameraPosition = useMemo(
     () =>
       HOME_CAMERA_DIRECTION.clone().setLength(
-        size.width / size.height < 0.8 ? 36 : 22,
+        size.width / size.height < 0.9 ? 36 : 22,
       ),
     [size.height, size.width],
   );
   const overviewCameraPosition = useMemo(
-    () => new Vector3(0, 0, size.width / size.height < 0.8 ? 46 : 31),
+    () => new Vector3(0, 0, size.width / size.height < 0.9 ? 46 : 31),
     [size.height, size.width],
   );
   const homeCameraTarget = useMemo(() => new Vector3(...HOME_CAMERA_TARGET), []);
@@ -786,12 +809,12 @@ function ScrollFocusRig({
   const defaultHomePosition = useMemo(
     () =>
       HOME_CAMERA_DIRECTION.clone().setLength(
-        size.width / size.height < 0.8 ? 36 : 22,
+        size.width / size.height < 0.9 ? 36 : 22,
       ),
     [size.height, size.width],
   );
   const overviewHomePosition = useMemo(
-    () => new Vector3(0, 0, size.width / size.height < 0.8 ? 46 : 31),
+    () => new Vector3(0, 0, size.width / size.height < 0.9 ? 46 : 31),
     [size.height, size.width],
   );
   const homePosition = useMemo(() => new Vector3(), []);
@@ -920,10 +943,18 @@ export function PortfolioGraphScene({
   scrollFocusProgress?: number;
   overviewProgress?: number;
 }) {
+  const { size } = useThree();
+  const isCompactOverview = size.width / size.height < 0.9;
   const group = useRef<Group>(null);
   const layoutProgress = useRef(0);
-  const overviewNodes = useMemo(() => getOverview2DNodes(), []);
-  const overviewLabels = useMemo(() => getOverview2DLabels(), []);
+  const overviewNodes = useMemo(
+    () => getOverview2DNodes(isCompactOverview),
+    [isCompactOverview],
+  );
+  const overviewLabels = useMemo(
+    () => getOverview2DLabels(isCompactOverview),
+    [isCompactOverview],
+  );
   const orbitControls = useRef<OrbitControlsImpl>(null);
   const nodesById = useMemo(
     () => new Map(portfolioGraphNodes.map((node) => [node.id, node])),
@@ -1068,7 +1099,7 @@ export function PortfolioGraphScene({
         enableRotate
         enableZoom={isExplorer}
         minDistance={4.5}
-        maxDistance={48}
+        maxDistance={isExplorer ? 48 : 100}
         screenSpacePanning={isExplorer}
         mouseButtons={{
           LEFT: MOUSE.ROTATE,

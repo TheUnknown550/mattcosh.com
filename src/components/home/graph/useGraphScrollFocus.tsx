@@ -4,6 +4,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useLayoutEffect,
   useState,
   type ReactNode,
 } from "react";
@@ -83,6 +84,13 @@ function useGraphScrollFocusState() {
       delete root.dataset.scrollSnap;
       root.style.scrollSnapType = previousScrollSnapType;
       root.style.scrollBehavior = previousScrollBehavior;
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    document.body.dataset.landingPage = "true";
+    return () => {
+      delete document.body.dataset.landingPage;
     };
   }, []);
 
