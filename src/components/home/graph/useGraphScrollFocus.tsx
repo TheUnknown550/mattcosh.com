@@ -42,6 +42,15 @@ function clamp(value: number) {
   return Math.min(1, Math.max(0, value));
 }
 
+function isGraphExplorerActive() {
+  return Boolean(document.querySelector('[data-graph-explorer="true"]'));
+}
+
+function isGraphExplorerTarget(target: EventTarget | null) {
+  return target instanceof Element &&
+    Boolean(target.closest('[data-graph-explorer="true"]'));
+}
+
 function getFocusStop(nodeId?: string, stopId?: string) {
   if (stopId) {
     const explicitStop = graphFocusStops.find((stop) => stop.id === stopId);
@@ -165,6 +174,11 @@ function useGraphScrollFocusState() {
       const startedAt = performance.now();
 
       const frame = (now: number) => {
+        if (isGraphExplorerActive()) {
+          isAnimating = false;
+          return;
+        }
+
         const progress = Math.min(1, (now - startedAt) / HOME_SNAP_DURATION);
         const easedProgress = easeInOut(progress);
         window.scrollTo(
@@ -202,7 +216,15 @@ function useGraphScrollFocusState() {
     };
 
     const handleWheel = (event: WheelEvent) => {
-      if (event.ctrlKey || isEditableTarget(event.target)) return;
+      if (
+        event.ctrlKey ||
+        event.defaultPrevented ||
+        isEditableTarget(event.target) ||
+        isGraphExplorerActive() ||
+        isGraphExplorerTarget(event.target)
+      ) {
+        return;
+      }
 
       const direction = event.deltaY > 0 ? 1 : event.deltaY < 0 ? -1 : 0;
       if (direction === 0) return;
@@ -216,7 +238,7 @@ function useGraphScrollFocusState() {
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (isEditableTarget(event.target)) return;
+      if (isEditableTarget(event.target) || isGraphExplorerActive()) return;
 
       const direction =
         event.key === "ArrowDown" || event.key === "PageDown"
@@ -230,16 +252,28 @@ function useGraphScrollFocusState() {
     };
 
     const handleTouchStart = (event: TouchEvent) => {
+      if (isGraphExplorerActive() || isGraphExplorerTarget(event.target)) {
+        touchStartY = null;
+        return;
+      }
+
       touchStartY = event.touches.length === 1 ? event.touches[0].clientY : null;
     };
 
     const handleTouchMove = (event: TouchEvent) => {
+      if (isGraphExplorerActive() || isGraphExplorerTarget(event.target)) return;
+
       if (touchStartY !== null && event.touches.length === 1) {
         event.preventDefault();
       }
     };
 
     const handleTouchEnd = (event: TouchEvent) => {
+      if (isGraphExplorerActive() || isGraphExplorerTarget(event.target)) {
+        touchStartY = null;
+        return;
+      }
+
       if (touchStartY === null) return;
 
       const endY = event.changedTouches[0]?.clientY ?? touchStartY;
