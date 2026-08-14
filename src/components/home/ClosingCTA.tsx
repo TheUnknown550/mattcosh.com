@@ -31,6 +31,14 @@ export function ClosingCTA() {
         >
           GitHub ↗
         </a>
+        <a
+          href="https://www.linkedin.com/in/matt-cosh"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 rounded-md border border-line bg-surface px-6 py-3 font-mono text-sm uppercase tracking-wide text-ink transition-all duration-200 hover:scale-[1.03] hover:border-signal hover:bg-signal/10 active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal motion-reduce:transition-colors motion-reduce:hover:scale-100 motion-reduce:active:scale-100"
+        >
+          LinkedIn &#x2197;
+        </a>
       </div>
 
       <div className="mt-10 flex flex-wrap items-center justify-center gap-x-8 gap-y-2 font-mono text-xs uppercase tracking-wide text-ink-muted">
