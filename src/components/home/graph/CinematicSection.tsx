@@ -36,8 +36,8 @@ export function CinematicSection({
     "--cinematic-backdrop-opacity": isCoreReveal ? reveal * 0.34 : 0.34,
     "--cinematic-content-offset": `${contentOffset}rem`,
     "--cinematic-side-scale": 0.06 + reveal * 0.94,
-    "--cinematic-copy-offset-x": `${(1 - reveal) * 18}rem`,
-    "--cinematic-facts-offset-x": `${(1 - reveal) * -26}rem`,
+    "--cinematic-copy-offset-x": `${(1 - reveal) * 24}rem`,
+    "--cinematic-facts-offset-x": `${(1 - reveal) * -32}rem`,
     "--cinematic-copy-offset-y": `${(1 - reveal) * 8}rem`,
     "--cinematic-facts-offset-y": `${(1 - reveal) * -8}rem`,
     "--cinematic-core-scale": 0.65 + reveal * 0.35,
@@ -50,7 +50,7 @@ export function CinematicSection({
     <div
       data-home-snap
       data-cinematic-section={sectionKey}
-      className="relative transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none"
+      className="relative min-h-[calc(100svh-77px)] transition-[opacity,transform] duration-500 ease-out motion-reduce:transition-none"
       inert={reveal <= 0.45 ? true : undefined}
       style={cinematicStyle}
     >

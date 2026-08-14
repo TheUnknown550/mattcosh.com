@@ -5,15 +5,15 @@ export function ClosingCTA() {
     <section
       data-graph-focus-node="core-matt-cosh"
       data-graph-focus-key="closing"
-      className="mx-auto max-w-6xl py-24 text-center"
+      className="mx-auto w-full max-w-[90rem] py-24 text-center lg:py-32"
     >
       <p className="font-mono text-xs uppercase tracking-wide text-signal">
         Open to opportunities
       </p>
-      <h2 className="mt-4 font-display text-3xl font-semibold text-ink lg:text-4xl">
+      <h2 className="mt-4 font-display text-4xl font-semibold text-ink lg:text-5xl">
         Let&rsquo;s build the next system.
       </h2>
-      <p className="mx-auto mt-4 max-w-xl text-lg text-ink-muted">
+      <p className="mx-auto mt-4 max-w-2xl text-xl text-ink-muted">
         I&rsquo;m looking for software engineering roles where I can keep
         building reliable, practical systems — reach out on GitHub, or dig into
         the work below.

@@ -10,10 +10,10 @@ export function FeaturedWork() {
     <section
       data-graph-focus-node="project-cs-m-cardiac-monitor"
       data-graph-focus-key="selected-work"
-      className="mx-auto max-w-6xl py-24"
+      className="mx-auto w-full max-w-[90rem] py-24 lg:py-32"
     >
       <div className="flex items-baseline justify-between">
-        <h2 className="font-display text-3xl font-semibold text-ink">
+        <h2 className="font-display text-4xl font-semibold text-ink">
           Selected work
         </h2>
         <Link
@@ -24,16 +24,16 @@ export function FeaturedWork() {
         </Link>
       </div>
 
-      <TiltCard className="group mt-10 block rounded-lg">
+      <TiltCard className="group mt-12 block rounded-lg">
         <Link
           href={`/projects/${project.slug}`}
-          className="grid grid-cols-1 gap-10 rounded-lg border border-line bg-surface p-8 transition-colors duration-300 group-hover:border-signal lg:grid-cols-[1.4fr_1fr] lg:p-12"
+          className="grid grid-cols-1 gap-12 rounded-lg border border-line bg-surface p-10 transition-colors duration-300 group-hover:border-signal lg:grid-cols-[1.4fr_1fr] lg:p-16"
         >
           <div>
             <p className="font-mono text-xs uppercase tracking-wide text-signal">
               {project.category} · {project.year}
             </p>
-            <h3 className="mt-4 font-display text-3xl font-semibold text-ink">
+            <h3 className="mt-4 font-display text-4xl font-semibold text-ink lg:text-5xl">
               {project.title}
             </h3>
             <p className="mt-4 max-w-xl text-base leading-relaxed text-ink-muted">

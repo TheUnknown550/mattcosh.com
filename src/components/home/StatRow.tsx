@@ -56,10 +56,10 @@ export function StatRow({ stats }: StatRowProps) {
     <div ref={containerRef} className="grid grid-cols-2 gap-8 sm:grid-cols-4">
       {stats.map((stat, index) => (
         <div key={stat.label}>
-          <p className="font-display text-3xl font-semibold text-ink lg:text-4xl">
+          <p className="font-display text-4xl font-semibold text-ink lg:text-6xl">
             {display[index]}
           </p>
-          <p className="mt-1 font-mono text-xs uppercase tracking-wide text-ink">
+          <p className="mt-2 font-mono text-sm uppercase tracking-wide text-ink">
             {stat.label}
           </p>
         </div>
