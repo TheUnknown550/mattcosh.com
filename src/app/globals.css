@@ -433,8 +433,19 @@ html[data-scroll-snap="home"] [data-home-snap] {
 
 /* On extra-wide canvases, return to the deliberate split composition: a
    compact card rail on the left and the shared graph as the right-side hero. */
+@media (min-width: 75rem) {
+  .project-page-rail.project-page-rail {
+    width: min(57%, 60rem);
+    margin-inline-start: 4%;
+  }
+
+  .project-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (min-width: 100rem) {
-  .project-page-rail {
+  .project-page-rail.project-page-rail {
     width: min(60%, 72rem);
     margin-inline-start: 4%;
   }
