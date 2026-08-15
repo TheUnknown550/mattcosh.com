@@ -26,8 +26,8 @@ export const metadata: Metadata = {
   description:
     "Software developer building applied AI, full-stack, AIoT, and networking projects.",
   icons: {
-    icon: [{ url: "/icon", type: "image/png", sizes: "512x512" }],
-    shortcut: "/icon",
+    icon: [{ url: "/icon?v=portrait", type: "image/png", sizes: "512x512" }],
+    shortcut: "/icon?v=portrait",
   },
 };
 
