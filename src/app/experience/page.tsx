@@ -5,6 +5,7 @@ import { skills } from "@/data/skills";
 import { certifications } from "@/data/certifications";
 import { ExperienceCard } from "@/components/experience/ExperienceCard";
 import { EducationCard } from "@/components/experience/EducationCard";
+import { ExperienceGraphConnections } from "@/components/experience/ExperienceGraphConnections";
 import { PulseDivider } from "@/components/common/PulseDivider";
 import { Reveal } from "@/components/common/Reveal";
 
@@ -12,7 +13,8 @@ export default function ExperiencePage() {
   const recentCertifications = certifications.slice(0, 3);
 
   return (
-    <div className="mx-auto max-w-6xl py-8 lg:py-12">
+    <div className="experience-page-rail ml-auto w-full min-w-0 max-w-3xl py-8 lg:py-12">
+      <ExperienceGraphConnections />
       <Reveal>
         <h1 className="font-display text-4xl font-semibold text-ink lg:text-5xl">
           Experience
@@ -21,29 +23,39 @@ export default function ExperiencePage() {
 
       <PulseDivider />
 
-      <Reveal>
-        <h2 className="font-display text-2xl font-semibold text-ink">Work</h2>
-        <div className="mt-8 flex flex-col gap-5">
-          {experience.map((entry) => (
-            <ExperienceCard key={entry.id} entry={entry} />
-          ))}
-        </div>
-      </Reveal>
+      <section id="experience-work">
+        <Reveal>
+          <h2 className="font-display text-2xl font-semibold text-ink">Work</h2>
+          <div className="mt-8 flex flex-col gap-5">
+            {experience.map((entry) => (
+              <ExperienceCard key={entry.id} entry={entry} />
+            ))}
+          </div>
+        </Reveal>
+      </section>
+
+      <div
+        id="experience-transition"
+        aria-hidden="true"
+        className="flex min-h-[50svh] items-center"
+      >
+        <PulseDivider />
+      </div>
+
+      <section id="experience-education">
+        <Reveal>
+          <h2 className="font-display text-2xl font-semibold text-ink">Education</h2>
+          <div className="mt-8 flex flex-col gap-5">
+            {education.map((entry) => (
+              <EducationCard key={entry.id} entry={entry} />
+            ))}
+          </div>
+        </Reveal>
+      </section>
 
       <PulseDivider />
 
-      <Reveal>
-        <h2 className="font-display text-2xl font-semibold text-ink">Education</h2>
-        <div className="mt-8 flex flex-col gap-5">
-          {education.map((entry) => (
-            <EducationCard key={entry.id} entry={entry} />
-          ))}
-        </div>
-      </Reveal>
-
-      <PulseDivider />
-
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
+      <div className="flex flex-col gap-10">
         <Reveal>
           <div className="flex items-baseline justify-between">
             <h2 className="font-display text-2xl font-semibold text-ink">Skills</h2>

@@ -368,8 +368,17 @@ function GraphNode({
       node.type === "core" && isScrollFocused
         ? 1 + scrollFocusProgress * 1.45
         : 1;
+    // Education has only two anchors, so give them more visual weight while
+    // that section is being revealed instead of letting them read like small
+    // background particles beside the larger timeline cards.
+    const sectionScale =
+      node.type === "education" && isInFocus
+        ? activeStop.id === "education"
+          ? 1.8
+          : 1.45
+        : 1;
     const hoverScale = isHovered ? 1.18 : 1;
-    const targetScale = focusScale * overviewScale * hoverScale;
+    const targetScale = focusScale * sectionScale * overviewScale * hoverScale;
     const scaleSmoothing = reduceMotion ? 100 : 5.5;
     const nextScale = MathUtils.damp(
       mesh.current.scale.x,
@@ -952,18 +961,20 @@ function NodeFocusRig({
   return null;
 }
 
-function ProjectNodeScreenProjector({
+function GraphNodeScreenProjector({
   group,
   nodesById,
   overviewNodesById,
   layoutProgress,
-  onProjectNodePositions,
+  nodeTypes,
+  onNodePositions,
 }: {
   group: RefObject<Group | null>;
   nodesById: Map<string, PortfolioGraphNode>;
   overviewNodesById: Map<string, PortfolioGraphNode>;
   layoutProgress: RefObject<number>;
-  onProjectNodePositions: (positions: ProjectGraphScreenPosition[]) => void;
+  nodeTypes: PortfolioGraphNodeType[];
+  onNodePositions: (positions: ProjectGraphScreenPosition[]) => void;
 }) {
   const point = useMemo(() => new Vector3(), []);
   const lastEmission = useRef(0);
@@ -975,7 +986,7 @@ function ProjectNodeScreenProjector({
     camera.updateMatrixWorld();
 
     const positions = portfolioGraphNodes
-      .filter((node) => node.type === "project")
+      .filter((node) => nodeTypes.includes(node.type))
       .map((node) => {
         const overviewNode = overviewNodesById.get(node.id) ?? nodesById.get(node.id) ?? node;
         point
@@ -992,7 +1003,7 @@ function ProjectNodeScreenProjector({
         };
       });
 
-    onProjectNodePositions(positions);
+    onNodePositions(positions);
   });
 
   return null;
@@ -1012,6 +1023,7 @@ export function PortfolioGraphScene({
   scrollFocusProgress = 0,
   overviewProgress = 0,
   onProjectNodePositions,
+  onExperienceNodePositions,
   backgroundCameraPose,
 }: {
   activeStop: GraphFocusStop;
@@ -1027,6 +1039,7 @@ export function PortfolioGraphScene({
   scrollFocusProgress?: number;
   overviewProgress?: number;
   onProjectNodePositions?: (positions: ProjectGraphScreenPosition[]) => void;
+  onExperienceNodePositions?: (positions: ProjectGraphScreenPosition[]) => void;
   backgroundCameraPose?: BackgroundCameraPose;
 }) {
   const { size } = useThree();
@@ -1297,12 +1310,23 @@ export function PortfolioGraphScene({
         )}
       </group>
       {onProjectNodePositions && (
-        <ProjectNodeScreenProjector
+        <GraphNodeScreenProjector
           group={group}
           nodesById={nodesById}
           overviewNodesById={overviewNodesById}
           layoutProgress={layoutProgress}
-          onProjectNodePositions={onProjectNodePositions}
+          nodeTypes={["project"]}
+          onNodePositions={onProjectNodePositions}
+        />
+      )}
+      {onExperienceNodePositions && (
+        <GraphNodeScreenProjector
+          group={group}
+          nodesById={nodesById}
+          overviewNodesById={overviewNodesById}
+          layoutProgress={layoutProgress}
+          nodeTypes={["experience", "education"]}
+          onNodePositions={onExperienceNodePositions}
         />
       )}
     </>

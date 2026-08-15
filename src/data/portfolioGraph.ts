@@ -72,7 +72,9 @@ const CLUSTER_SPREAD: Record<PortfolioGraphNodeType, [number, number, number]> =
   core: [0, 0, 0],
   skill: [1.05, 0.85, 1.8],
   project: [1.3, 1.05, 2],
-  experience: [1.15, 1.1, 1.6],
+  // A shallower depth range keeps the four-role Experience cluster cohesive
+  // from the landing-page angle instead of leaving one node isolated.
+  experience: [1.15, 1.1, 0.65],
   education: [0.9, 1.15, 1.4],
   certification: [1.1, 0.95, 1.8],
   award: [0.95, 1.05, 2],
