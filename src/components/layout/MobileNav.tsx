@@ -106,19 +106,7 @@ export function MobileNav({ links }: MobileNavProps) {
                 </Link>
               );
             })}
-            {pathname === "/" ? (
-              <ContactMenu mobile />
-            ) : (
-            <a
-              href="https://github.com/TheUnknown550"
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setOpen(false)}
-              className="rounded-md px-2 py-3 transition-colors hover:text-ink"
-            >
-              GitHub ↗
-            </a>
-            )}
+            <ContactMenu mobile />
           </nav>
         </>
       )}

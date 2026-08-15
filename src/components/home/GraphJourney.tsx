@@ -36,12 +36,17 @@ export function GraphJourney() {
     focusNode,
   } = useGraphExplorer();
   const scrollFocus = useGraphScrollFocus();
+  const isHomeArrival =
+    transition?.phase === "entering" && transition.destinationPath === "/";
+  const isReturningHome = transition?.destinationPath === "/";
   const transitionStop =
     transition?.phase === "leaving"
       ? graphFocusStops.find(
           (stop) => stop.id === getGraphRouteForPath(transition.destinationPath),
         )
-      : undefined;
+      : isHomeArrival
+        ? graphFocusStops.find((stop) => stop.id === "overview")
+        : undefined;
   const sceneActiveStop = transitionStop ?? (isExplorer ? activeStop : scrollFocus.activeStop);
   const isRouteTraveling = transition?.phase === "leaving";
   const highlightsProgress = isExplorer
@@ -99,7 +104,9 @@ export function GraphJourney() {
               antialias: true,
               powerPreference: "high-performance",
             }}
-            className="absolute inset-0"
+            className={`absolute inset-0 transition-opacity duration-500 ease-out motion-reduce:transition-none ${
+              isReturningHome ? "opacity-0" : "opacity-100"
+            }`}
             onPointerDown={(event) => {
               pointerStart.current = {
                 x: event.nativeEvent.clientX,

@@ -44,22 +44,7 @@ export function DesktopNav({ links }: DesktopNavProps) {
           </Link>
         );
       })}
-      {pathname === "/" ? (
-        <ContactMenu />
-      ) : (
-      <a
-        href="https://github.com/TheUnknown550"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="group relative pb-1 text-ink-muted transition-colors hover:text-ink"
-      >
-        GitHub ↗
-        <span
-          aria-hidden="true"
-          className="absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-current transition-transform duration-300 ease-out group-hover:scale-x-100 motion-reduce:transition-none"
-        />
-      </a>
-      )}
+      <ContactMenu />
     </nav>
   );
 }

@@ -2,7 +2,7 @@
 
 import { Canvas } from "@react-three/fiber";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   graphFocusStops,
   type GraphPosition,
@@ -105,6 +105,8 @@ const EDUCATION_COMPACT_BACKGROUND_CAMERA: { position: GraphPosition; target: Gr
   position: [-2.7, 4.3, 9],
   target: [-2.85, 3.8, -0.2],
 };
+
+const HOME_GRAPH_HANDOFF_DURATION = 500;
 function interpolatePosition(
   from: GraphPosition,
   to: GraphPosition,
@@ -190,6 +192,8 @@ export function PortfolioGraphBackground() {
   const [isCompactViewport, setIsCompactViewport] = useState(false);
   const [experienceScrollProgress, setExperienceScrollProgress] = useState(0);
   const [routeScroll, setRouteScroll] = useState({ pathname: "", progress: 0 });
+  const [keepHomeGraphVisible, setKeepHomeGraphVisible] = useState(false);
+  const homeGraphHandoffTimer = useRef<number | null>(null);
   const currentRoute = getGraphRouteForPath(pathname);
   const destinationRoute = transition
     ? getGraphRouteForPath(transition.destinationPath)
@@ -319,10 +323,72 @@ export function PortfolioGraphBackground() {
     };
   }, [isCurrentCertificationsRoute, isCurrentProjectsRoute, pathname]);
 
-  // Home owns the interactive graph. Keep this background graph alive only
-  // while leaving home so the camera can hand off to the destination; on the
-  // return journey, let GraphJourney be the single source of truth again.
-  if (pathname === "/" && transition?.phase !== "leaving") return null;
+  useEffect(() => {
+    const isArrivingHome =
+      pathname === "/" &&
+      transition?.phase === "entering" &&
+      transition.destinationPath === "/";
+
+    if (isArrivingHome) {
+      if (homeGraphHandoffTimer.current !== null) {
+        window.clearTimeout(homeGraphHandoffTimer.current);
+        homeGraphHandoffTimer.current = null;
+      }
+      const arrivalTimer = window.setTimeout(
+        () => setKeepHomeGraphVisible(true),
+        0,
+      );
+      return () => window.clearTimeout(arrivalTimer);
+    }
+
+    if (pathname === "/" && transition === null && keepHomeGraphVisible) {
+      homeGraphHandoffTimer.current = window.setTimeout(
+        () => setKeepHomeGraphVisible(false),
+        HOME_GRAPH_HANDOFF_DURATION,
+      );
+      return () => {
+        if (homeGraphHandoffTimer.current !== null) {
+          window.clearTimeout(homeGraphHandoffTimer.current);
+          homeGraphHandoffTimer.current = null;
+        }
+      };
+    }
+
+    if (pathname !== "/" && keepHomeGraphVisible) {
+      const departureTimer = window.setTimeout(
+        () => setKeepHomeGraphVisible(false),
+        0,
+      );
+      return () => window.clearTimeout(departureTimer);
+    }
+  }, [keepHomeGraphVisible, pathname, transition]);
+
+  useEffect(
+    () => () => {
+      if (homeGraphHandoffTimer.current !== null) {
+        window.clearTimeout(homeGraphHandoffTimer.current);
+      }
+    },
+    [],
+  );
+
+  // Home owns the interactive graph. Keep this scene around for the short
+  // return handoff as well: the homepage graph has time to mount on the same
+  // overview pose before this canvas fades away, rather than visibly reloading.
+  const isHomeArrival =
+    pathname === "/" &&
+    transition?.phase === "entering" &&
+    transition.destinationPath === "/";
+  const isFadingIntoHomeGraph =
+    pathname === "/" && transition === null && keepHomeGraphVisible;
+  if (
+    pathname === "/" &&
+    transition?.phase !== "leaving" &&
+    !isHomeArrival &&
+    !keepHomeGraphVisible
+  ) {
+    return null;
+  }
 
   const experienceStop =
     experienceScrollProgress < 0.5 ? EXPERIENCE_STOP : EDUCATION_STOP;
@@ -369,6 +435,7 @@ export function PortfolioGraphBackground() {
     <div
       aria-hidden="true"
       className={`pointer-events-none fixed inset-0 z-0 overflow-hidden transition-opacity duration-500 ease-out ${backgroundClassName}`}
+      style={{ opacity: isFadingIntoHomeGraph ? 0 : undefined }}
     >
       <Canvas
         dpr={[1, 1.5]}
