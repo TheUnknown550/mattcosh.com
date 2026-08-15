@@ -40,6 +40,11 @@ import type { ProjectGraphScreenPosition } from "./projectNodeProjection";
 
 const OVERVIEW_2D_VERTICAL_OFFSET = -1.25;
 
+type BackgroundCameraPose = {
+  position: GraphPosition;
+  target: GraphPosition;
+};
+
 const OVERVIEW_2D_CLUSTER_CENTERS: Record<
   Exclude<PortfolioGraphNodeType, "core">,
   GraphPosition
@@ -703,12 +708,14 @@ function HomeCameraRig({
   controls,
   hasScrollFocus,
   overviewProgress,
+  backgroundCameraPose,
 }: {
   isExplorer: boolean;
   reduceMotion: boolean;
   controls: RefObject<OrbitControlsImpl | null>;
   hasScrollFocus: boolean;
   overviewProgress: number;
+  backgroundCameraPose?: BackgroundCameraPose;
 }) {
   const { camera, size } = useThree();
   const hasLandingInteraction = useRef(false);
@@ -725,6 +732,14 @@ function HomeCameraRig({
   );
   const homeCameraTarget = useMemo(() => new Vector3(...HOME_CAMERA_TARGET), []);
   const overviewCameraTarget = useMemo(() => new Vector3(0, 0, 0), []);
+  const backgroundCameraPosition = useMemo(
+    () => backgroundCameraPose && new Vector3(...backgroundCameraPose.position),
+    [backgroundCameraPose],
+  );
+  const backgroundCameraTarget = useMemo(
+    () => backgroundCameraPose && new Vector3(...backgroundCameraPose.target),
+    [backgroundCameraPose],
+  );
   const currentCameraPosition = useMemo(() => new Vector3(), []);
   const currentCameraTarget = useMemo(() => new Vector3(), []);
 
@@ -746,17 +761,22 @@ function HomeCameraRig({
 
   useFrame((_, delta) => {
     if (!isExplorer && !hasLandingInteraction.current && !hasScrollFocus) {
-      const layout = MathUtils.clamp(overviewProgress, 0, 1);
-      currentCameraPosition.lerpVectors(
-        homeCameraPosition,
-        overviewCameraPosition,
-        layout,
-      );
-      currentCameraTarget.lerpVectors(
-        homeCameraTarget,
-        overviewCameraTarget,
-        layout,
-      );
+      if (backgroundCameraPosition && backgroundCameraTarget) {
+        currentCameraPosition.copy(backgroundCameraPosition);
+        currentCameraTarget.copy(backgroundCameraTarget);
+      } else {
+        const layout = MathUtils.clamp(overviewProgress, 0, 1);
+        currentCameraPosition.lerpVectors(
+          homeCameraPosition,
+          overviewCameraPosition,
+          layout,
+        );
+        currentCameraTarget.lerpVectors(
+          homeCameraTarget,
+          overviewCameraTarget,
+          layout,
+        );
+      }
       const smoothing = reduceMotion ? 1 : 1 - Math.exp(-4 * delta);
       camera.position.lerp(currentCameraPosition, smoothing);
       camera.lookAt(currentCameraTarget);
@@ -797,6 +817,7 @@ function ScrollFocusRig({
   isExplorer,
   reduceMotion,
   overviewProgress,
+  backgroundCameraPose,
 }: {
   controls: RefObject<OrbitControlsImpl | null>;
   fromNode?: PortfolioGraphNode;
@@ -805,6 +826,7 @@ function ScrollFocusRig({
   isExplorer: boolean;
   reduceMotion: boolean;
   overviewProgress: number;
+  backgroundCameraPose?: BackgroundCameraPose;
 }) {
   const { camera, size } = useThree();
   const defaultHomePosition = useMemo(
@@ -821,6 +843,14 @@ function ScrollFocusRig({
   const homePosition = useMemo(() => new Vector3(), []);
   const defaultHomeTarget = useMemo(() => new Vector3(...HOME_CAMERA_TARGET), []);
   const overviewHomeTarget = useMemo(() => new Vector3(0, 0, 0), []);
+  const backgroundCameraPosition = useMemo(
+    () => backgroundCameraPose && new Vector3(...backgroundCameraPose.position),
+    [backgroundCameraPose],
+  );
+  const backgroundCameraTarget = useMemo(
+    () => backgroundCameraPose && new Vector3(...backgroundCameraPose.target),
+    [backgroundCameraPose],
+  );
   const homeTarget = useMemo(() => new Vector3(), []);
   const fallbackDirection = useMemo(
     () => HOME_CAMERA_DIRECTION.clone().normalize(),
@@ -831,9 +861,14 @@ function ScrollFocusRig({
     const orbitControls = controls.current;
     if (isExplorer || !orbitControls) return;
 
-    const layout = MathUtils.clamp(overviewProgress, 0, 1);
-    homePosition.lerpVectors(defaultHomePosition, overviewHomePosition, layout);
-    homeTarget.lerpVectors(defaultHomeTarget, overviewHomeTarget, layout);
+    if (backgroundCameraPosition && backgroundCameraTarget) {
+      homePosition.copy(backgroundCameraPosition);
+      homeTarget.copy(backgroundCameraTarget);
+    } else {
+      const layout = MathUtils.clamp(overviewProgress, 0, 1);
+      homePosition.lerpVectors(defaultHomePosition, overviewHomePosition, layout);
+      homeTarget.lerpVectors(defaultHomeTarget, overviewHomeTarget, layout);
+    }
 
     const fromPose = fromNode
       ? getScrollFocusPose(fromNode, fallbackDirection)
@@ -977,6 +1012,7 @@ export function PortfolioGraphScene({
   scrollFocusProgress = 0,
   overviewProgress = 0,
   onProjectNodePositions,
+  backgroundCameraPose,
 }: {
   activeStop: GraphFocusStop;
   selectedNodeId?: string;
@@ -991,6 +1027,7 @@ export function PortfolioGraphScene({
   scrollFocusProgress?: number;
   overviewProgress?: number;
   onProjectNodePositions?: (positions: ProjectGraphScreenPosition[]) => void;
+  backgroundCameraPose?: BackgroundCameraPose;
 }) {
   const { size } = useThree();
   const isCompactOverview = size.width / size.height < 0.9;
@@ -1163,6 +1200,7 @@ export function PortfolioGraphScene({
         controls={orbitControls}
         hasScrollFocus={Boolean(scrollFocusToNode)}
         overviewProgress={overviewProgress}
+        backgroundCameraPose={backgroundCameraPose}
       />
       <ScrollFocusRig
         controls={orbitControls}
@@ -1172,6 +1210,7 @@ export function PortfolioGraphScene({
         isExplorer={isExplorer}
         reduceMotion={reduceMotion}
         overviewProgress={overviewProgress}
+        backgroundCameraPose={backgroundCameraPose}
       />
       {selectedNode && (
         <NodeFocusRig

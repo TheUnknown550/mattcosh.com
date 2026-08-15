@@ -3,7 +3,7 @@
 import { Canvas } from "@react-three/fiber";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { graphFocusStops } from "@/data/portfolioGraph";
+import { graphFocusStops, type GraphPosition } from "@/data/portfolioGraph";
 import { OVERVIEW_STOP } from "./constants";
 import { PortfolioGraphScene } from "./PortfolioGraphScene";
 import {
@@ -12,6 +12,12 @@ import {
 } from "./projectNodeProjection";
 
 const PROJECTS_STOP = graphFocusStops.find((stop) => stop.id === "projects") ?? OVERVIEW_STOP;
+const PROJECTS_BACKGROUND_CAMERA: { position: GraphPosition; target: GraphPosition } = {
+  // Keep the project cluster close and right-weighted, leaving the left rail
+  // clear for cards while preserving the real graph coordinates.
+  position: [1.25, 0.4, 3.4],
+  target: [1.15, -0.2, -1.4],
+};
 
 /**
  * A quiet, non-interactive version of the portfolio graph that stays behind
@@ -48,8 +54,10 @@ export function PortfolioGraphBackground() {
   return (
     <div
       aria-hidden="true"
-      className={`pointer-events-none fixed inset-0 z-0 overflow-hidden [mask-image:radial-gradient(ellipse_at_center,black,transparent_78%)] ${
-        isProjectsRoute ? "opacity-55" : "opacity-20"
+      className={`pointer-events-none fixed inset-0 z-0 overflow-hidden ${
+        isProjectsRoute
+          ? "opacity-75 [mask-image:radial-gradient(ellipse_at_72%_50%,black_0%,black_58%,transparent_90%)]"
+          : "opacity-20 [mask-image:radial-gradient(ellipse_at_center,black,transparent_78%)]"
       }`}
     >
       <Canvas
@@ -64,6 +72,7 @@ export function PortfolioGraphBackground() {
           isExplorer={false}
           reduceMotion={reduceMotion}
           onProjectNodePositions={isProjectsRoute ? reportProjectNodePositions : undefined}
+          backgroundCameraPose={isProjectsRoute ? PROJECTS_BACKGROUND_CAMERA : undefined}
         />
       </Canvas>
     </div>
