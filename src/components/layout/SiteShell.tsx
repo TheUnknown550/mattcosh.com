@@ -4,6 +4,7 @@ import Image from "next/image";
 import { CommandPalette } from "@/components/common/CommandPalette";
 import { DesktopNav } from "@/components/layout/DesktopNav";
 import { MobileNav } from "@/components/layout/MobileNav";
+import { RouteTransition } from "@/components/layout/RouteTransition";
 import { PortfolioGraphBackground } from "@/components/home/graph/PortfolioGraphBackground";
 
 interface SiteShellProps {
@@ -44,7 +45,9 @@ export function SiteShell({ children }: SiteShellProps) {
             <MobileNav links={NAV_LINKS} />
           </div>
         </header>
-        <main className="flex-1 px-6 lg:px-8">{children}</main>
+        <main className="flex-1 px-6 lg:px-8">
+          <RouteTransition>{children}</RouteTransition>
+        </main>
         <footer className="mx-auto w-full max-w-6xl border-t border-line px-6 py-6 font-mono text-xs uppercase tracking-wide text-ink-muted lg:px-8">
           © {new Date().getFullYear()} Matt Cosh
         </footer>

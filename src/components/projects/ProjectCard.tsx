@@ -4,9 +4,10 @@ import { TiltCard } from "@/components/common/TiltCard";
 
 interface ProjectCardProps {
   project: Project;
+  nodeIndex?: number;
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export function ProjectCard({ project, nodeIndex }: ProjectCardProps) {
   return (
     <TiltCard className="group h-full rounded-lg">
       <Link
@@ -14,9 +15,16 @@ export function ProjectCard({ project }: ProjectCardProps) {
         className="flex h-full flex-col rounded-lg border border-line bg-surface p-6 transition-colors duration-300 group-hover:border-signal"
       >
         <div className="flex items-start justify-between gap-4">
-          <p className="font-mono text-xs uppercase tracking-wide text-signal">
-            {project.category} · {project.year}
-          </p>
+          <div className="flex min-w-0 items-center gap-2">
+            {nodeIndex !== undefined && (
+              <span className="shrink-0 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-muted">
+                {String(nodeIndex).padStart(2, "0")}
+              </span>
+            )}
+            <p className="truncate font-mono text-xs uppercase tracking-wide text-signal">
+              {project.category} · {project.year}
+            </p>
+          </div>
           {project.recognitions && project.recognitions.length > 0 && (
             <span
               aria-hidden="true"
