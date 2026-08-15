@@ -36,10 +36,20 @@ export default function ExperiencePage() {
 
       <div
         id="experience-transition"
-        aria-hidden="true"
-        className="flex min-h-[50svh] items-center"
+        className="flex min-h-[50svh] flex-col items-center justify-center gap-5"
       >
-        <PulseDivider />
+        <div className="text-center">
+          <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-signal">
+            Next section
+          </p>
+          <p className="mt-2 inline-flex items-center gap-3 font-display text-2xl font-semibold text-ink">
+            Education
+            <span aria-hidden="true" className="text-signal">
+              ↓
+            </span>
+          </p>
+        </div>
+        <PulseDivider className="max-w-md" />
       </div>
 
       <section id="experience-education">
