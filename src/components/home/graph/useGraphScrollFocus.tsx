@@ -8,6 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { usePathname } from "next/navigation";
 import {
   getPortfolioGraphNode,
   graphFocusStops,
@@ -68,6 +69,7 @@ function getFocusStop(nodeId?: string, stopId?: string) {
 }
 
 function useGraphScrollFocusState() {
+  const isLandingPage = usePathname() === "/";
   const [focus, setFocus] = useState<GraphScrollFocus>(INITIAL_FOCUS);
   const [reduceMotion, setReduceMotion] = useState(false);
 
@@ -81,6 +83,8 @@ function useGraphScrollFocusState() {
   }, []);
 
   useEffect(() => {
+    if (!isLandingPage) return;
+
     const root = document.documentElement;
     const previousScrollSnapType = root.style.scrollSnapType;
     const previousScrollBehavior = root.style.scrollBehavior;
@@ -94,16 +98,20 @@ function useGraphScrollFocusState() {
       root.style.scrollSnapType = previousScrollSnapType;
       root.style.scrollBehavior = previousScrollBehavior;
     };
-  }, []);
+  }, [isLandingPage]);
 
   useLayoutEffect(() => {
+    if (!isLandingPage) return;
+
     document.body.dataset.landingPage = "true";
     return () => {
       delete document.body.dataset.landingPage;
     };
-  }, []);
+  }, [isLandingPage]);
 
   useEffect(() => {
+    if (!isLandingPage) return;
+
     let animationFrame = 0;
     let isAnimating = false;
     let cooldownUntil = 0;
@@ -306,9 +314,11 @@ function useGraphScrollFocusState() {
       window.removeEventListener("touchcancel", handleTouchCancel);
       if (animationFrame) window.cancelAnimationFrame(animationFrame);
     };
-  }, [reduceMotion]);
+  }, [isLandingPage, reduceMotion]);
 
   useEffect(() => {
+    if (!isLandingPage) return;
+
     let frame = 0;
 
     const update = () => {
@@ -374,7 +384,7 @@ function useGraphScrollFocusState() {
       window.removeEventListener("resize", scheduleUpdate);
       if (frame) window.cancelAnimationFrame(frame);
     };
-  }, [reduceMotion]);
+  }, [isLandingPage, reduceMotion]);
 
   return focus;
 }

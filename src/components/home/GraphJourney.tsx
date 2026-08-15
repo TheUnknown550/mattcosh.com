@@ -1,7 +1,8 @@
 "use client";
 
 import { Canvas } from "@react-three/fiber";
-import { useCallback, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   graphFocusStops,
   type PortfolioGraphNode,
@@ -17,9 +18,11 @@ import { useGraphScrollFocus } from "./graph/useGraphScrollFocus";
 import { useGraphExplorer } from "./graph/useGraphExplorer";
 
 export function GraphJourney() {
+  const pathname = usePathname();
   const pointerStart = useRef<{ x: number; y: number } | null>(null);
   const [modalNode, setModalNode] = useState<PortfolioGraphNode | null>(null);
   const { transition } = useRouteTransition();
+  const isLandingPage = pathname === "/";
   const {
     activeStop,
     clearFocus,
@@ -47,7 +50,15 @@ export function GraphJourney() {
       : isHomeArrival
         ? graphFocusStops.find((stop) => stop.id === "overview")
         : undefined;
-  const sceneActiveStop = transitionStop ?? (isExplorer ? activeStop : scrollFocus.activeStop);
+  const explorerIsActive = isLandingPage && isExplorer;
+  const overviewStop = graphFocusStops.find((stop) => stop.id === "overview")!;
+  const sceneActiveStop =
+    transitionStop ??
+    (isLandingPage
+      ? explorerIsActive
+        ? activeStop
+        : scrollFocus.activeStop
+      : overviewStop);
   const isRouteTraveling = transition?.phase === "leaving";
   const highlightsProgress = isExplorer
     ? 0
@@ -59,29 +70,45 @@ export function GraphJourney() {
     [],
   );
 
+  useEffect(() => {
+    if (isLandingPage || !isExplorer) return;
+
+    const resetExplorer = window.setTimeout(exitExplorer, 0);
+    return () => window.clearTimeout(resetExplorer);
+  }, [exitExplorer, isExplorer, isLandingPage]);
+
+  const isHomeGraphVisible = isLandingPage && !isReturningHome;
+
   return (
     <section
       data-home-snap
-      data-graph-explorer={isExplorer ? "true" : undefined}
+      data-graph-explorer={explorerIsActive ? "true" : undefined}
       className={
-        isExplorer
+        explorerIsActive
           ? "fixed inset-0 z-50 h-svh bg-void"
-          : "relative min-h-[calc(100svh-77px)]"
+          : isLandingPage
+            ? "relative min-h-[calc(100svh-77px)]"
+            : "pointer-events-none fixed inset-0 z-0 h-svh overflow-hidden opacity-0"
       }
-      aria-label="Portfolio graph"
+      aria-hidden={!isLandingPage || undefined}
+      aria-label={isLandingPage ? "Portfolio graph" : undefined}
     >
       <div
         className={
-          isExplorer
+          explorerIsActive
             ? "relative h-svh overflow-hidden"
-            : "relative h-[calc(100svh-77px)]"
+            : isLandingPage
+              ? "relative h-[calc(100svh-77px)]"
+              : "relative h-svh"
         }
       >
         <div
           className={
-            isExplorer
+            explorerIsActive
               ? "absolute inset-0 z-0 overflow-hidden"
-              : "fixed inset-x-0 top-[77px] bottom-0 z-0 overflow-hidden"
+              : `fixed inset-x-0 top-[77px] bottom-0 z-0 overflow-hidden transition-opacity duration-500 ease-out motion-reduce:transition-none ${
+                  isHomeGraphVisible ? "opacity-100" : "opacity-0"
+                }`
           }
         >
           <div
@@ -104,9 +131,7 @@ export function GraphJourney() {
               antialias: true,
               powerPreference: "high-performance",
             }}
-            className={`absolute inset-0 transition-opacity duration-500 ease-out motion-reduce:transition-none ${
-              isReturningHome ? "opacity-0" : "opacity-100"
-            }`}
+            className="absolute inset-0"
             onPointerDown={(event) => {
               pointerStart.current = {
                 x: event.nativeEvent.clientX,
@@ -131,19 +156,19 @@ export function GraphJourney() {
           >
             <PortfolioGraphScene
               activeStop={sceneActiveStop}
-              selectedNodeId={isNodeFocused ? selectedNode.id : undefined}
-              selectedNode={isNodeFocused ? selectedNode : undefined}
+              selectedNodeId={explorerIsActive && isNodeFocused ? selectedNode.id : undefined}
+              selectedNode={explorerIsActive && isNodeFocused ? selectedNode : undefined}
               onSelect={focusNode}
               onExplore={enterExplorer}
-              isExplorer={isExplorer}
+              isExplorer={explorerIsActive}
               reduceMotion={reduceMotion}
               scrollFocusFromNodeId={
-                isExplorer ? undefined : scrollFocus.fromNodeId
+                explorerIsActive || !isLandingPage ? undefined : scrollFocus.fromNodeId
               }
               scrollFocusToNodeId={
-                isExplorer ? undefined : scrollFocus.toNodeId
+                explorerIsActive || !isLandingPage ? undefined : scrollFocus.toNodeId
               }
-              scrollFocusProgress={isExplorer ? 0 : scrollFocus.progress}
+              scrollFocusProgress={explorerIsActive || !isLandingPage ? 0 : scrollFocus.progress}
               overviewProgress={highlightsProgress}
               backgroundCameraPose={
                 transitionStop
@@ -151,32 +176,41 @@ export function GraphJourney() {
                       position: transitionStop.cameraPosition,
                       target: transitionStop.cameraTarget,
                     }
-                  : undefined
+                  : !isLandingPage
+                    ? {
+                        position: overviewStop.cameraPosition,
+                        target: overviewStop.cameraTarget,
+                      }
+                    : undefined
               }
-              onOpenModal={isHighlightsOverview ? openNodeModal : undefined}
+              onOpenModal={
+                isLandingPage && isHighlightsOverview ? openNodeModal : undefined
+              }
             />
           </Canvas>
         </div>
-        <div
-          className={`transition-opacity duration-300 ease-out motion-reduce:transition-none ${
-            isRouteTraveling ? "opacity-0" : "opacity-100"
-          }`}
-        >
-          <GraphOverlay
-            activeStop={activeStop}
-            isExplorer={isExplorer}
-            isNodeFocused={isNodeFocused}
-            navigationLabel={navigationLabel}
-            navigationLength={navigationNodes.length}
-            navigationPosition={Math.max(selectedNavigationIndex, 0) + 1}
-            node={selectedNode}
-            onExit={exitExplorer}
-            onEnter={enterExplorer}
-            onPrevious={() => selectAdjacentNode(-1)}
-            onNext={() => selectAdjacentNode(1)}
-          />
-        </div>
-        {isHighlightsOverview && modalNode && (
+        {isLandingPage && (
+          <div
+            className={`transition-opacity duration-300 ease-out motion-reduce:transition-none ${
+              isRouteTraveling ? "opacity-0" : "opacity-100"
+            }`}
+          >
+            <GraphOverlay
+              activeStop={activeStop}
+              isExplorer={explorerIsActive}
+              isNodeFocused={isNodeFocused}
+              navigationLabel={navigationLabel}
+              navigationLength={navigationNodes.length}
+              navigationPosition={Math.max(selectedNavigationIndex, 0) + 1}
+              node={selectedNode}
+              onExit={exitExplorer}
+              onEnter={enterExplorer}
+              onPrevious={() => selectAdjacentNode(-1)}
+              onNext={() => selectAdjacentNode(1)}
+            />
+          </div>
+        )}
+        {isLandingPage && isHighlightsOverview && modalNode && (
           <GraphNodeModal node={modalNode} onClose={closeModal} />
         )}
       </div>

@@ -32,11 +32,11 @@ export function SkillsExplorer({ groups }: SkillsExplorerProps) {
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         placeholder="Search skills…"
-        className="w-full max-w-sm rounded-md border border-line bg-surface px-4 py-2.5 font-mono text-sm text-ink outline-none transition-colors placeholder:text-ink-muted focus:border-signal"
+        className="w-full max-w-sm rounded-md border border-line bg-surface/95 px-4 py-2.5 font-mono text-sm text-ink outline-none transition-colors placeholder:text-ink/70 focus:border-signal"
       />
 
       {filtered.length === 0 ? (
-        <p className="mt-8 text-sm text-ink-muted">
+        <p className="mt-8 text-sm text-ink">
           No skills match &ldquo;{query}&rdquo;.
         </p>
       ) : (
@@ -50,7 +50,7 @@ export function SkillsExplorer({ groups }: SkillsExplorerProps) {
                 {group.skills.map((skill) => (
                   <li
                     key={skill}
-                    className="rounded-full border border-line px-3 py-1 text-xs text-ink-muted transition-colors duration-200 hover:border-signal hover:text-ink"
+                    className="rounded-full border border-line bg-void/35 px-3 py-1 text-xs text-ink transition-colors duration-200 hover:border-signal hover:text-signal"
                   >
                     {skill}
                   </li>

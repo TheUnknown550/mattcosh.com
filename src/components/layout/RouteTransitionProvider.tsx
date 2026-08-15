@@ -130,6 +130,10 @@ export function RouteTransitionProvider({ children }: { children: ReactNode }) {
 
     if (transition.phase === "leaving") {
       const frame = window.requestAnimationFrame(() => {
+        // Every destination starts at its intended camera composition. Without
+        // this reset, a long source page can carry its scroll position into the
+        // landing scene and reveal the graph halfway through its journey.
+        window.scrollTo({ top: 0, behavior: "auto" });
         setTransition((current) =>
           current && current.destinationPath === pathname
             ? { ...current, phase: "entering" }
