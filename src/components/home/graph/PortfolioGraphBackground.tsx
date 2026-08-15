@@ -18,6 +18,12 @@ const PROJECTS_BACKGROUND_CAMERA: { position: GraphPosition; target: GraphPositi
   position: [1.25, 0.4, 3.4],
   target: [1.15, -0.2, -1.4],
 };
+const PROJECTS_COMPACT_BACKGROUND_CAMERA: { position: GraphPosition; target: GraphPosition } = {
+  // Wider framing keeps the network atmospheric on tablets and phones rather
+  // than letting a single node dominate the available reading area.
+  position: [0.75, 0.6, 5.8],
+  target: [0.65, -0.2, -1.4],
+};
 
 /**
  * A quiet, non-interactive version of the portfolio graph that stays behind
@@ -27,6 +33,7 @@ const PROJECTS_BACKGROUND_CAMERA: { position: GraphPosition; target: GraphPositi
 export function PortfolioGraphBackground() {
   const pathname = usePathname();
   const [reduceMotion, setReduceMotion] = useState(false);
+  const [isCompactViewport, setIsCompactViewport] = useState(false);
   const isProjectsRoute = pathname === "/projects";
   const reportProjectNodePositions = useCallback(
     (positions: ProjectGraphScreenPosition[]) => {
@@ -49,6 +56,15 @@ export function PortfolioGraphBackground() {
     return () => mediaQuery.removeEventListener("change", updatePreference);
   }, []);
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 1535px)");
+    const updateViewport = () => setIsCompactViewport(mediaQuery.matches);
+
+    updateViewport();
+    mediaQuery.addEventListener("change", updateViewport);
+    return () => mediaQuery.removeEventListener("change", updateViewport);
+  }, []);
+
   if (pathname === "/") return null;
 
   return (
@@ -56,7 +72,7 @@ export function PortfolioGraphBackground() {
       aria-hidden="true"
       className={`pointer-events-none fixed inset-0 z-0 overflow-hidden ${
         isProjectsRoute
-          ? "opacity-75 [mask-image:radial-gradient(ellipse_at_72%_50%,black_0%,black_58%,transparent_90%)]"
+          ? "opacity-30 sm:opacity-55 2xl:opacity-75 [mask-image:radial-gradient(ellipse_at_72%_50%,black_0%,black_58%,transparent_90%)]"
           : "opacity-20 [mask-image:radial-gradient(ellipse_at_center,black,transparent_78%)]"
       }`}
     >
@@ -72,7 +88,13 @@ export function PortfolioGraphBackground() {
           isExplorer={false}
           reduceMotion={reduceMotion}
           onProjectNodePositions={isProjectsRoute ? reportProjectNodePositions : undefined}
-          backgroundCameraPose={isProjectsRoute ? PROJECTS_BACKGROUND_CAMERA : undefined}
+          backgroundCameraPose={
+            isProjectsRoute
+              ? isCompactViewport
+                ? PROJECTS_COMPACT_BACKGROUND_CAMERA
+                : PROJECTS_BACKGROUND_CAMERA
+              : undefined
+          }
         />
       </Canvas>
     </div>

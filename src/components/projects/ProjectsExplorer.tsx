@@ -44,14 +44,15 @@ export function ProjectsExplorer({ projects }: ProjectsExplorerProps) {
   );
 
   return (
-    <div>
+    <div className="project-explorer min-w-0">
       <FilterTabs options={options} value={filter} onChange={setFilter} />
       <ProjectGraphConnections cardRefs={cardRefs} projects={filtered} />
 
-      <div className="mt-16 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="project-card-grid mt-10 sm:mt-12 2xl:mt-16">
         {filtered.map((project) => (
           <div
             key={project.slug}
+            className="min-w-0"
             ref={(element) => {
               if (element) {
                 cardRefs.current.set(project.slug, element);

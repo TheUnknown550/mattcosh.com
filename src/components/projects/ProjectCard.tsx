@@ -12,7 +12,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
     <TiltCard className="group h-full rounded-lg">
       <Link
         href={`/projects/${project.slug}`}
-        className="relative isolate flex h-full flex-col overflow-hidden rounded-lg border border-line bg-surface/85 p-6 backdrop-blur-[2px] transition-colors duration-300 group-hover:border-signal"
+        className="relative isolate flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-line bg-surface/85 p-5 backdrop-blur-[2px] transition-colors duration-300 group-hover:border-signal sm:p-6"
       >
         <ProjectCardNodeIcon />
         <div className="relative z-10 flex h-full flex-col">
@@ -31,7 +31,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
             )}
           </div>
 
-          <h3 className="mt-4 font-display text-xl font-semibold text-ink">
+          <h3 className="mt-4 break-words font-display text-lg font-semibold text-ink sm:text-xl">
             {project.title}
           </h3>
           <p className="mt-3 flex-1 text-sm leading-relaxed text-ink-muted">

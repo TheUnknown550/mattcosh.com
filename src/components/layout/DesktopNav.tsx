@@ -19,7 +19,7 @@ export function DesktopNav({ links }: DesktopNavProps) {
   return (
     <nav
       data-site-desktop-nav
-      className="hidden items-center gap-6 font-mono text-sm uppercase tracking-wide md:flex"
+      className="hidden items-center gap-6 font-mono text-sm uppercase tracking-wide xl:flex"
     >
       {links.map((link) => {
         const isActive =

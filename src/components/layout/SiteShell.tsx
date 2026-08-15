@@ -24,12 +24,12 @@ export function SiteShell({ children }: SiteShellProps) {
       <PortfolioGraphBackground />
       <div className="relative z-10 flex min-h-full flex-1 flex-col">
         <header className="sticky top-0 z-40 border-b border-line/80 bg-void/95 backdrop-blur">
-          <div className="relative mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-2.5 lg:px-8">
+          <div className="relative mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-2.5 sm:px-6 lg:px-8">
             <Link
               href="/"
-              className="group flex items-center gap-3 font-display text-2xl font-semibold tracking-tight text-ink"
+              className="group flex items-center gap-2 font-display text-xl font-semibold tracking-tight text-ink sm:gap-3 sm:text-2xl"
             >
-              <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border border-ink bg-surface">
+              <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full border border-ink bg-surface sm:h-14 sm:w-14">
                 <Image
                   src="/img/profile.png"
                   alt=""

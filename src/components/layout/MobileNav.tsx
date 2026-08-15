@@ -35,7 +35,7 @@ export function MobileNav({ links }: MobileNavProps) {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") setOpen(false);
     }
-    const desktopQuery = window.matchMedia("(min-width: 768px)");
+    const desktopQuery = window.matchMedia("(min-width: 1280px)");
     function handleBreakpointChange() {
       if (desktopQuery.matches) setOpen(false);
     }
@@ -50,7 +50,7 @@ export function MobileNav({ links }: MobileNavProps) {
   }, [open]);
 
   return (
-    <div data-site-mobile-nav className="md:hidden">
+    <div data-site-mobile-nav className="xl:hidden">
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
