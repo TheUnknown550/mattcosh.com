@@ -36,6 +36,7 @@ import {
   HOME_CAMERA_DIRECTION,
   HOME_CAMERA_TARGET,
 } from "./constants";
+import type { ProjectGraphScreenPosition } from "./projectNodeProjection";
 
 const OVERVIEW_2D_VERTICAL_OFFSET = -1.25;
 
@@ -916,6 +917,52 @@ function NodeFocusRig({
   return null;
 }
 
+function ProjectNodeScreenProjector({
+  group,
+  nodesById,
+  overviewNodesById,
+  layoutProgress,
+  onProjectNodePositions,
+}: {
+  group: RefObject<Group | null>;
+  nodesById: Map<string, PortfolioGraphNode>;
+  overviewNodesById: Map<string, PortfolioGraphNode>;
+  layoutProgress: RefObject<number>;
+  onProjectNodePositions: (positions: ProjectGraphScreenPosition[]) => void;
+}) {
+  const point = useMemo(() => new Vector3(), []);
+  const lastEmission = useRef(0);
+
+  useFrame(({ camera, clock, size }) => {
+    if (!group.current || clock.elapsedTime - lastEmission.current < 1 / 12) return;
+    lastEmission.current = clock.elapsedTime;
+    group.current.updateMatrixWorld(true);
+    camera.updateMatrixWorld();
+
+    const positions = portfolioGraphNodes
+      .filter((node) => node.type === "project")
+      .map((node) => {
+        const overviewNode = overviewNodesById.get(node.id) ?? nodesById.get(node.id) ?? node;
+        point
+          .set(...node.position)
+          .lerp(new Vector3(...overviewNode.position), layoutProgress.current)
+          .applyMatrix4(group.current!.matrixWorld)
+          .project(camera);
+
+        return {
+          id: node.id,
+          x: (point.x * 0.5 + 0.5) * size.width,
+          y: (-point.y * 0.5 + 0.5) * size.height,
+          visible: point.z > -1 && point.z < 1 && Math.abs(point.x) <= 1 && Math.abs(point.y) <= 1,
+        };
+      });
+
+    onProjectNodePositions(positions);
+  });
+
+  return null;
+}
+
 export function PortfolioGraphScene({
   activeStop,
   selectedNodeId,
@@ -929,6 +976,7 @@ export function PortfolioGraphScene({
   scrollFocusToNodeId,
   scrollFocusProgress = 0,
   overviewProgress = 0,
+  onProjectNodePositions,
 }: {
   activeStop: GraphFocusStop;
   selectedNodeId?: string;
@@ -942,6 +990,7 @@ export function PortfolioGraphScene({
   scrollFocusToNodeId?: string;
   scrollFocusProgress?: number;
   overviewProgress?: number;
+  onProjectNodePositions?: (positions: ProjectGraphScreenPosition[]) => void;
 }) {
   const { size } = useThree();
   const isCompactOverview = size.width / size.height < 0.9;
@@ -1208,6 +1257,15 @@ export function PortfolioGraphScene({
           ),
         )}
       </group>
+      {onProjectNodePositions && (
+        <ProjectNodeScreenProjector
+          group={group}
+          nodesById={nodesById}
+          overviewNodesById={overviewNodesById}
+          layoutProgress={layoutProgress}
+          onProjectNodePositions={onProjectNodePositions}
+        />
+      )}
     </>
   );
 }

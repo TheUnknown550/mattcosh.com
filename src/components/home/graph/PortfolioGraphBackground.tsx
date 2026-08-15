@@ -2,9 +2,16 @@
 
 import { Canvas } from "@react-three/fiber";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { graphFocusStops } from "@/data/portfolioGraph";
 import { OVERVIEW_STOP } from "./constants";
 import { PortfolioGraphScene } from "./PortfolioGraphScene";
+import {
+  PROJECT_GRAPH_POSITION_EVENT,
+  type ProjectGraphScreenPosition,
+} from "./projectNodeProjection";
+
+const PROJECTS_STOP = graphFocusStops.find((stop) => stop.id === "projects") ?? OVERVIEW_STOP;
 
 /**
  * A quiet, non-interactive version of the portfolio graph that stays behind
@@ -14,6 +21,18 @@ import { PortfolioGraphScene } from "./PortfolioGraphScene";
 export function PortfolioGraphBackground() {
   const pathname = usePathname();
   const [reduceMotion, setReduceMotion] = useState(false);
+  const isProjectsRoute = pathname === "/projects";
+  const reportProjectNodePositions = useCallback(
+    (positions: ProjectGraphScreenPosition[]) => {
+      if (!isProjectsRoute) return;
+      window.dispatchEvent(
+        new CustomEvent<ProjectGraphScreenPosition[]>(PROJECT_GRAPH_POSITION_EVENT, {
+          detail: positions,
+        }),
+      );
+    },
+    [isProjectsRoute],
+  );
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -29,7 +48,9 @@ export function PortfolioGraphBackground() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-0 overflow-hidden opacity-20 [mask-image:radial-gradient(ellipse_at_center,black,transparent_78%)]"
+      className={`pointer-events-none fixed inset-0 z-0 overflow-hidden [mask-image:radial-gradient(ellipse_at_center,black,transparent_78%)] ${
+        isProjectsRoute ? "opacity-55" : "opacity-20"
+      }`}
     >
       <Canvas
         dpr={[1, 1.5]}
@@ -37,11 +58,12 @@ export function PortfolioGraphBackground() {
         gl={{ alpha: true, antialias: true, powerPreference: "low-power" }}
       >
         <PortfolioGraphScene
-          activeStop={OVERVIEW_STOP}
+          activeStop={isProjectsRoute ? PROJECTS_STOP : OVERVIEW_STOP}
           onSelect={() => undefined}
           onExplore={() => undefined}
           isExplorer={false}
           reduceMotion={reduceMotion}
+          onProjectNodePositions={isProjectsRoute ? reportProjectNodePositions : undefined}
         />
       </Canvas>
     </div>

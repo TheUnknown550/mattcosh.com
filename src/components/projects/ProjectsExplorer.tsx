@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { Project, ProjectCategory } from "@/types/project";
 import { FilterTabs } from "@/components/common/FilterTabs";
 import { ProjectCard } from "@/components/projects/ProjectCard";
+import { ProjectGraphConnections } from "@/components/projects/ProjectGraphConnections";
 
 interface ProjectsExplorerProps {
   projects: Project[];
@@ -18,6 +19,7 @@ type FilterValue = "All" | ProjectCategory;
  */
 export function ProjectsExplorer({ projects }: ProjectsExplorerProps) {
   const [filter, setFilter] = useState<FilterValue>("All");
+  const cardRefs = useRef(new Map<string, HTMLDivElement>());
 
   const categories = useMemo(() => {
     const seen = new Set<ProjectCategory>();
@@ -36,16 +38,30 @@ export function ProjectsExplorer({ projects }: ProjectsExplorerProps) {
     [projects, categories],
   );
 
-  const filtered =
-    filter === "All" ? projects : projects.filter((project) => project.category === filter);
+  const filtered = useMemo(
+    () => (filter === "All" ? projects : projects.filter((project) => project.category === filter)),
+    [filter, projects],
+  );
 
   return (
     <div>
       <FilterTabs options={options} value={filter} onChange={setFilter} />
+      <ProjectGraphConnections cardRefs={cardRefs} projects={filtered} />
 
-      <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-16 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.map((project) => (
-          <ProjectCard key={project.slug} project={project} />
+          <div
+            key={project.slug}
+            ref={(element) => {
+              if (element) {
+                cardRefs.current.set(project.slug, element);
+              } else {
+                cardRefs.current.delete(project.slug);
+              }
+            }}
+          >
+            <ProjectCard project={project} />
+          </div>
         ))}
       </div>
 

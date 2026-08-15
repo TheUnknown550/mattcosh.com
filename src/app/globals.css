@@ -139,6 +139,47 @@ html[data-scroll-snap="home"] [data-home-snap] {
   opacity: 1;
 }
 
+.project-graph-connections {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  width: 100vw;
+  height: 100vh;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.project-graph-connection {
+  stroke: #2dd9c9;
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  opacity: 0.72;
+  vector-effect: non-scaling-stroke;
+}
+
+.project-graph-source-node {
+  fill: #2dd9c9;
+  stroke: #d4fff8;
+  stroke-width: 1;
+  filter: drop-shadow(0 0 5px rgba(45, 217, 201, 0.76));
+}
+
+/* A local terminal marker inside each project card. Its geometry mirrors the
+   project nodes in the shared graph, while the translucent surface lets that
+   real background network remain visible beneath the content. */
+.project-card-node-icon {
+  opacity: 0.4;
+  transition:
+    opacity 260ms ease-out,
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tilt-card:hover .project-card-node-icon,
+.tilt-card:focus-within .project-card-node-icon {
+  opacity: 0.66;
+  transform: scale(1.06) rotate(3deg);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .tilt-card {
     transition: none;
@@ -146,6 +187,14 @@ html[data-scroll-snap="home"] [data-home-snap] {
   }
   .tilt-card::before {
     display: none;
+  }
+
+  .project-graph-connection {
+    opacity: 0.42;
+  }
+
+  .project-card-node-icon {
+    transition: none;
   }
 }
 
