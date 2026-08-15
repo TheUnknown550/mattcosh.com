@@ -16,32 +16,54 @@ import {
   type ProjectGraphScreenPosition,
 } from "./projectNodeProjection";
 
+type BackgroundCameraPose = {
+  position: GraphPosition;
+  target: GraphPosition;
+};
+
 const PROJECTS_STOP = graphFocusStops.find((stop) => stop.id === "projects") ?? OVERVIEW_STOP;
-const PROJECTS_BACKGROUND_CAMERA: { position: GraphPosition; target: GraphPosition } = {
+const PROJECTS_BACKGROUND_CAMERA: BackgroundCameraPose = {
   // Keep the project cluster close and right-weighted, leaving the left rail
   // clear for cards while preserving the real graph coordinates.
   position: [1.25, 0.4, 3.4],
   target: [1.15, -0.2, -1.4],
 };
-const PROJECTS_COMPACT_BACKGROUND_CAMERA: { position: GraphPosition; target: GraphPosition } = {
+const PROJECTS_COMPACT_BACKGROUND_CAMERA: BackgroundCameraPose = {
   // Wider framing keeps the network atmospheric on tablets and phones rather
   // than letting a single node dominate the available reading area.
   position: [0.75, 0.6, 5.8],
   target: [0.65, -0.2, -1.4],
 };
+const PROJECTS_SCROLL_END_CAMERA: BackgroundCameraPose = {
+  // The project page opens on the right-side cluster, then eases into a
+  // slightly wider, higher angle as the card rail is explored.
+  position: [2.2, 0.7, 4.8],
+  target: [1.65, -0.45, -1.5],
+};
+const PROJECTS_COMPACT_SCROLL_END_CAMERA: BackgroundCameraPose = {
+  position: [1.65, 0.85, 7.15],
+  target: [1.15, -0.45, -1.5],
+};
 const CERTIFICATIONS_STOP =
   graphFocusStops.find((stop) => stop.id === "certifications") ?? OVERVIEW_STOP;
-const CERTIFICATIONS_BACKGROUND_CAMERA: { position: GraphPosition; target: GraphPosition } = {
+const CERTIFICATIONS_BACKGROUND_CAMERA: BackgroundCameraPose = {
   // Frame the actual 3×3 certification cluster as the centre of the page.
   position: [4.75, -3.5, 10],
   target: [4.9, -3.85, 3],
 };
-const CERTIFICATIONS_COMPACT_BACKGROUND_CAMERA: {
-  position: GraphPosition;
-  target: GraphPosition;
-} = {
+const CERTIFICATIONS_COMPACT_BACKGROUND_CAMERA: BackgroundCameraPose = {
   position: [4.75, -3.5, 12.4],
   target: [4.9, -3.85, 3],
+};
+const CERTIFICATIONS_SCROLL_END_CAMERA: BackgroundCameraPose = {
+  // Move through the middle certification cluster instead of leaving it as a
+  // static backdrop while the surrounding cards pass by.
+  position: [5.55, -3.1, 8.7],
+  target: [5.2, -3.7, 2.9],
+};
+const CERTIFICATIONS_COMPACT_SCROLL_END_CAMERA: BackgroundCameraPose = {
+  position: [5.5, -3.1, 10.6],
+  target: [5.2, -3.7, 2.9],
 };
 const EXPERIENCE_STOP = graphFocusStops.find((stop) => stop.id === "experience") ?? OVERVIEW_STOP;
 const EXPERIENCE_BACKGROUND_CAMERA: { position: GraphPosition; target: GraphPosition } = {
@@ -79,8 +101,8 @@ function interpolatePosition(
 }
 
 function interpolateCameraPose(
-  from: { position: GraphPosition; target: GraphPosition },
-  to: { position: GraphPosition; target: GraphPosition },
+  from: BackgroundCameraPose,
+  to: BackgroundCameraPose,
   progress: number,
 ): { position: GraphPosition; target: GraphPosition } {
   if (progress <= 0) return from;
@@ -109,6 +131,36 @@ function interpolateCameraPose(
   };
 }
 
+function interpolateScrollCameraPose(
+  from: BackgroundCameraPose,
+  to: BackgroundCameraPose,
+  progress: number,
+): BackgroundCameraPose {
+  if (progress <= 0) return from;
+  if (progress >= 1) return to;
+
+  // A small arc avoids the mechanical feeling of a straight camera pan. The
+  // scene rig supplies the final damping, while this pose remains completely
+  // reversible when the reader scrolls back toward the top of the page.
+  const easedProgress = progress * progress * (3 - 2 * progress);
+  const arcProgress = Math.sin(easedProgress * Math.PI);
+  const position = interpolatePosition(from.position, to.position, easedProgress);
+  const target = interpolatePosition(from.target, to.target, easedProgress);
+
+  return {
+    position: [
+      position[0] + 0.12 * arcProgress,
+      position[1] + 0.08 * arcProgress,
+      position[2] + 0.35 * arcProgress,
+    ],
+    target: [
+      target[0] + 0.06 * arcProgress,
+      target[1] + 0.02 * arcProgress,
+      target[2],
+    ],
+  };
+}
+
 /**
  * A quiet, non-interactive version of the portfolio graph that stays behind
  * every route. The home page owns the interactive explorer, so it is omitted
@@ -119,6 +171,7 @@ export function PortfolioGraphBackground() {
   const [reduceMotion, setReduceMotion] = useState(false);
   const [isCompactViewport, setIsCompactViewport] = useState(false);
   const [experienceScrollProgress, setExperienceScrollProgress] = useState(0);
+  const [routeScroll, setRouteScroll] = useState({ pathname: "", progress: 0 });
   const isProjectsRoute = pathname === "/projects";
   const isExperienceRoute = pathname === "/experience";
   const isCertificationsRoute = pathname === "/certifications";
@@ -204,6 +257,40 @@ export function PortfolioGraphBackground() {
     };
   }, [isExperienceRoute]);
 
+  useEffect(() => {
+    if (!isProjectsRoute && !isCertificationsRoute) {
+      return;
+    }
+
+    const updateCameraProgress = () => {
+      const scrollRange = Math.max(
+        0,
+        document.documentElement.scrollHeight - window.innerHeight,
+      );
+      const nextProgress =
+        scrollRange > 0 ? Math.min(1, Math.max(0, window.scrollY / scrollRange)) : 0;
+
+      setRouteScroll((current) => {
+        if (
+          current.pathname === pathname &&
+          Math.abs(current.progress - nextProgress) < 0.002
+        ) {
+          return current;
+        }
+
+        return { pathname, progress: nextProgress };
+      });
+    };
+
+    updateCameraProgress();
+    window.addEventListener("scroll", updateCameraProgress, { passive: true });
+    window.addEventListener("resize", updateCameraProgress);
+    return () => {
+      window.removeEventListener("scroll", updateCameraProgress);
+      window.removeEventListener("resize", updateCameraProgress);
+    };
+  }, [isCertificationsRoute, isProjectsRoute, pathname]);
+
   if (pathname === "/") return null;
 
   const experienceStop =
@@ -216,6 +303,21 @@ export function PortfolioGraphBackground() {
       ? EDUCATION_COMPACT_BACKGROUND_CAMERA
       : EDUCATION_BACKGROUND_CAMERA,
     experienceScrollProgress,
+  );
+  const routeScrollProgress = routeScroll.pathname === pathname ? routeScroll.progress : 0;
+  const projectsCamera = interpolateScrollCameraPose(
+    isCompactViewport ? PROJECTS_COMPACT_BACKGROUND_CAMERA : PROJECTS_BACKGROUND_CAMERA,
+    isCompactViewport ? PROJECTS_COMPACT_SCROLL_END_CAMERA : PROJECTS_SCROLL_END_CAMERA,
+    reduceMotion ? 0 : routeScrollProgress,
+  );
+  const certificationsCamera = interpolateScrollCameraPose(
+    isCompactViewport
+      ? CERTIFICATIONS_COMPACT_BACKGROUND_CAMERA
+      : CERTIFICATIONS_BACKGROUND_CAMERA,
+    isCompactViewport
+      ? CERTIFICATIONS_COMPACT_SCROLL_END_CAMERA
+      : CERTIFICATIONS_SCROLL_END_CAMERA,
+    reduceMotion ? 0 : routeScrollProgress,
   );
 
   return (
@@ -259,15 +361,11 @@ export function PortfolioGraphBackground() {
           }
           backgroundCameraPose={
             isProjectsRoute
-              ? isCompactViewport
-                ? PROJECTS_COMPACT_BACKGROUND_CAMERA
-                : PROJECTS_BACKGROUND_CAMERA
+              ? projectsCamera
               : isExperienceRoute
                 ? experienceCamera
                 : isCertificationsRoute
-                  ? isCompactViewport
-                    ? CERTIFICATIONS_COMPACT_BACKGROUND_CAMERA
-                    : CERTIFICATIONS_BACKGROUND_CAMERA
+                  ? certificationsCamera
                   : undefined
           }
         />
