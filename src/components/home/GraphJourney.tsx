@@ -21,6 +21,7 @@ export function GraphJourney() {
   const pathname = usePathname();
   const pointerStart = useRef<{ x: number; y: number } | null>(null);
   const [modalNode, setModalNode] = useState<PortfolioGraphNode | null>(null);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
   const { transition } = useRouteTransition();
   const isLandingPage = pathname === "/";
   const {
@@ -39,6 +40,7 @@ export function GraphJourney() {
     focusNode,
   } = useGraphExplorer();
   const scrollFocus = useGraphScrollFocus();
+  const staticGraph = isMobileViewport || reduceMotion;
   const isHomeArrival =
     transition?.phase === "entering" && transition.destinationPath === "/";
   const isReturningHome = transition?.destinationPath === "/";
@@ -50,7 +52,7 @@ export function GraphJourney() {
       : isHomeArrival
         ? graphFocusStops.find((stop) => stop.id === "overview")
         : undefined;
-  const explorerIsActive = isLandingPage && isExplorer;
+  const explorerIsActive = isLandingPage && isExplorer && !isMobileViewport;
   const overviewStop = graphFocusStops.find((stop) => stop.id === "overview")!;
   const sceneActiveStop =
     transitionStop ??
@@ -71,6 +73,15 @@ export function GraphJourney() {
   );
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const updateViewport = () => setIsMobileViewport(mediaQuery.matches);
+
+    updateViewport();
+    mediaQuery.addEventListener("change", updateViewport);
+    return () => mediaQuery.removeEventListener("change", updateViewport);
+  }, []);
+
+  useEffect(() => {
     if (isLandingPage || !isExplorer) return;
 
     const resetExplorer = window.setTimeout(exitExplorer, 0);
@@ -83,6 +94,7 @@ export function GraphJourney() {
     <section
       data-home-snap
       data-graph-explorer={explorerIsActive ? "true" : undefined}
+      data-graph-motion={staticGraph ? "static" : "animated"}
       className={
         explorerIsActive
           ? "fixed inset-0 z-50 h-svh bg-void"
@@ -124,21 +136,22 @@ export function GraphJourney() {
             }}
           />
           <Canvas
-            dpr={[1, 1.5]}
+            frameloop={staticGraph ? "demand" : "always"}
+            dpr={isMobileViewport ? 1 : [1, 1.5]}
             camera={{ position: [8, 5.5, 18], fov: 43 }}
             gl={{
               alpha: true,
-              antialias: true,
+              antialias: !isMobileViewport,
               powerPreference: "high-performance",
             }}
             className="absolute inset-0"
-            onPointerDown={(event) => {
+            onPointerDown={isMobileViewport ? undefined : (event) => {
               pointerStart.current = {
                 x: event.nativeEvent.clientX,
                 y: event.nativeEvent.clientY,
               };
             }}
-            onPointerUp={(event) => {
+            onPointerUp={isMobileViewport ? undefined : (event) => {
               const start = pointerStart.current;
               pointerStart.current = null;
               if (!start) return;
@@ -186,6 +199,7 @@ export function GraphJourney() {
               onOpenModal={
                 isLandingPage && isHighlightsOverview ? openNodeModal : undefined
               }
+              staticMode={staticGraph}
             />
           </Canvas>
         </div>

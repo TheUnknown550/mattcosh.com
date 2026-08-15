@@ -1030,6 +1030,7 @@ export function PortfolioGraphScene({
   onExperienceNodePositions,
   onCertificationNodePositions,
   backgroundCameraPose,
+  staticMode = false,
 }: {
   activeStop: GraphFocusStop;
   selectedNodeId?: string;
@@ -1047,6 +1048,7 @@ export function PortfolioGraphScene({
   onExperienceNodePositions?: (positions: ProjectGraphScreenPosition[]) => void;
   onCertificationNodePositions?: (positions: ProjectGraphScreenPosition[]) => void;
   backgroundCameraPose?: BackgroundCameraPose;
+  staticMode?: boolean;
 }) {
   const { size } = useThree();
   const isCompactOverview = size.width / size.height < 0.9;
@@ -1198,11 +1200,11 @@ export function PortfolioGraphScene({
       <OrbitControls
         ref={orbitControls}
         makeDefault
-        enableDamping
+        enableDamping={!staticMode}
         dampingFactor={0.07}
-        enablePan={isExplorer}
-        enableRotate
-        enableZoom={isExplorer}
+        enablePan={isExplorer && !staticMode}
+        enableRotate={isExplorer && !staticMode}
+        enableZoom={isExplorer && !staticMode}
         minDistance={4.5}
         maxDistance={isExplorer ? 48 : 100}
         screenSpacePanning={isExplorer}

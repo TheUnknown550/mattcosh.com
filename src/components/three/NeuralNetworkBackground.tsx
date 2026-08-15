@@ -215,6 +215,7 @@ function NeuralGraph({ reduceMotion }: { reduceMotion: boolean }) {
 
 export function NeuralNetworkBackground() {
   const [reduceMotion, setReduceMotion] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -225,15 +226,32 @@ export function NeuralNetworkBackground() {
     return () => mediaQuery.removeEventListener("change", updatePreference);
   }, []);
 
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const updateViewport = () => setIsMobileViewport(mediaQuery.matches);
+
+    updateViewport();
+    mediaQuery.addEventListener("change", updateViewport);
+    return () => mediaQuery.removeEventListener("change", updateViewport);
+  }, []);
+
+  const staticGraph = isMobileViewport || reduceMotion;
+
   return (
     <div
       aria-hidden="true"
+      data-graph-motion={staticGraph ? "static" : "animated"}
       className="pointer-events-none fixed inset-0 z-0 overflow-hidden opacity-45 [mask-image:radial-gradient(ellipse_at_center,black,transparent_78%)]"
     >
       <Canvas
-        dpr={[1, 1.5]}
+        frameloop={staticGraph ? "demand" : "always"}
+        dpr={isMobileViewport ? 1 : [1, 1.5]}
         camera={{ position: [0, 0, 9], fov: 48 }}
-        gl={{ alpha: true, antialias: true, powerPreference: "low-power" }}
+        gl={{
+          alpha: true,
+          antialias: !isMobileViewport,
+          powerPreference: "low-power",
+        }}
       >
         <NeuralGraph reduceMotion={reduceMotion} />
       </Canvas>

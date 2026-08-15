@@ -189,11 +189,13 @@ export function PortfolioGraphBackground() {
   const pathname = usePathname();
   const { transition } = useRouteTransition();
   const [reduceMotion, setReduceMotion] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
   const [isCompactViewport, setIsCompactViewport] = useState(false);
   const [experienceScrollProgress, setExperienceScrollProgress] = useState(0);
   const [routeScroll, setRouteScroll] = useState({ pathname: "", progress: 0 });
   const [keepHomeGraphVisible, setKeepHomeGraphVisible] = useState(false);
   const homeGraphHandoffTimer = useRef<number | null>(null);
+  const staticGraph = isMobileViewport || reduceMotion;
   const currentRoute = getGraphRouteForPath(pathname);
   const destinationRoute = transition
     ? getGraphRouteForPath(transition.destinationPath)
@@ -251,6 +253,15 @@ export function PortfolioGraphBackground() {
   }, []);
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const updateViewport = () => setIsMobileViewport(mediaQuery.matches);
+
+    updateViewport();
+    mediaQuery.addEventListener("change", updateViewport);
+    return () => mediaQuery.removeEventListener("change", updateViewport);
+  }, []);
+
+  useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 1535px)");
     const updateViewport = () => setIsCompactViewport(mediaQuery.matches);
 
@@ -260,7 +271,7 @@ export function PortfolioGraphBackground() {
   }, []);
 
   useEffect(() => {
-    if (!isCurrentExperienceRoute) return;
+    if (!isCurrentExperienceRoute || staticGraph) return;
 
     const transitionSection = document.getElementById("experience-transition");
     if (!transitionSection) return;
@@ -287,10 +298,13 @@ export function PortfolioGraphBackground() {
       window.removeEventListener("scroll", updateFocus);
       window.removeEventListener("resize", updateFocus);
     };
-  }, [isCurrentExperienceRoute]);
+  }, [isCurrentExperienceRoute, staticGraph]);
 
   useEffect(() => {
-    if (!isCurrentProjectsRoute && !isCurrentCertificationsRoute) {
+    if (
+      staticGraph ||
+      (!isCurrentProjectsRoute && !isCurrentCertificationsRoute)
+    ) {
       return;
     }
 
@@ -321,7 +335,12 @@ export function PortfolioGraphBackground() {
       window.removeEventListener("scroll", updateCameraProgress);
       window.removeEventListener("resize", updateCameraProgress);
     };
-  }, [isCurrentCertificationsRoute, isCurrentProjectsRoute, pathname]);
+  }, [
+    isCurrentCertificationsRoute,
+    isCurrentProjectsRoute,
+    pathname,
+    staticGraph,
+  ]);
 
   useEffect(() => {
     const isArrivingHome =
@@ -405,7 +424,7 @@ export function PortfolioGraphBackground() {
   const projectsCamera = interpolateScrollCameraPose(
     isCompactViewport ? PROJECTS_COMPACT_BACKGROUND_CAMERA : PROJECTS_BACKGROUND_CAMERA,
     isCompactViewport ? PROJECTS_COMPACT_SCROLL_END_CAMERA : PROJECTS_SCROLL_END_CAMERA,
-    reduceMotion ? 0 : routeScrollProgress,
+    staticGraph ? 0 : routeScrollProgress,
   );
   const certificationsCamera = interpolateScrollCameraPose(
     isCompactViewport
@@ -414,7 +433,7 @@ export function PortfolioGraphBackground() {
     isCompactViewport
       ? CERTIFICATIONS_COMPACT_SCROLL_END_CAMERA
       : CERTIFICATIONS_SCROLL_END_CAMERA,
-    reduceMotion ? 0 : routeScrollProgress,
+    staticGraph ? 0 : routeScrollProgress,
   );
   const skillsCamera = isCompactViewport
     ? SKILLS_COMPACT_BACKGROUND_CAMERA
@@ -434,13 +453,19 @@ export function PortfolioGraphBackground() {
   return (
     <div
       aria-hidden="true"
+      data-graph-motion={staticGraph ? "static" : "animated"}
       className={`pointer-events-none fixed inset-0 z-0 overflow-hidden transition-opacity duration-500 ease-out ${backgroundClassName}`}
       style={{ opacity: isFadingIntoHomeGraph ? 0 : undefined }}
     >
       <Canvas
-        dpr={[1, 1.5]}
+        frameloop={staticGraph ? "demand" : "always"}
+        dpr={isMobileViewport ? 1 : [1, 1.5]}
         camera={{ position: [8, 5.5, 18], fov: 43 }}
-        gl={{ alpha: true, antialias: true, powerPreference: "low-power" }}
+        gl={{
+          alpha: true,
+          antialias: !isMobileViewport,
+          powerPreference: "low-power",
+        }}
       >
         <PortfolioGraphScene
           activeStop={
@@ -478,6 +503,7 @@ export function PortfolioGraphBackground() {
                     ? skillsCamera
                     : OVERVIEW_BACKGROUND_CAMERA
           }
+          staticMode={staticGraph}
         />
       </Canvas>
     </div>
