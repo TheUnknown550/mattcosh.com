@@ -2,7 +2,14 @@
 
 import { Canvas } from "@react-three/fiber";
 import { useCallback, useRef, useState } from "react";
-import type { PortfolioGraphNode } from "@/data/portfolioGraph";
+import {
+  graphFocusStops,
+  type PortfolioGraphNode,
+} from "@/data/portfolioGraph";
+import {
+  getGraphRouteForPath,
+  useRouteTransition,
+} from "@/components/layout/RouteTransitionProvider";
 import { GraphOverlay } from "./graph/GraphOverlay";
 import { GraphNodeModal } from "./graph/GraphNodeModal";
 import { PortfolioGraphScene } from "./graph/PortfolioGraphScene";
@@ -12,6 +19,7 @@ import { useGraphExplorer } from "./graph/useGraphExplorer";
 export function GraphJourney() {
   const pointerStart = useRef<{ x: number; y: number } | null>(null);
   const [modalNode, setModalNode] = useState<PortfolioGraphNode | null>(null);
+  const { transition } = useRouteTransition();
   const {
     activeStop,
     clearFocus,
@@ -28,7 +36,14 @@ export function GraphJourney() {
     focusNode,
   } = useGraphExplorer();
   const scrollFocus = useGraphScrollFocus();
-  const sceneActiveStop = isExplorer ? activeStop : scrollFocus.activeStop;
+  const transitionStop =
+    transition?.phase === "leaving"
+      ? graphFocusStops.find(
+          (stop) => stop.id === getGraphRouteForPath(transition.destinationPath),
+        )
+      : undefined;
+  const sceneActiveStop = transitionStop ?? (isExplorer ? activeStop : scrollFocus.activeStop);
+  const isRouteTraveling = transition?.phase === "leaving";
   const highlightsProgress = isExplorer
     ? 0
     : (scrollFocus.sectionProgressByKey.highlights ?? 0);
@@ -123,23 +138,37 @@ export function GraphJourney() {
               }
               scrollFocusProgress={isExplorer ? 0 : scrollFocus.progress}
               overviewProgress={highlightsProgress}
+              backgroundCameraPose={
+                transitionStop
+                  ? {
+                      position: transitionStop.cameraPosition,
+                      target: transitionStop.cameraTarget,
+                    }
+                  : undefined
+              }
               onOpenModal={isHighlightsOverview ? openNodeModal : undefined}
             />
           </Canvas>
         </div>
-        <GraphOverlay
-          activeStop={activeStop}
-          isExplorer={isExplorer}
-          isNodeFocused={isNodeFocused}
-          navigationLabel={navigationLabel}
-          navigationLength={navigationNodes.length}
-          navigationPosition={Math.max(selectedNavigationIndex, 0) + 1}
-          node={selectedNode}
-          onExit={exitExplorer}
-          onEnter={enterExplorer}
-          onPrevious={() => selectAdjacentNode(-1)}
-          onNext={() => selectAdjacentNode(1)}
-        />
+        <div
+          className={`transition-opacity duration-300 ease-out motion-reduce:transition-none ${
+            isRouteTraveling ? "opacity-0" : "opacity-100"
+          }`}
+        >
+          <GraphOverlay
+            activeStop={activeStop}
+            isExplorer={isExplorer}
+            isNodeFocused={isNodeFocused}
+            navigationLabel={navigationLabel}
+            navigationLength={navigationNodes.length}
+            navigationPosition={Math.max(selectedNavigationIndex, 0) + 1}
+            node={selectedNode}
+            onExit={exitExplorer}
+            onEnter={enterExplorer}
+            onPrevious={() => selectAdjacentNode(-1)}
+            onNext={() => selectAdjacentNode(1)}
+          />
+        </div>
         {isHighlightsOverview && modalNode && (
           <GraphNodeModal node={modalNode} onClose={closeModal} />
         )}

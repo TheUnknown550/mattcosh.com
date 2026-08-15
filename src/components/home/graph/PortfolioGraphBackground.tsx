@@ -15,6 +15,10 @@ import {
   PROJECT_GRAPH_POSITION_EVENT,
   type ProjectGraphScreenPosition,
 } from "./projectNodeProjection";
+import {
+  getGraphRouteForPath,
+  useRouteTransition,
+} from "@/components/layout/RouteTransitionProvider";
 
 type BackgroundCameraPose = {
   position: GraphPosition;
@@ -64,6 +68,19 @@ const CERTIFICATIONS_SCROLL_END_CAMERA: BackgroundCameraPose = {
 const CERTIFICATIONS_COMPACT_SCROLL_END_CAMERA: BackgroundCameraPose = {
   position: [5.5, -3.1, 10.6],
   target: [5.2, -3.7, 2.9],
+};
+const SKILLS_STOP = graphFocusStops.find((stop) => stop.id === "skills") ?? OVERVIEW_STOP;
+const SKILLS_BACKGROUND_CAMERA: BackgroundCameraPose = {
+  position: [0, -2.7, 9.35],
+  target: [0, -3.15, 0.2],
+};
+const SKILLS_COMPACT_BACKGROUND_CAMERA: BackgroundCameraPose = {
+  position: [0, -2.7, 11.3],
+  target: [0, -3.15, 0.2],
+};
+const OVERVIEW_BACKGROUND_CAMERA: BackgroundCameraPose = {
+  position: [0, 0, 15.5],
+  target: [0, 0.1, 0],
 };
 const EXPERIENCE_STOP = graphFocusStops.find((stop) => stop.id === "experience") ?? OVERVIEW_STOP;
 const EXPERIENCE_BACKGROUND_CAMERA: { position: GraphPosition; target: GraphPosition } = {
@@ -168,45 +185,56 @@ function interpolateScrollCameraPose(
  */
 export function PortfolioGraphBackground() {
   const pathname = usePathname();
+  const { transition } = useRouteTransition();
   const [reduceMotion, setReduceMotion] = useState(false);
   const [isCompactViewport, setIsCompactViewport] = useState(false);
   const [experienceScrollProgress, setExperienceScrollProgress] = useState(0);
   const [routeScroll, setRouteScroll] = useState({ pathname: "", progress: 0 });
-  const isProjectsRoute = pathname === "/projects";
-  const isExperienceRoute = pathname === "/experience";
-  const isCertificationsRoute = pathname === "/certifications";
+  const currentRoute = getGraphRouteForPath(pathname);
+  const destinationRoute = transition
+    ? getGraphRouteForPath(transition.destinationPath)
+    : null;
+  const graphRoute = transition?.phase === "leaving" ? destinationRoute : currentRoute;
+  const isRouteTransitioning = transition !== null && !reduceMotion;
+  const isProjectsRoute = graphRoute === "projects";
+  const isExperienceRoute = graphRoute === "experience";
+  const isCertificationsRoute = graphRoute === "certifications";
+  const isSkillsRoute = graphRoute === "skills";
+  const isCurrentProjectsRoute = currentRoute === "projects";
+  const isCurrentExperienceRoute = currentRoute === "experience";
+  const isCurrentCertificationsRoute = currentRoute === "certifications";
   const reportProjectNodePositions = useCallback(
     (positions: ProjectGraphScreenPosition[]) => {
-      if (!isProjectsRoute) return;
+      if (!isCurrentProjectsRoute) return;
       window.dispatchEvent(
         new CustomEvent<ProjectGraphScreenPosition[]>(PROJECT_GRAPH_POSITION_EVENT, {
           detail: positions,
         }),
       );
     },
-    [isProjectsRoute],
+    [isCurrentProjectsRoute],
   );
   const reportExperienceNodePositions = useCallback(
     (positions: ProjectGraphScreenPosition[]) => {
-      if (!isExperienceRoute) return;
+      if (!isCurrentExperienceRoute) return;
       window.dispatchEvent(
         new CustomEvent<ProjectGraphScreenPosition[]>(EXPERIENCE_GRAPH_POSITION_EVENT, {
           detail: positions,
         }),
       );
     },
-    [isExperienceRoute],
+    [isCurrentExperienceRoute],
   );
   const reportCertificationNodePositions = useCallback(
     (positions: ProjectGraphScreenPosition[]) => {
-      if (!isCertificationsRoute) return;
+      if (!isCurrentCertificationsRoute) return;
       window.dispatchEvent(
         new CustomEvent<ProjectGraphScreenPosition[]>(CERTIFICATIONS_GRAPH_POSITION_EVENT, {
           detail: positions,
         }),
       );
     },
-    [isCertificationsRoute],
+    [isCurrentCertificationsRoute],
   );
 
   useEffect(() => {
@@ -228,7 +256,7 @@ export function PortfolioGraphBackground() {
   }, []);
 
   useEffect(() => {
-    if (!isExperienceRoute) return;
+    if (!isCurrentExperienceRoute) return;
 
     const transitionSection = document.getElementById("experience-transition");
     if (!transitionSection) return;
@@ -255,10 +283,10 @@ export function PortfolioGraphBackground() {
       window.removeEventListener("scroll", updateFocus);
       window.removeEventListener("resize", updateFocus);
     };
-  }, [isExperienceRoute]);
+  }, [isCurrentExperienceRoute]);
 
   useEffect(() => {
-    if (!isProjectsRoute && !isCertificationsRoute) {
+    if (!isCurrentProjectsRoute && !isCurrentCertificationsRoute) {
       return;
     }
 
@@ -289,9 +317,12 @@ export function PortfolioGraphBackground() {
       window.removeEventListener("scroll", updateCameraProgress);
       window.removeEventListener("resize", updateCameraProgress);
     };
-  }, [isCertificationsRoute, isProjectsRoute, pathname]);
+  }, [isCurrentCertificationsRoute, isCurrentProjectsRoute, pathname]);
 
-  if (pathname === "/") return null;
+  // Home owns the interactive graph. Keep this background graph alive only
+  // while leaving home so the camera can hand off to the destination; on the
+  // return journey, let GraphJourney be the single source of truth again.
+  if (pathname === "/" && transition?.phase !== "leaving") return null;
 
   const experienceStop =
     experienceScrollProgress < 0.5 ? EXPERIENCE_STOP : EDUCATION_STOP;
@@ -319,19 +350,25 @@ export function PortfolioGraphBackground() {
       : CERTIFICATIONS_SCROLL_END_CAMERA,
     reduceMotion ? 0 : routeScrollProgress,
   );
+  const skillsCamera = isCompactViewport
+    ? SKILLS_COMPACT_BACKGROUND_CAMERA
+    : SKILLS_BACKGROUND_CAMERA;
+  const backgroundClassName = isRouteTransitioning
+    ? "opacity-95 [mask-image:radial-gradient(ellipse_at_center,black_0%,black_62%,transparent_96%)]"
+    : isProjectsRoute
+      ? "opacity-30 sm:opacity-55 2xl:opacity-75 [mask-image:radial-gradient(ellipse_at_72%_50%,black_0%,black_58%,transparent_90%)]"
+      : isExperienceRoute
+        ? "opacity-30 sm:opacity-55 2xl:opacity-75 [mask-image:radial-gradient(ellipse_at_28%_50%,black_0%,black_58%,transparent_90%)]"
+        : isCertificationsRoute
+          ? "opacity-35 sm:opacity-65 2xl:opacity-80 [mask-image:radial-gradient(circle_at_center,black_0%,black_48%,transparent_86%)]"
+          : isSkillsRoute
+            ? "opacity-25 sm:opacity-45 [mask-image:radial-gradient(ellipse_at_center,black_0%,black_52%,transparent_90%)]"
+            : "opacity-20 [mask-image:radial-gradient(ellipse_at_center,black,transparent_78%)]";
 
   return (
     <div
       aria-hidden="true"
-      className={`pointer-events-none fixed inset-0 z-0 overflow-hidden ${
-        isProjectsRoute
-          ? "opacity-30 sm:opacity-55 2xl:opacity-75 [mask-image:radial-gradient(ellipse_at_72%_50%,black_0%,black_58%,transparent_90%)]"
-          : isExperienceRoute
-            ? "opacity-30 sm:opacity-55 2xl:opacity-75 [mask-image:radial-gradient(ellipse_at_28%_50%,black_0%,black_58%,transparent_90%)]"
-            : isCertificationsRoute
-              ? "opacity-35 sm:opacity-65 2xl:opacity-80 [mask-image:radial-gradient(circle_at_center,black_0%,black_48%,transparent_86%)]"
-              : "opacity-20 [mask-image:radial-gradient(ellipse_at_center,black,transparent_78%)]"
-      }`}
+      className={`pointer-events-none fixed inset-0 z-0 overflow-hidden transition-opacity duration-500 ease-out ${backgroundClassName}`}
     >
       <Canvas
         dpr={[1, 1.5]}
@@ -346,18 +383,22 @@ export function PortfolioGraphBackground() {
                 ? experienceStop
                 : isCertificationsRoute
                   ? CERTIFICATIONS_STOP
-                  : OVERVIEW_STOP
+                  : isSkillsRoute
+                    ? SKILLS_STOP
+                    : OVERVIEW_STOP
           }
           onSelect={() => undefined}
           onExplore={() => undefined}
           isExplorer={false}
           reduceMotion={reduceMotion}
-          onProjectNodePositions={isProjectsRoute ? reportProjectNodePositions : undefined}
+          onProjectNodePositions={
+            isCurrentProjectsRoute ? reportProjectNodePositions : undefined
+          }
           onExperienceNodePositions={
-            isExperienceRoute ? reportExperienceNodePositions : undefined
+            isCurrentExperienceRoute ? reportExperienceNodePositions : undefined
           }
           onCertificationNodePositions={
-            isCertificationsRoute ? reportCertificationNodePositions : undefined
+            isCurrentCertificationsRoute ? reportCertificationNodePositions : undefined
           }
           backgroundCameraPose={
             isProjectsRoute
@@ -366,7 +407,9 @@ export function PortfolioGraphBackground() {
                 ? experienceCamera
                 : isCertificationsRoute
                   ? certificationsCamera
-                  : undefined
+                  : isSkillsRoute
+                    ? skillsCamera
+                    : OVERVIEW_BACKGROUND_CAMERA
           }
         />
       </Canvas>

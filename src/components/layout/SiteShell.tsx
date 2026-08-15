@@ -5,6 +5,10 @@ import { CommandPalette } from "@/components/common/CommandPalette";
 import { DesktopNav } from "@/components/layout/DesktopNav";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { PortfolioGraphBackground } from "@/components/home/graph/PortfolioGraphBackground";
+import {
+  RouteContentFrame,
+  RouteTransitionProvider,
+} from "@/components/layout/RouteTransitionProvider";
 
 interface SiteShellProps {
   children: ReactNode;
@@ -20,7 +24,7 @@ const NAV_LINKS = [
 
 export function SiteShell({ children }: SiteShellProps) {
   return (
-    <>
+    <RouteTransitionProvider>
       <PortfolioGraphBackground />
       <div className="relative z-10 flex min-h-full flex-1 flex-col">
         <header className="sticky top-0 z-40 border-b border-line/80 bg-void/95 backdrop-blur">
@@ -44,12 +48,14 @@ export function SiteShell({ children }: SiteShellProps) {
             <MobileNav links={NAV_LINKS} />
           </div>
         </header>
-        <main className="flex-1 px-6 lg:px-8">{children}</main>
-        <footer className="mx-auto w-full max-w-6xl border-t border-line px-6 py-6 font-mono text-xs uppercase tracking-wide text-ink-muted lg:px-8">
-          © {new Date().getFullYear()} Matt Cosh
-        </footer>
+        <RouteContentFrame>
+          <main className="flex-1 px-6 lg:px-8">{children}</main>
+          <footer className="mx-auto w-full max-w-6xl border-t border-line px-6 py-6 font-mono text-xs uppercase tracking-wide text-ink-muted lg:px-8">
+            © {new Date().getFullYear()} Matt Cosh
+          </footer>
+        </RouteContentFrame>
         <CommandPalette />
       </div>
-    </>
+    </RouteTransitionProvider>
   );
 }
