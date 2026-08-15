@@ -10,6 +10,7 @@ import {
 import { OVERVIEW_STOP } from "./constants";
 import { PortfolioGraphScene } from "./PortfolioGraphScene";
 import {
+  CERTIFICATIONS_GRAPH_POSITION_EVENT,
   EXPERIENCE_GRAPH_POSITION_EVENT,
   PROJECT_GRAPH_POSITION_EVENT,
   type ProjectGraphScreenPosition,
@@ -27,6 +28,20 @@ const PROJECTS_COMPACT_BACKGROUND_CAMERA: { position: GraphPosition; target: Gra
   // than letting a single node dominate the available reading area.
   position: [0.75, 0.6, 5.8],
   target: [0.65, -0.2, -1.4],
+};
+const CERTIFICATIONS_STOP =
+  graphFocusStops.find((stop) => stop.id === "certifications") ?? OVERVIEW_STOP;
+const CERTIFICATIONS_BACKGROUND_CAMERA: { position: GraphPosition; target: GraphPosition } = {
+  // Frame the actual 3×3 certification cluster as the centre of the page.
+  position: [4.75, -3.5, 10],
+  target: [4.9, -3.85, 3],
+};
+const CERTIFICATIONS_COMPACT_BACKGROUND_CAMERA: {
+  position: GraphPosition;
+  target: GraphPosition;
+} = {
+  position: [4.75, -3.5, 12.4],
+  target: [4.9, -3.85, 3],
 };
 const EXPERIENCE_STOP = graphFocusStops.find((stop) => stop.id === "experience") ?? OVERVIEW_STOP;
 const EXPERIENCE_BACKGROUND_CAMERA: { position: GraphPosition; target: GraphPosition } = {
@@ -106,6 +121,7 @@ export function PortfolioGraphBackground() {
   const [experienceScrollProgress, setExperienceScrollProgress] = useState(0);
   const isProjectsRoute = pathname === "/projects";
   const isExperienceRoute = pathname === "/experience";
+  const isCertificationsRoute = pathname === "/certifications";
   const reportProjectNodePositions = useCallback(
     (positions: ProjectGraphScreenPosition[]) => {
       if (!isProjectsRoute) return;
@@ -127,6 +143,17 @@ export function PortfolioGraphBackground() {
       );
     },
     [isExperienceRoute],
+  );
+  const reportCertificationNodePositions = useCallback(
+    (positions: ProjectGraphScreenPosition[]) => {
+      if (!isCertificationsRoute) return;
+      window.dispatchEvent(
+        new CustomEvent<ProjectGraphScreenPosition[]>(CERTIFICATIONS_GRAPH_POSITION_EVENT, {
+          detail: positions,
+        }),
+      );
+    },
+    [isCertificationsRoute],
   );
 
   useEffect(() => {
@@ -199,7 +226,9 @@ export function PortfolioGraphBackground() {
           ? "opacity-30 sm:opacity-55 2xl:opacity-75 [mask-image:radial-gradient(ellipse_at_72%_50%,black_0%,black_58%,transparent_90%)]"
           : isExperienceRoute
             ? "opacity-30 sm:opacity-55 2xl:opacity-75 [mask-image:radial-gradient(ellipse_at_28%_50%,black_0%,black_58%,transparent_90%)]"
-          : "opacity-20 [mask-image:radial-gradient(ellipse_at_center,black,transparent_78%)]"
+            : isCertificationsRoute
+              ? "opacity-35 sm:opacity-65 2xl:opacity-80 [mask-image:radial-gradient(circle_at_center,black_0%,black_48%,transparent_86%)]"
+              : "opacity-20 [mask-image:radial-gradient(ellipse_at_center,black,transparent_78%)]"
       }`}
     >
       <Canvas
@@ -209,7 +238,13 @@ export function PortfolioGraphBackground() {
       >
         <PortfolioGraphScene
           activeStop={
-            isProjectsRoute ? PROJECTS_STOP : isExperienceRoute ? experienceStop : OVERVIEW_STOP
+            isProjectsRoute
+              ? PROJECTS_STOP
+              : isExperienceRoute
+                ? experienceStop
+                : isCertificationsRoute
+                  ? CERTIFICATIONS_STOP
+                  : OVERVIEW_STOP
           }
           onSelect={() => undefined}
           onExplore={() => undefined}
@@ -219,6 +254,9 @@ export function PortfolioGraphBackground() {
           onExperienceNodePositions={
             isExperienceRoute ? reportExperienceNodePositions : undefined
           }
+          onCertificationNodePositions={
+            isCertificationsRoute ? reportCertificationNodePositions : undefined
+          }
           backgroundCameraPose={
             isProjectsRoute
               ? isCompactViewport
@@ -226,7 +264,11 @@ export function PortfolioGraphBackground() {
                 : PROJECTS_BACKGROUND_CAMERA
               : isExperienceRoute
                 ? experienceCamera
-                : undefined
+                : isCertificationsRoute
+                  ? isCompactViewport
+                    ? CERTIFICATIONS_COMPACT_BACKGROUND_CAMERA
+                    : CERTIFICATIONS_BACKGROUND_CAMERA
+                  : undefined
           }
         />
       </Canvas>

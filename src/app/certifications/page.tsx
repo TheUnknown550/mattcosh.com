@@ -1,12 +1,11 @@
-import Link from "next/link";
 import { certifications } from "@/data/certifications";
-import { CertificationList } from "@/components/certifications/CertificationList";
+import { CertificationNetwork } from "@/components/certifications/CertificationNetwork";
 import { PulseDivider } from "@/components/common/PulseDivider";
 import { Reveal } from "@/components/common/Reveal";
 
 export default function CertificationsPage() {
   return (
-    <div className="mx-auto max-w-3xl py-8 lg:py-12">
+    <div className="certifications-page mx-auto w-full py-8 lg:py-12">
       <Reveal>
         <h1 className="font-display text-4xl font-semibold text-ink lg:text-5xl">
           Certifications
@@ -16,14 +15,8 @@ export default function CertificationsPage() {
       <PulseDivider />
 
       <Reveal className="mt-6">
-        <CertificationList certifications={certifications} />
+        <CertificationNetwork certifications={certifications} />
       </Reveal>
-
-      <p className="mt-16 font-mono text-xs uppercase tracking-wide text-ink-muted">
-        <Link href="/skills" className="transition-colors hover:text-ink">
-          View skills →
-        </Link>
-      </p>
     </div>
   );
 }

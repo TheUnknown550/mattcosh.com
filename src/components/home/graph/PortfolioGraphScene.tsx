@@ -376,7 +376,11 @@ function GraphNode({
         ? activeStop.id === "education"
           ? 1.8
           : 1.45
-        : 1;
+        : node.type === "certification" && isInFocus
+          ? activeStop.id === "certifications"
+            ? 1.48
+            : 1.22
+          : 1;
     const hoverScale = isHovered ? 1.18 : 1;
     const targetScale = focusScale * sectionScale * overviewScale * hoverScale;
     const scaleSmoothing = reduceMotion ? 100 : 5.5;
@@ -1024,6 +1028,7 @@ export function PortfolioGraphScene({
   overviewProgress = 0,
   onProjectNodePositions,
   onExperienceNodePositions,
+  onCertificationNodePositions,
   backgroundCameraPose,
 }: {
   activeStop: GraphFocusStop;
@@ -1040,6 +1045,7 @@ export function PortfolioGraphScene({
   overviewProgress?: number;
   onProjectNodePositions?: (positions: ProjectGraphScreenPosition[]) => void;
   onExperienceNodePositions?: (positions: ProjectGraphScreenPosition[]) => void;
+  onCertificationNodePositions?: (positions: ProjectGraphScreenPosition[]) => void;
   backgroundCameraPose?: BackgroundCameraPose;
 }) {
   const { size } = useThree();
@@ -1327,6 +1333,16 @@ export function PortfolioGraphScene({
           layoutProgress={layoutProgress}
           nodeTypes={["experience", "education"]}
           onNodePositions={onExperienceNodePositions}
+        />
+      )}
+      {onCertificationNodePositions && (
+        <GraphNodeScreenProjector
+          group={group}
+          nodesById={nodesById}
+          overviewNodesById={overviewNodesById}
+          layoutProgress={layoutProgress}
+          nodeTypes={["certification"]}
+          onNodePositions={onCertificationNodePositions}
         />
       )}
     </>
