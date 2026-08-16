@@ -9,15 +9,15 @@
   --color-signal: #2dd9c9;
   --color-line: #232833;
 
-  --font-display: var(--font-space-grotesk);
-  --font-sans: var(--font-plex-sans);
+  --font-display: var(--font-plex-mono);
+  --font-sans: var(--font-plex-mono);
   --font-mono: var(--font-plex-mono);
 }
 
 body {
   background-color: var(--color-void);
   color: var(--color-ink);
-  font-family: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-plex-mono), ui-monospace, SFMono-Regular, monospace;
 }
 
 /* The homepage section navigator controls the easing in JavaScript. */

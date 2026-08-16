@@ -57,8 +57,8 @@ checked-in `src/data/*.ts` files are the source of truth used by the UI:
   scroll. There's no more inner scroll container, drag-to-pan, or
   horizontal wheel handling — the graph is part of normal page flow.
 - Dark theme (`--color-void` background, `--color-signal` teal +
-  `--color-accent` orange dual accent), `Space Grotesk` / `IBM Plex Sans` /
-  `IBM Plex Mono` type system — see `src/app/globals.css`.
+  `--color-accent` orange dual accent), with IBM Plex Mono used consistently
+  across display, body, and utility text — see `src/app/globals.css`.
 - The landing graph uses the profile image through `GraphOverlay`; it no
   longer has a separate portrait hero component. `src/components/three/*`
   (`SceneCanvas`, `ModelViewer`, `ThreePlaceholder`) remains as documented,

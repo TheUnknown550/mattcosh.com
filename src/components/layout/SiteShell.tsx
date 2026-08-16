@@ -45,7 +45,7 @@ export function SiteShell({ children }: SiteShellProps) {
                     className="object-contain"
                   />
                 </span>
-                mattcosh.com
+                Matt Cosh
               </Link>
               <DesktopNav links={NAV_LINKS} />
               <MobileNav links={NAV_LINKS} />
