@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useBodyScrollLock } from "@/lib/scrollLock";
+import { useDialogFocusTrap } from "@/lib/focusTrap";
 import { ContactMenu } from "./ContactMenu";
 
 interface NavLink {
@@ -23,17 +25,10 @@ interface MobileNavProps {
 export function MobileNav({ links }: MobileNavProps) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const dialogRef = useRef<HTMLElement>(null);
+  const dialogRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (!open) return;
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    const focusFrame = window.requestAnimationFrame(() => {
-      dialogRef.current?.querySelector<HTMLAnchorElement>("a")?.focus();
-    });
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") setOpen(false);
@@ -47,12 +42,13 @@ export function MobileNav({ links }: MobileNavProps) {
     window.addEventListener("keydown", handleKeyDown);
     desktopQuery.addEventListener("change", handleBreakpointChange);
     return () => {
-      window.cancelAnimationFrame(focusFrame);
-      document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
       desktopQuery.removeEventListener("change", handleBreakpointChange);
     };
   }, [open]);
+
+  useBodyScrollLock(open, "mobile-navigation");
+  useDialogFocusTrap({ containerRef: dialogRef, open });
 
   const dialog = open
     ? createPortal(

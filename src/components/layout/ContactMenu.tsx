@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { profile } from "@/data/profile";
 
 const contactLinks = [
-  { href: "https://github.com/TheUnknown550", label: "GitHub" },
-  { href: "https://www.linkedin.com/in/matt-cosh", label: "LinkedIn" },
+  { href: profile.githubUrl, label: "GitHub" },
+  { href: profile.linkedInUrl, label: "LinkedIn" },
 ];
 
 export function ContactMenu({ mobile = false }: { mobile?: boolean }) {

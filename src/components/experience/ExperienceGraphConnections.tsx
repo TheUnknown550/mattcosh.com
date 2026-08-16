@@ -6,8 +6,9 @@ import {
   EXPERIENCE_GRAPH_POSITION_EVENT,
   type ProjectGraphScreenPosition,
 } from "@/components/home/graph/projectNodeProjection";
+import { areScreenPortsEqual, type ScreenPort } from "@/lib/screenPorts";
 
-type CardPort = { x: number; y: number };
+type CardPort = ScreenPort;
 
 /**
  * Uses the actual projected points from the shared Three.js graph and joins
@@ -31,6 +32,8 @@ export function ExperienceGraphConnections() {
   }, []);
 
   useLayoutEffect(() => {
+    const frameRef = { current: null as number | null };
+
     const measureCardPorts = () => {
       const nextPorts: Record<string, CardPort> = {};
       const cards = document.querySelectorAll<HTMLElement>("[data-graph-card-node-id]");
@@ -58,22 +61,35 @@ export function ExperienceGraphConnections() {
         };
       });
 
-      setCardPorts(nextPorts);
+      setCardPorts((previousPorts) =>
+        areScreenPortsEqual(previousPorts, nextPorts)
+          ? previousPorts
+          : nextPorts,
+      );
     };
 
-    const frame = requestAnimationFrame(measureCardPorts);
-    const observer = new ResizeObserver(measureCardPorts);
+    const scheduleMeasure = () => {
+      if (frameRef.current !== null) return;
+
+      frameRef.current = requestAnimationFrame(() => {
+        frameRef.current = null;
+        measureCardPorts();
+      });
+    };
+
+    scheduleMeasure();
+    const observer = new ResizeObserver(scheduleMeasure);
     document
       .querySelectorAll<HTMLElement>("[data-graph-card-node-id]")
       .forEach((card) => observer.observe(card));
-    window.addEventListener("resize", measureCardPorts);
-    window.addEventListener("scroll", measureCardPorts, true);
+    window.addEventListener("resize", scheduleMeasure);
+    window.addEventListener("scroll", scheduleMeasure, true);
 
     return () => {
-      cancelAnimationFrame(frame);
+      if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
       observer.disconnect();
-      window.removeEventListener("resize", measureCardPorts);
-      window.removeEventListener("scroll", measureCardPorts, true);
+      window.removeEventListener("resize", scheduleMeasure);
+      window.removeEventListener("scroll", scheduleMeasure, true);
     };
   }, []);
 

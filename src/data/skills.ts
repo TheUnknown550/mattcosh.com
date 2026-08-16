@@ -1,8 +1,8 @@
 import type { SkillGroup } from "@/types/skill";
 
 /**
- * Grouped from content/linkedin-exports/Skills.csv for readable display —
- * the raw export is a flat, unordered list of ~65 skills.
+ * Grouped from private source exports for readable display — the raw export
+ * is a flat, unordered list of ~65 skills.
  */
 export const skills: SkillGroup[] = [
   {

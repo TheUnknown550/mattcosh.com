@@ -1,7 +1,7 @@
 import type { ExperienceEntry } from "@/types/experience";
 
 /**
- * Sourced from content/linkedin-exports/Positions.csv. Ordered most recent first.
+ * Reviewed from private source exports. Ordered most recent first.
  */
 export const experience: ExperienceEntry[] = [
   {

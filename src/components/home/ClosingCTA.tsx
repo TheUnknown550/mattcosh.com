@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { profile } from "@/data/profile";
 
 export function ClosingCTA() {
   return (
@@ -24,7 +25,7 @@ export function ClosingCTA() {
 
       <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
         <a
-          href="https://github.com/TheUnknown550"
+          href={profile.githubUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 rounded-md bg-accent px-6 py-3 font-mono text-sm uppercase tracking-wide text-void transition-all duration-200 hover:scale-[1.03] hover:bg-signal active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal motion-reduce:transition-colors motion-reduce:hover:scale-100 motion-reduce:active:scale-100"
@@ -32,7 +33,7 @@ export function ClosingCTA() {
           GitHub ↗
         </a>
         <a
-          href="https://www.linkedin.com/in/matt-cosh"
+          href={profile.linkedInUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 rounded-md border border-line bg-surface px-6 py-3 font-mono text-sm uppercase tracking-wide text-ink transition-all duration-200 hover:scale-[1.03] hover:border-signal hover:bg-signal/10 active:scale-[0.97] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal motion-reduce:transition-colors motion-reduce:hover:scale-100 motion-reduce:active:scale-100"

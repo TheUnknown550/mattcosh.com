@@ -3,6 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
+import { useBodyScrollLock } from "@/lib/scrollLock";
+import { useDialogFocusTrap } from "@/lib/focusTrap";
+import { profile } from "@/data/profile";
 
 interface CommandItem {
   id: string;
@@ -27,7 +30,7 @@ const ITEMS: CommandItem[] = [
     id: "github",
     label: "Open GitHub",
     hint: "github.com/TheUnknown550 ↗",
-    action: () => window.open("https://github.com/TheUnknown550", "_blank", "noopener,noreferrer"),
+    action: () => window.open(profile.githubUrl, "_blank", "noopener,noreferrer"),
   },
 ];
 
@@ -41,6 +44,7 @@ export function CommandPalette() {
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const openRef = useRef(open);
 
   const filtered = ITEMS.filter((item) =>
@@ -79,17 +83,12 @@ export function CommandPalette() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!open) {
-      document.body.style.overflow = "";
-      return;
-    }
-    document.body.style.overflow = "hidden";
-    inputRef.current?.focus();
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [open]);
+  useBodyScrollLock(open, "command-palette");
+  useDialogFocusTrap({
+    containerRef: dialogRef,
+    initialFocusRef: inputRef,
+    open,
+  });
 
   function handleQueryChange(value: string) {
     setQuery(value);
@@ -127,6 +126,7 @@ export function CommandPalette() {
         role="dialog"
         aria-modal="true"
         aria-label="Command palette"
+        ref={dialogRef}
         className="w-full max-w-lg overflow-hidden rounded-lg border border-line bg-surface shadow-[0_30px_60px_-20px_rgba(0,0,0,0.6)]"
         onClick={(event) => event.stopPropagation()}
       >
@@ -135,6 +135,7 @@ export function CommandPalette() {
           value={query}
           onChange={(event) => handleQueryChange(event.target.value)}
           onKeyDown={handleInputKeyDown}
+          aria-label="Search site navigation"
           placeholder="Jump to a page…"
           className="w-full border-b border-line bg-transparent px-5 py-4 font-mono text-sm text-ink outline-none placeholder:text-ink-muted"
         />

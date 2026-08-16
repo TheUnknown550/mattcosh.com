@@ -6,6 +6,8 @@ import {
   GRAPH_NODE_COLORS,
   type PortfolioGraphNode,
 } from "@/data/portfolioGraph";
+import { useBodyScrollLock } from "@/lib/scrollLock";
+import { useDialogFocusTrap } from "@/lib/focusTrap";
 
 export function GraphNodeModal({
   node,
@@ -14,26 +16,31 @@ export function GraphNodeModal({
   node: PortfolioGraphNode;
   onClose: () => void;
 }) {
+  const dialogRef = useRef<HTMLDivElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
     };
 
-    document.body.style.overflow = "hidden";
-    closeButton.current?.focus();
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [onClose]);
 
+  useBodyScrollLock(true, "graph-node-modal");
+  useDialogFocusTrap({
+    containerRef: dialogRef,
+    initialFocusRef: closeButton,
+    open: true,
+  });
+
   return (
     <div
+      ref={dialogRef}
       className="fixed inset-0 z-[70] flex items-center justify-center px-6 py-8"
       role="dialog"
       aria-modal="true"

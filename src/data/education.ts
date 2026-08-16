@@ -1,7 +1,7 @@
 import type { EducationEntry } from "@/types/education";
 
 /**
- * Sourced from content/linkedin-exports/Education.csv. Ordered most recent first.
+ * Reviewed from private source exports. Ordered most recent first.
  */
 export const education: EducationEntry[] = [
   {

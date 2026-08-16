@@ -14,14 +14,15 @@ written as plain prose.
 | 3D models                           | `public/models/`                      |
 | Site icons                          | `public/icons/`                       |
 | Resume/CV                           | `public/resume/`                      |
-| Profile photo (Hero portrait)        | `public/img/profile.png`             |
+| Profile photo                         | `public/img/profile.png`             |
+| Profile icon derivative                | `public/img/profile-icon.jpg`       |
 | Work history                        | `src/data/experience.ts`              |
 | Education                           | `src/data/education.ts`               |
 | Skills (grouped)                    | `src/data/skills.ts`                  |
 | Certifications                      | `src/data/certifications.ts`          |
 | Awards/honors                       | `src/data/honors.ts`                  |
 | Merged Roadmap feed (derived, don't hand-edit) | `src/data/timeline.ts`     |
-| Original LinkedIn export CSVs (gitignored, source-of-truth reference) | `content/linkedin-exports/` |
+| Derived profile data (checked-in source of truth) | `src/data/*.ts` |
 
 ## Rules
 
@@ -45,3 +46,7 @@ written as plain prose.
   Experience; keep them on their dedicated pages and link out instead.
 - See `docs/project-data.md` for the metadata schema and
   `docs/3d-assets.md` for model conventions.
+
+Private source exports are not part of the repository or application build.
+Keep any raw LinkedIn exports outside the workspace; the checked-in
+`src/data/*.ts` files are the reviewed, display-ready source of truth.

@@ -39,5 +39,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+# Raw LinkedIn exports contain sensitive contact and application data. Keep
+# them outside the workspace; this guard also protects any legacy local copy.
 content/linkedin-exports/
+content/linkedin-exports/**
 .tmp/

@@ -1,18 +1,16 @@
 # Development Notes
 
-## Current stage: six real pages, data-driven from LinkedIn exports
+## Current stage: data-driven portfolio implementation
 
-The site now has a real visual design and real content across all six
-pages, sourced from `content/linkedin-exports/`:
+The site has a real visual design and reviewed, display-ready content across
+its main routes. Raw LinkedIn exports stay outside the workspace; the
+checked-in `src/data/*.ts` files are the source of truth used by the UI:
 
-- **Landing (`src/app/page.tsx`)** — Hero (with a portrait treatment —
-  `public/img/profile.png` framed by ambient glow + sonar pulse rings and
-  two data-driven badges, see `HeroPortrait.tsx`), About (bio + a quick-facts
-  panel), Highlights (animated stat row + roadmap teaser), Testimonial, a
-  flagship-project spotlight, and a closing CTA (`src/components/home/*`),
-  separated by a heartbeat/EKG-trace divider
-  (`src/components/common/PulseDivider.tsx`) — a nod to CS-M, the cardiac
-  monitoring flagship project.
+- **Landing (`src/app/page.tsx`)** — An interactive graph-led home experience
+  (`GraphJourney`) with responsive overview/explorer states, About,
+  Highlights, Testimonial, a flagship-project spotlight, and a closing CTA
+  (`src/components/home/*`), separated by a heartbeat/EKG-trace divider
+  (`src/components/common/PulseDivider.tsx`).
 - **Projects (`src/app/projects/page.tsx`, `[slug]/page.tsx`)** — a
   filterable grid of all 9 real projects (`src/data/projects.ts`), each
   with a full MDX case study (`content/projects/*.mdx`) now actually
@@ -29,7 +27,7 @@ pages, sourced from `content/linkedin-exports/`:
   category, with a client-side search (`SkillsExplorer.tsx`) since the full
   list is too long to browse comfortably unfiltered.
 - **Certifications (`src/app/certifications/page.tsx`)** — all 9
-  certifications with issuer/date, reusing `CertificationList.tsx`.
+  certifications with issuer/date, rendered by `CertificationNetwork.tsx`.
 - **Roadmap (`src/app/roadmap/page.tsx`)** — every milestone (education,
   work, projects, awards, certifications) merged in `src/data/timeline.ts`,
   newest first, and rendered by `PulseTimeline`
@@ -61,10 +59,10 @@ pages, sourced from `content/linkedin-exports/`:
 - Dark theme (`--color-void` background, `--color-signal` teal +
   `--color-accent` orange dual accent), `Space Grotesk` / `IBM Plex Sans` /
   `IBM Plex Mono` type system — see `src/app/globals.css`.
-- The Hero no longer uses a 3D object (`HeroGeometry`/`HeroScene` were
-  removed once the portrait replaced them) — `src/components/three/*`
+- The landing graph uses the profile image through `GraphOverlay`; it no
+  longer has a separate portrait hero component. `src/components/three/*`
   (`SceneCanvas`, `ModelViewer`, `ThreePlaceholder`) remains as documented,
-  reusable infra for a future project-detail 3D model viewer, per
+  reusable infrastructure for a future project-detail 3D model viewer, per
   `docs/3d-assets.md`.
 - Shared interactive primitives, all hand-rolled (no animation library):
   `FilterTabs` (sliding pill indicator), `TiltCard` (cursor-tracked tilt +
@@ -72,7 +70,7 @@ pages, sourced from `content/linkedin-exports/`:
   no header trigger button). All motion respects `prefers-reduced-motion`.
 - **Header nav (`SiteShell.tsx`)** now lists every page (Projects,
   Experience, Skills, Certifications, Roadmap) inline on `md`+ viewports.
-  Below `md`, the inline nav is hidden and `MobileNav.tsx` renders a
+  Below `xl`, the inline nav is hidden and `MobileNav.tsx` renders a
   hamburger button that toggles a dropdown panel with the same links — the
   panel anchors to the header via `position: relative` + `top-full`, not a
   hardcoded pixel offset, so it stays correct if header height changes.

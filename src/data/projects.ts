@@ -1,7 +1,7 @@
 import type { Project } from "@/types/project";
 
 /**
- * Real project data, sourced from content/linkedin-exports/Projects.csv.
+ * Real project data, reviewed from private source exports.
  * Ordered most recent first — see docs/project-data.md.
  */
 export const projects: Project[] = [

@@ -151,9 +151,10 @@ function positionInCluster(
   ];
 }
 
-const SKILL_MATCHERS: Array<{ id: string; terms: string[] }> = [
+const SKILL_MATCHERS: Array<{ id: string; category: string; terms: string[] }> = [
   {
     id: "ai-machine-learning",
+    category: "AI & Machine Learning",
     terms: [
       "ai",
       "machine learning",
@@ -167,6 +168,7 @@ const SKILL_MATCHERS: Array<{ id: string; terms: string[] }> = [
   },
   {
     id: "web-software-development",
+    category: "Web & Software Development",
     terms: [
       "react",
       "typescript",
@@ -185,6 +187,7 @@ const SKILL_MATCHERS: Array<{ id: string; terms: string[] }> = [
   },
   {
     id: "systems-iot-networking",
+    category: "Systems, IoT & Networking",
     terms: [
       "iot",
       "raspberry",
@@ -200,10 +203,12 @@ const SKILL_MATCHERS: Array<{ id: string; terms: string[] }> = [
   },
   {
     id: "programming-languages",
+    category: "Programming Languages",
     terms: ["python", "java", "c (", "programming"],
   },
   {
     id: "research-product",
+    category: "Research & Product",
     terms: [
       "research",
       "gtfs",
@@ -217,10 +222,12 @@ const SKILL_MATCHERS: Array<{ id: string; terms: string[] }> = [
   },
   {
     id: "creative-tools",
+    category: "Creative & Tools",
     terms: ["unity", "game", "video", "media"],
   },
   {
     id: "leadership-communication",
+    category: "Leadership & Communication",
     terms: [
       "teaching",
       "mentoring",
@@ -268,7 +275,10 @@ const coreNode: PortfolioGraphNode = {
 };
 
 const skillNodes: PortfolioGraphNode[] = skills.map((group, index) => ({
-  id: `skill-${SKILL_MATCHERS[index].id}`,
+  id: `skill-${
+    SKILL_MATCHERS.find((matcher) => matcher.category === group.category)?.id ??
+    group.category.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+  }`,
   type: "skill",
   title: group.category,
   eyebrow: `${group.skills.length} skills`,

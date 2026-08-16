@@ -11,9 +11,9 @@ export const contentType = "image/png";
 
 export default async function Icon() {
   const portrait = await readFile(
-    join(process.cwd(), "public", "img", "profile.png"),
+    join(process.cwd(), "public", "img", "profile-icon.jpg"),
   );
-  const portraitSource = `data:image/png;base64,${portrait.toString("base64")}`;
+  const portraitSource = `data:image/jpeg;base64,${portrait.toString("base64")}`;
 
   return new ImageResponse(
     <div

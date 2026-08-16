@@ -1,7 +1,7 @@
 import type { Certification } from "@/types/certification";
 
 /**
- * Sourced from content/linkedin-exports/Certifications.csv. Ordered most recent first.
+ * Reviewed from private source exports. Ordered most recent first.
  */
 export const certifications: Certification[] = [
   {

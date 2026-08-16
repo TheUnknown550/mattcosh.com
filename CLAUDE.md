@@ -3,7 +3,7 @@
 # Project Identity
 
 This is a personal portfolio website for a software developer / computer
-engineering student. The site will eventually showcase:
+engineering student. It showcases:
 
 - AI/ML projects
 - Full-stack projects
@@ -63,8 +63,8 @@ Whenever major structure changes are made, update the relevant docs in
 
 # Current Development Stage
 
-**Initialisation only.** See `docs/development-notes.md` for the full,
-up-to-date list of what is and isn't implemented.
+**Data-driven portfolio implementation.** See `docs/development-notes.md` for
+the full, up-to-date list of what is and isn't implemented.
 
 Do not implement (unless explicitly asked):
 

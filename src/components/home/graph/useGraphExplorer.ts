@@ -6,6 +6,7 @@ import {
   graphFocusStops,
   portfolioGraphNodes,
 } from "@/data/portfolioGraph";
+import { useBodyScrollLock } from "@/lib/scrollLock";
 import { EXPLORER_START_NODE_ID, OVERVIEW_STOP } from "./constants";
 
 export function useGraphExplorer() {
@@ -52,21 +53,7 @@ export function useGraphExplorer() {
     return () => mediaQuery.removeEventListener("change", updatePreference);
   }, []);
 
-  useEffect(() => {
-    if (!isExplorer) return;
-
-    const { body } = document;
-    const previousBodyOverflow = body.style.overflow;
-    const previousOverscrollBehavior = body.style.overscrollBehavior;
-
-    body.style.overflow = "hidden";
-    body.style.overscrollBehavior = "none";
-
-    return () => {
-      body.style.overflow = previousBodyOverflow;
-      body.style.overscrollBehavior = previousOverscrollBehavior;
-    };
-  }, [isExplorer]);
+  useBodyScrollLock(isExplorer, "graph-explorer");
 
   const enterExplorer = () => {
     if (isExplorer) return;

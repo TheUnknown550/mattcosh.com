@@ -90,6 +90,11 @@ export function GraphJourney() {
 
   const isHomeGraphVisible = isLandingPage && !isReturningHome;
 
+  // Interior pages have their own shared background graph. Keep this canvas
+  // alive only while the home graph is visible or while a route transition is
+  // returning to the landing page; otherwise two Three.js render loops mount.
+  if (!isLandingPage && !isReturningHome) return null;
+
   return (
     <section
       data-home-snap
@@ -211,6 +216,7 @@ export function GraphJourney() {
           >
             <GraphOverlay
               activeStop={activeStop}
+              canExplore={!isMobileViewport}
               isExplorer={explorerIsActive}
               isNodeFocused={isNodeFocused}
               navigationLabel={navigationLabel}

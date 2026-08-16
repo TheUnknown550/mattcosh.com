@@ -1,7 +1,9 @@
+import { profile } from "@/data/profile";
+
 const FACTS = [
-  { label: "Studying", value: "Information Systems & Network Engineering" },
-  { label: "Focus", value: "Applied AI · Full-Stack · AIoT · Networking" },
-  { label: "Languages", value: "Thai, English" },
+  { label: "Studying", value: profile.degree },
+  { label: "Focus", value: profile.focus },
+  { label: "Languages", value: profile.languages },
 ];
 
 export function About() {

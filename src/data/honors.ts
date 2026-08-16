@@ -1,7 +1,7 @@
 import type { Honor } from "@/types/honor";
 
 /**
- * Sourced from content/linkedin-exports/Honors.csv. Ordered most recent first.
+ * Reviewed from private source exports. Ordered most recent first.
  */
 export const honors: Honor[] = [
   {

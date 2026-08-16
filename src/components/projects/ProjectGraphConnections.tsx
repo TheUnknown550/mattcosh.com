@@ -1,14 +1,21 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useState, type RefObject } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+  type RefObject,
+} from "react";
 import { createPortal } from "react-dom";
 import {
   PROJECT_GRAPH_POSITION_EVENT,
   type ProjectGraphScreenPosition,
 } from "@/components/home/graph/projectNodeProjection";
 import type { Project } from "@/types/project";
+import { areScreenPortsEqual, type ScreenPort } from "@/lib/screenPorts";
 
-type CardPort = { x: number; y: number };
+type CardPort = ScreenPort;
 
 interface ProjectGraphConnectionsProps {
   cardRefs: RefObject<Map<string, HTMLDivElement>>;
@@ -41,6 +48,8 @@ export function ProjectGraphConnections({
   }, []);
 
   useLayoutEffect(() => {
+    const frameRef = { current: null as number | null };
+
     const measureCardPorts = () => {
       const nextPorts: Record<string, CardPort> = {};
 
@@ -58,21 +67,34 @@ export function ProjectGraphConnections({
         };
       });
 
-      setCardPorts(nextPorts);
+      setCardPorts((previousPorts) =>
+        areScreenPortsEqual(previousPorts, nextPorts)
+          ? previousPorts
+          : nextPorts,
+      );
     };
 
-    const frame = requestAnimationFrame(measureCardPorts);
-    const observer = new ResizeObserver(measureCardPorts);
+    const scheduleMeasure = () => {
+      if (frameRef.current !== null) return;
+
+      frameRef.current = requestAnimationFrame(() => {
+        frameRef.current = null;
+        measureCardPorts();
+      });
+    };
+
+    scheduleMeasure();
+    const observer = new ResizeObserver(scheduleMeasure);
 
     cardRefs.current?.forEach((card) => observer.observe(card));
-    window.addEventListener("resize", measureCardPorts);
-    window.addEventListener("scroll", measureCardPorts, true);
+    window.addEventListener("resize", scheduleMeasure);
+    window.addEventListener("scroll", scheduleMeasure, true);
 
     return () => {
-      cancelAnimationFrame(frame);
+      if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
       observer.disconnect();
-      window.removeEventListener("resize", measureCardPorts);
-      window.removeEventListener("scroll", measureCardPorts, true);
+      window.removeEventListener("resize", scheduleMeasure);
+      window.removeEventListener("scroll", scheduleMeasure, true);
     };
   }, [cardRefs, projects]);
 
