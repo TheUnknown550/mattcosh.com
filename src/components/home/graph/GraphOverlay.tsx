@@ -134,27 +134,27 @@ export function GraphOverlay({
   return (
     <div className="pointer-events-none absolute inset-0 mx-auto max-w-[96rem] px-6 lg:px-10">
       <div
-        className={`absolute right-6 bottom-20 left-6 w-auto transition-all duration-700 ease-out sm:right-auto sm:w-[min(23rem,48vw)] lg:top-1/2 lg:bottom-auto lg:left-10 lg:w-[min(23rem,30vw)] lg:-translate-y-1/2 ${
+        className={`absolute right-4 bottom-8 left-4 w-auto rounded-xl border border-line/70 bg-void/90 p-5 shadow-2xl shadow-void/30 backdrop-blur-sm transition-all duration-700 ease-out sm:right-auto sm:bottom-20 sm:left-6 sm:w-[min(23rem,48vw)] sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0 sm:shadow-none sm:backdrop-blur-0 lg:top-1/2 lg:bottom-auto lg:left-10 lg:w-[min(23rem,30vw)] lg:-translate-y-1/2 ${
           isExplorer ? "-translate-x-8 opacity-0" : "translate-x-0 opacity-100"
         }`}
       >
-        <h1 className="font-display text-[clamp(2.35rem,4.6vw,5.25rem)] font-semibold leading-[0.98] tracking-tight text-ink">
+        <h1 className="font-display text-[clamp(2.15rem,9.5vw,5.25rem)] font-semibold leading-[0.98] tracking-tight text-ink sm:text-[clamp(2.35rem,4.6vw,5.25rem)]">
           I build systems that solve real problems.
         </h1>
         <p className="mt-6 hidden max-w-md text-base leading-relaxed text-ink-muted sm:block sm:text-lg">
           I build practical systems across applied AI, full-stack software, IoT,
           and networking.
         </p>
-        <div className="pointer-events-auto mt-8 flex flex-wrap items-center gap-4">
+        <div className="pointer-events-auto mt-6 flex flex-col items-stretch gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
           <Link
             href="/projects"
-            className="inline-flex items-center gap-2 rounded-md bg-accent px-5 py-3 font-mono text-sm uppercase tracking-wide text-void transition-colors hover:bg-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
+            className="inline-flex items-center justify-center gap-2 rounded-md bg-accent px-4 py-3 font-mono text-xs uppercase tracking-[0.12em] text-void transition-colors hover:bg-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal sm:px-5 sm:text-sm sm:tracking-wide"
           >
             View projects <span aria-hidden="true">→</span>
           </Link>
           <Link
             href="/roadmap"
-            className="inline-flex items-center gap-2 rounded-md border border-line bg-void/70 px-5 py-3 font-mono text-sm uppercase tracking-wide text-ink backdrop-blur-sm transition-colors hover:border-signal hover:text-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal"
+            className="inline-flex items-center justify-center gap-2 rounded-md border border-line bg-void/70 px-4 py-3 font-mono text-xs uppercase tracking-[0.12em] text-ink backdrop-blur-sm transition-colors hover:border-signal hover:text-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal sm:px-5 sm:text-sm sm:tracking-wide"
           >
             See the roadmap
           </Link>
@@ -245,7 +245,7 @@ export function GraphOverlay({
         <button
           type="button"
           onClick={onEnter}
-          className={`absolute right-6 bottom-8 font-mono text-[10px] uppercase tracking-wide text-ink-muted transition-opacity duration-500 hover:text-signal lg:right-10 ${
+          className={`absolute right-6 bottom-8 font-mono text-[10px] uppercase tracking-wide text-ink-muted transition-opacity duration-500 hover:text-signal max-[767px]:hidden lg:right-10 ${
             isExplorer
               ? "pointer-events-none opacity-0"
               : "pointer-events-auto opacity-100"

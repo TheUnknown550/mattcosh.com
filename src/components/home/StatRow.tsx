@@ -53,13 +53,16 @@ export function StatRow({ stats }: StatRowProps) {
   }, [stats]);
 
   return (
-    <div ref={containerRef} className="grid grid-cols-2 gap-8 sm:grid-cols-4">
+    <div
+      ref={containerRef}
+      className="grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-4 sm:gap-8"
+    >
       {stats.map((stat, index) => (
-        <div key={stat.label}>
-          <p className="font-display text-4xl font-semibold text-ink lg:text-6xl">
+        <div key={stat.label} className="min-w-0">
+          <p className="font-display text-4xl font-semibold leading-none text-ink lg:text-6xl">
             {display[index]}
           </p>
-          <p className="mt-2 font-mono text-sm uppercase tracking-wide text-ink">
+          <p className="mt-3 max-w-[10rem] font-mono text-xs uppercase leading-snug tracking-[0.12em] text-ink sm:text-sm sm:tracking-wide">
             {stat.label}
           </p>
         </div>

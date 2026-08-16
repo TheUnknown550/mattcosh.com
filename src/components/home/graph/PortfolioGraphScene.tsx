@@ -1290,18 +1290,19 @@ export function PortfolioGraphScene({
           />
           );
         })}
-        {graphClusterLabels.map((label) => {
-          const overviewLabel = overviewLabelsById.get(label.id) ?? label;
-          return (
-          <GraphClusterLabel
-            key={label.id}
-            label={label}
-            overviewLabel={overviewLabel}
-            activeStop={activeStop}
-            layoutProgress={layoutProgress}
-          />
-          );
-        })}
+        {!isCompactOverview &&
+          graphClusterLabels.map((label) => {
+            const overviewLabel = overviewLabelsById.get(label.id) ?? label;
+            return (
+              <GraphClusterLabel
+                key={label.id}
+                label={label}
+                overviewLabel={overviewLabel}
+                activeStop={activeStop}
+                layoutProgress={layoutProgress}
+              />
+            );
+          })}
         {signalEdges.map(
           ({ source, target, overviewSource, overviewTarget }, index) => (
             <SignalPacket
