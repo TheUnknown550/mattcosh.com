@@ -149,7 +149,7 @@ export function GraphJourney() {
               antialias: !isMobileViewport,
               powerPreference: "high-performance",
             }}
-            className="absolute inset-0"
+            className="absolute inset-0 cursor-grab active:cursor-grabbing"
             onPointerDown={isMobileViewport ? undefined : (event) => {
               pointerStart.current = {
                 x: event.nativeEvent.clientX,

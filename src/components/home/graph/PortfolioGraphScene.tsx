@@ -719,6 +719,7 @@ function HomeCameraRig({
   isExplorer,
   reduceMotion,
   controls,
+  hasLandingInteractionRef,
   hasScrollFocus,
   overviewProgress,
   backgroundCameraPose,
@@ -726,12 +727,12 @@ function HomeCameraRig({
   isExplorer: boolean;
   reduceMotion: boolean;
   controls: RefObject<OrbitControlsImpl | null>;
+  hasLandingInteractionRef: RefObject<boolean>;
   hasScrollFocus: boolean;
   overviewProgress: number;
   backgroundCameraPose?: BackgroundCameraPose;
 }) {
   const { camera, size } = useThree();
-  const hasLandingInteraction = useRef(false);
   const homeCameraPosition = useMemo(
     () =>
       HOME_CAMERA_DIRECTION.clone().setLength(
@@ -758,22 +759,33 @@ function HomeCameraRig({
 
   useEffect(() => {
     if (isExplorer) {
-      hasLandingInteraction.current = false;
+      hasLandingInteractionRef.current = false;
       return;
     }
 
     const orbitControls = controls.current;
     if (!orbitControls) return;
     const pauseHomeCamera = () => {
-      hasLandingInteraction.current = true;
+      hasLandingInteractionRef.current = true;
     };
 
     orbitControls.addEventListener("start", pauseHomeCamera);
     return () => orbitControls.removeEventListener("start", pauseHomeCamera);
-  }, [controls, isExplorer]);
+  }, [controls, hasLandingInteractionRef, isExplorer]);
+
+  useEffect(() => {
+    if (isExplorer) return;
+
+    const resumeScrollFocus = () => {
+      hasLandingInteractionRef.current = false;
+    };
+
+    window.addEventListener("scroll", resumeScrollFocus, { passive: true });
+    return () => window.removeEventListener("scroll", resumeScrollFocus);
+  }, [hasLandingInteractionRef, isExplorer]);
 
   useFrame((_, delta) => {
-    if (!isExplorer && !hasLandingInteraction.current && !hasScrollFocus) {
+    if (!isExplorer && !hasLandingInteractionRef.current && !hasScrollFocus) {
       if (backgroundCameraPosition && backgroundCameraTarget) {
         currentCameraPosition.copy(backgroundCameraPosition);
         currentCameraTarget.copy(backgroundCameraTarget);
@@ -824,6 +836,7 @@ function getScrollFocusPose(
 
 function ScrollFocusRig({
   controls,
+  hasLandingInteractionRef,
   fromNode,
   toNode,
   progress,
@@ -833,6 +846,7 @@ function ScrollFocusRig({
   backgroundCameraPose,
 }: {
   controls: RefObject<OrbitControlsImpl | null>;
+  hasLandingInteractionRef: RefObject<boolean>;
   fromNode?: PortfolioGraphNode;
   toNode?: PortfolioGraphNode;
   progress: number;
@@ -872,7 +886,7 @@ function ScrollFocusRig({
 
   useFrame((_, delta) => {
     const orbitControls = controls.current;
-    if (isExplorer || !orbitControls) return;
+    if (isExplorer || hasLandingInteractionRef.current || !orbitControls) return;
 
     if (backgroundCameraPosition && backgroundCameraTarget) {
       homePosition.copy(backgroundCameraPosition);
@@ -1054,6 +1068,7 @@ export function PortfolioGraphScene({
   const isCompactOverview = size.width / size.height < 0.9;
   const group = useRef<Group>(null);
   const layoutProgress = useRef(0);
+  const hasLandingInteractionRef = useRef(false);
   const overviewNodes = useMemo(
     () => getOverview2DNodes(isCompactOverview),
     [isCompactOverview],
@@ -1203,7 +1218,7 @@ export function PortfolioGraphScene({
         enableDamping={!staticMode}
         dampingFactor={0.07}
         enablePan={isExplorer && !staticMode}
-        enableRotate={isExplorer && !staticMode}
+        enableRotate={!staticMode}
         enableZoom={isExplorer && !staticMode}
         minDistance={4.5}
         maxDistance={isExplorer ? 48 : 100}
@@ -1219,12 +1234,14 @@ export function PortfolioGraphScene({
         isExplorer={isExplorer}
         reduceMotion={reduceMotion}
         controls={orbitControls}
+        hasLandingInteractionRef={hasLandingInteractionRef}
         hasScrollFocus={Boolean(scrollFocusToNode)}
         overviewProgress={overviewProgress}
         backgroundCameraPose={backgroundCameraPose}
       />
       <ScrollFocusRig
         controls={orbitControls}
+        hasLandingInteractionRef={hasLandingInteractionRef}
         fromNode={scrollFocusFromNode}
         toNode={scrollFocusToNode}
         progress={scrollFocusProgress}
