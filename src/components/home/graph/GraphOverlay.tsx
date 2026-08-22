@@ -138,14 +138,13 @@ export function GraphOverlay({
           isExplorer ? "-translate-x-8 opacity-0" : "translate-x-0 opacity-100"
         }`}
       >
-        <h1 className="font-display text-[clamp(2.15rem,9.5vw,5.25rem)] font-semibold leading-[0.98] tracking-tight text-ink sm:text-[clamp(2.35rem,4.6vw,5.25rem)]">
-          I build systems that solve real problems.
+        <h1 className="font-display text-[clamp(2rem,8vw,4.5rem)] font-semibold leading-[0.96] tracking-tight text-ink sm:text-[clamp(2.25rem,4vw,4.5rem)]">
+          I build systems that solve problems.
         </h1>
-        <p className="mt-6 hidden max-w-md text-base leading-relaxed text-ink-muted sm:block sm:text-lg">
-          I build practical systems across applied AI, full-stack software, IoT,
-          and networking.
+        <p className="mt-4 hidden max-w-md text-base leading-relaxed text-ink-muted sm:block">
+          Applied AI, full-stack software, IoT, and networking.
         </p>
-        <div className="pointer-events-auto mt-6 flex flex-col items-stretch gap-3 sm:mt-8 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+        <div className="pointer-events-auto mt-5 flex flex-col items-stretch gap-3 sm:mt-6 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
           <Link
             href="/projects"
             className="inline-flex items-center justify-center gap-2 rounded-md bg-accent px-4 py-3 font-mono text-xs uppercase tracking-[0.12em] text-void transition-colors hover:bg-signal focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-signal sm:px-5 sm:text-sm sm:tracking-wide"
