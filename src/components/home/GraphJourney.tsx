@@ -65,6 +65,19 @@ export function GraphJourney() {
   const highlightsProgress = isExplorer
     ? 0
     : (scrollFocus.sectionProgressByKey.highlights ?? 0);
+  const aboutProgress = scrollFocus.sectionProgressByKey.about ?? 0;
+  const closingProgress = scrollFocus.sectionProgressByKey.closing ?? 0;
+  const isInitialHero =
+    isLandingPage &&
+    !explorerIsActive &&
+    scrollFocus.progress < 0.01 &&
+    aboutProgress < 0.45 &&
+    closingProgress < 0.45;
+  const isIdleSpinSection =
+    isInitialHero ||
+    (isLandingPage &&
+      !explorerIsActive &&
+      closingProgress > 0.45);
   const isHighlightsOverview = !isExplorer && highlightsProgress > 0.45;
   const closeModal = useCallback(() => setModalNode(null), []);
   const openNodeModal = useCallback(
@@ -149,7 +162,11 @@ export function GraphJourney() {
               antialias: !isMobileViewport,
               powerPreference: "high-performance",
             }}
-            className="absolute inset-0 cursor-grab active:cursor-grabbing"
+            className={`absolute inset-0 ${
+              isHighlightsOverview
+                ? "cursor-default"
+                : "cursor-grab active:cursor-grabbing"
+            }`}
             onPointerDown={isMobileViewport ? undefined : (event) => {
               pointerStart.current = {
                 x: event.nativeEvent.clientX,
@@ -179,6 +196,8 @@ export function GraphJourney() {
               onSelect={focusNode}
               onExplore={enterExplorer}
               isExplorer={explorerIsActive}
+              isOverviewLocked={isHighlightsOverview}
+              isIdleSpinSection={isIdleSpinSection}
               reduceMotion={reduceMotion}
               scrollFocusFromNodeId={
                 explorerIsActive || !isLandingPage ? undefined : scrollFocus.fromNodeId

@@ -39,6 +39,7 @@ import {
 import type { ProjectGraphScreenPosition } from "./projectNodeProjection";
 
 const OVERVIEW_2D_VERTICAL_OFFSET = -1.25;
+const LANDING_GRAPH_ROTATION_SPEED = 0.028;
 
 type BackgroundCameraPose = {
   position: GraphPosition;
@@ -720,6 +721,7 @@ function HomeCameraRig({
   reduceMotion,
   controls,
   hasLandingInteractionRef,
+  isLandingDraggingRef,
   hasScrollFocus,
   overviewProgress,
   backgroundCameraPose,
@@ -728,6 +730,7 @@ function HomeCameraRig({
   reduceMotion: boolean;
   controls: RefObject<OrbitControlsImpl | null>;
   hasLandingInteractionRef: RefObject<boolean>;
+  isLandingDraggingRef: RefObject<boolean>;
   hasScrollFocus: boolean;
   overviewProgress: number;
   backgroundCameraPose?: BackgroundCameraPose;
@@ -760,6 +763,7 @@ function HomeCameraRig({
   useEffect(() => {
     if (isExplorer) {
       hasLandingInteractionRef.current = false;
+      isLandingDraggingRef.current = false;
       return;
     }
 
@@ -767,11 +771,24 @@ function HomeCameraRig({
     if (!orbitControls) return;
     const pauseHomeCamera = () => {
       hasLandingInteractionRef.current = true;
+      isLandingDraggingRef.current = true;
+    };
+    const resumeLandingSpin = () => {
+      isLandingDraggingRef.current = false;
     };
 
     orbitControls.addEventListener("start", pauseHomeCamera);
-    return () => orbitControls.removeEventListener("start", pauseHomeCamera);
-  }, [controls, hasLandingInteractionRef, isExplorer]);
+    orbitControls.addEventListener("end", resumeLandingSpin);
+    return () => {
+      orbitControls.removeEventListener("start", pauseHomeCamera);
+      orbitControls.removeEventListener("end", resumeLandingSpin);
+    };
+  }, [
+    controls,
+    hasLandingInteractionRef,
+    isExplorer,
+    isLandingDraggingRef,
+  ]);
 
   useEffect(() => {
     if (isExplorer) return;
@@ -1035,6 +1052,7 @@ export function PortfolioGraphScene({
   onExplore,
   onOpenModal,
   isExplorer,
+  isOverviewLocked = false,
   reduceMotion,
   scrollFocusFromNodeId,
   scrollFocusToNodeId,
@@ -1044,6 +1062,7 @@ export function PortfolioGraphScene({
   onExperienceNodePositions,
   onCertificationNodePositions,
   backgroundCameraPose,
+  isIdleSpinSection = false,
   staticMode = false,
 }: {
   activeStop: GraphFocusStop;
@@ -1053,6 +1072,7 @@ export function PortfolioGraphScene({
   onExplore: () => void;
   onOpenModal?: (node: PortfolioGraphNode) => void;
   isExplorer: boolean;
+  isOverviewLocked?: boolean;
   reduceMotion: boolean;
   scrollFocusFromNodeId?: string;
   scrollFocusToNodeId?: string;
@@ -1062,6 +1082,7 @@ export function PortfolioGraphScene({
   onExperienceNodePositions?: (positions: ProjectGraphScreenPosition[]) => void;
   onCertificationNodePositions?: (positions: ProjectGraphScreenPosition[]) => void;
   backgroundCameraPose?: BackgroundCameraPose;
+  isIdleSpinSection?: boolean;
   staticMode?: boolean;
 }) {
   const { size } = useThree();
@@ -1069,6 +1090,7 @@ export function PortfolioGraphScene({
   const group = useRef<Group>(null);
   const layoutProgress = useRef(0);
   const hasLandingInteractionRef = useRef(false);
+  const isLandingDraggingRef = useRef(false);
   const overviewNodes = useMemo(
     () => getOverview2DNodes(isCompactOverview),
     [isCompactOverview],
@@ -1191,24 +1213,57 @@ export function PortfolioGraphScene({
     );
 
     if (!group.current) return;
-    const overviewDrift = isExplorer
-      ? 0
-      : (1 - layoutProgress.current) *
-        (activeStop.id === "overview" ? 0.022 : 0.012);
     const verticalDrift = isExplorer ? 0 : (1 - layoutProgress.current) * 0.018;
     const rotationSmoothing = reduceMotion ? 100 : 1.8;
-    group.current.rotation.y = MathUtils.damp(
-      group.current.rotation.y,
-      reduceMotion ? 0 : Math.sin(clock.elapsedTime * 0.12) * overviewDrift,
-      rotationSmoothing,
-      delta,
-    );
-    group.current.rotation.x = MathUtils.damp(
-      group.current.rotation.x,
-      reduceMotion ? 0 : Math.sin(clock.elapsedTime * 0.09) * verticalDrift,
-      rotationSmoothing,
-      delta,
-    );
+    const isIdleLandingGraph =
+      isIdleSpinSection &&
+      !isExplorer &&
+      !staticMode &&
+      !reduceMotion &&
+      !isLandingDraggingRef.current;
+
+    if (isOverviewLocked) {
+      group.current.rotation.y = MathUtils.damp(
+        group.current.rotation.y,
+        0,
+        rotationSmoothing,
+        delta,
+      );
+      group.current.rotation.x = MathUtils.damp(
+        group.current.rotation.x,
+        0,
+        rotationSmoothing,
+        delta,
+      );
+
+      if (Math.abs(group.current.rotation.y) < 0.0005) {
+        group.current.rotation.y = 0;
+      }
+      if (Math.abs(group.current.rotation.x) < 0.0005) {
+        group.current.rotation.x = 0;
+      }
+    } else if (isIdleLandingGraph) {
+      group.current.rotation.y += LANDING_GRAPH_ROTATION_SPEED * delta;
+      group.current.rotation.x = MathUtils.damp(
+        group.current.rotation.x,
+        Math.sin(clock.elapsedTime * 0.09) * verticalDrift,
+        rotationSmoothing,
+        delta,
+      );
+    } else if (isExplorer || reduceMotion) {
+      group.current.rotation.y = MathUtils.damp(
+        group.current.rotation.y,
+        0,
+        rotationSmoothing,
+        delta,
+      );
+      group.current.rotation.x = MathUtils.damp(
+        group.current.rotation.x,
+        reduceMotion ? 0 : Math.sin(clock.elapsedTime * 0.09) * verticalDrift,
+        rotationSmoothing,
+        delta,
+      );
+    }
   });
   return (
     <>
@@ -1218,7 +1273,7 @@ export function PortfolioGraphScene({
         enableDamping={!staticMode}
         dampingFactor={0.07}
         enablePan={isExplorer && !staticMode}
-        enableRotate={!staticMode}
+        enableRotate={!isOverviewLocked && !staticMode}
         enableZoom={isExplorer && !staticMode}
         minDistance={4.5}
         maxDistance={isExplorer ? 48 : 100}
@@ -1235,6 +1290,7 @@ export function PortfolioGraphScene({
         reduceMotion={reduceMotion}
         controls={orbitControls}
         hasLandingInteractionRef={hasLandingInteractionRef}
+        isLandingDraggingRef={isLandingDraggingRef}
         hasScrollFocus={Boolean(scrollFocusToNode)}
         overviewProgress={overviewProgress}
         backgroundCameraPose={backgroundCameraPose}
